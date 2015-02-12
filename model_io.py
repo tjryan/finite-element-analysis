@@ -120,7 +120,7 @@ def error_testing():
         deformation_gradient = operations.generate_random_deformation_gradient()
         material = materials.Custom(name='custom material', first_lame_parameter=5, shear_modulus=3)
         constitutive_model = constitutive_models.Neohookean()
-        first_pk_stress = constitutive_model.first_piola_kirchhoff_stress(material, deformation_gradient)
+        first_piola_kirchhoff_stress = constitutive_model.first_piola_kirchhoff_stress(material, deformation_gradient)
         w = constitutive_model.strain_energy_density(material, deformation_gradient)
         c = constitutive_model.tangent_moduli(material, deformation_gradient)
 
@@ -136,6 +136,33 @@ def plane_stress():
                                                     plane_stress=True)
 
 
+def uniaxial_deformation():
+    fem = model.FEM()
+    fem.constitutive_model = constitutive_models.Neohookean()
+    fem.material = materials.AluminumAlloy
+    # random_deformation = operations.generate_random_deformation_gradient(plane_stress=True,
+    # uniaxial=True)
+    random_deformation = numpy.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
+    # For a range of F11 values, compute the first Piola-Kirchhoff stress
+    f11_values = numpy.arange(.1, 10, .5)
+    p11_values = []
+    # TODO what values do I plot here for P?
+    for f11_value in f11_values:
+        random_deformation[0][0] = f11_value
+        deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
+                                                        material=fem.material,
+                                                        constitutive_model=fem.constitutive_model,
+                                                        plane_stress=True)
+        first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
+            material=fem.material,
+            deformation_gradient=deformation_gradient.F,
+            test=True)
+        p11_values.append(first_piola_kirchhoff_stress[0][0])
+
+
+
+
+
 def run():
     """Create and run finite element model"""
     # homework1_part1()
@@ -143,7 +170,8 @@ def run():
     # error_testing()
     # tests.material_frame_indifference()
     # tests.material_symmetry()
-    plane_stress()
+    # plane_stress()
+    uniaxial_deformation()
 
 
 run()

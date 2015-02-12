@@ -35,10 +35,13 @@ def calculate_lambda_from_E_and_G(E, G):
     return first_lame_parameter
 
 
-def generate_random_deformation_gradient(plane_stress=False):
-    """Generate and return a random deformation gradient that is physically valid (Jacobian > 0)
+def generate_random_deformation_gradient(plane_stress=False, uniaxial=False, equibiaxial=False):
+    """Generate and return a random deformation gradient that is physically valid (Jacobian > 0).
+    Note that plane stress must be true for uniaxial or equibiaxial deformation to apply.
 
     :param bool plane_stress: whether to restructure the matrix for plane stress
+    :param bool uniaxial: whether to restructure the matrix for uniaxial deformation
+    :param bool equibiaxial: whether to restructure the matrix for equibiaxial deformation
     :return numpy.ndarray random_deformation: a random 3x3 deformation gradient matrix
     """
     det = -1
@@ -52,6 +55,14 @@ def generate_random_deformation_gradient(plane_stress=False):
         random_deformation[2][0] = 0
         random_deformation[2][1] = 0
         random_deformation[2][2] = 1
+        if uniaxial:
+            random_deformation[0][1] = 0
+            random_deformation[1][0] = 0
+            random_deformation[1][1] = 1
+        elif equibiaxial:
+            random_deformation[0][1] = 0
+            random_deformation[1][0] = 0
+            random_deformation[1][1] = random_deformation[0][0]
     return random_deformation
 
 
@@ -91,6 +102,8 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
     while True:
         # Assign the 3-3 element of the deformation gradient to the current stretch ratio
         deformation_gradient[2][2] = stretch_ratio
+        # TODO is it a problem if the stretch ratio becomes negative in this loop?
+        # tests.check_deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
                                                               deformation_gradient=deformation_gradient,
                                                               test=False)[2][2]
