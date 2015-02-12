@@ -91,8 +91,7 @@ def homework1_part2():
     # Initialize a new finite element model
     fem = model.FEM()
     # Select constitutive model and state assumptions
-    fem.constitutive_model = constitutive_models.Neohookean(plane_stress=False,
-                                                            plane_strain=False)
+    fem.constitutive_model = constitutive_models.Neohookean()
     # Create a material for the body
     fem.material = materials.Custom(name='custom material', first_lame_parameter=1, shear_modulus=1)
     # Make a set of elements to add to model
@@ -124,13 +123,25 @@ def error_testing():
         c = constitutive_model.tangent_moduli(material, deformation_gradient)
 
 
+def plane_stress():
+    fem = model.FEM()
+    fem.constitutive_model = constitutive_models.Neohookean()
+    fem.material = materials.Custom(name='test', first_lame_parameter=5, shear_modulus=3)
+    random_deformation = operations.generate_random_deformation_gradient(plane_stress=True)
+    deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
+                                                    material=fem.material,
+                                                    constitutive_model=fem.constitutive_model,
+                                                    plane_stress=True)
+
+
 def run():
     """Create and run finite element model"""
     # homework1_part1()
-    homework1_part2()
+    # homework1_part2()
     # error_testing()
     # tests.material_frame_indifference()
     # tests.material_symmetry()
+    plane_stress()
 
 
 run()

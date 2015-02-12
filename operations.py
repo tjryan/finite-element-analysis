@@ -35,16 +35,23 @@ def calculate_lambda_from_E_and_G(E, G):
     return first_lame_parameter
 
 
-def generate_random_deformation_gradient(dimension=3):
+def generate_random_deformation_gradient(plane_stress=False):
     """Generate and return a random deformation gradient that is physically valid (Jacobian > 0)
 
-    :param int dimension: the desired dimension of the random matrix
+    :param bool plane_stress: whether to restructure the matrix for plane stress
     :return numpy.ndarray random_deformation: a random 3x3 deformation gradient matrix
     """
     det = -1
     while det < 0:
-        random_deformation = numpy.random.rand(dimension, dimension)
+        random_deformation = numpy.random.rand(3, 3)
         det = numpy.linalg.det(random_deformation)
+    # If plane stress is requested, restructure the matrix for plane stress
+    if plane_stress:
+        random_deformation[0][2] = 0
+        random_deformation[1][2] = 0
+        random_deformation[2][0] = 0
+        random_deformation[2][1] = 0
+        random_deformation[2][2] = 1
     return random_deformation
 
 
@@ -87,7 +94,7 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
         deformation_gradient[2][2] = stretch_ratio
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
                                                               deformation_gradient=deformation_gradient,
-                                                              test=True)[2][2]
+                                                              test=False)[2][2]
         error = math.fabs(0 - P33)
         # If the error is less than the tolerance, the loop has converged, so break out
         if error < constants.NEWTON_METHOD_TOLERANCE:
@@ -96,7 +103,7 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
         else:
             C3333 = constitutive_model.tangent_moduli(material=material,
                                                       deformation_gradient=deformation_gradient,
-                                                      test=True)[2][2][2][2]
+                                                      test=False)[2][2][2][2]
             # Compute correction to the stretch ratio
             delta_stretch = -(1 / C3333) * P33
             stretch_ratio += delta_stretch
