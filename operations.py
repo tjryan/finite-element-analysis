@@ -119,6 +119,8 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
             # Compute correction to the stretch ratio
             delta_stretch = -(1 / C3333) * P33
             stretch_ratio += delta_stretch
+            if stretch_ratio < 0:
+                raise exceptions.StretchRatioNegativeError(stretch_ratio=stretch_ratio)
             # If the loop has reached the max number of iterations, raise an error
             if current_iteration == max_iterations:
                 raise exceptions.NewtonMethodMaxIterationsExceededError(iterations=max_iterations,

@@ -59,6 +59,6 @@ class Lead:
 class TitaniumAlloy:
     """Material model for titanium alloy"""
 
-    name = 'stainless steel'
+    name = 'titanium alloy'
     first_lame_parameter = 93.8
     shear_modulus = 42.4

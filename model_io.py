@@ -6,6 +6,7 @@ model_io.py module provides inputs to the model, runs the model, and receives ou
 
 import math
 
+import matplotlib.pyplot as plt
 import numpy
 
 import body
@@ -139,13 +140,15 @@ def plane_stress():
 def uniaxial_deformation():
     fem = model.FEM()
     fem.constitutive_model = constitutive_models.Neohookean()
-    fem.material = materials.AluminumAlloy
+    fem.material = materials.Glass
+    # fem.material = materials.Custom('test', first_lame_parameter=5, shear_modulus=3)
     # random_deformation = operations.generate_random_deformation_gradient(plane_stress=True,
     # uniaxial=True)
     random_deformation = numpy.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
     # For a range of F11 values, compute the first Piola-Kirchhoff stress
-    f11_values = numpy.arange(.1, 10, .5)
+    f11_values = numpy.arange(.2, 2.6, .2)
     p11_values = []
+    p22_values = []
     # TODO what values do I plot here for P?
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
@@ -158,9 +161,48 @@ def uniaxial_deformation():
             deformation_gradient=deformation_gradient.F,
             test=True)
         p11_values.append(first_piola_kirchhoff_stress[0][0])
+        p22_values.append(first_piola_kirchhoff_stress[1][1])
+    plt.figure()
+    plt.plot(f11_values, p11_values, 'b', label='P11')
+    plt.plot(f11_values, p22_values, 'r', label='P22')
+    plt.xlabel('F11')
+    plt.ylabel('P')
+    plt.title('Stress-strain plot for ' + fem.material.name)
+    plt.legend(loc='best')
+    plt.show()
 
 
-
+def equibiaxial_deformation():
+    fem = model.FEM()
+    fem.constitutive_model = constitutive_models.Neohookean()
+    fem.material = materials.TitaniumAlloy
+    # fem.material = materials.Custom('test', first_lame_parameter=5, shear_modulus=3)
+    # random_deformation = operations.generate_random_deformation_gradient(plane_stress=True,
+    # uniaxial=True)
+    random_deformation = numpy.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]], dtype=float)
+    # For a range of F11 values, compute the first Piola-Kirchhoff stress
+    f11_values = numpy.arange(.2, 1.6, .2)
+    p11_values = []
+    # TODO what values do I plot here for P?
+    for f11_value in f11_values:
+        random_deformation[0][0] = f11_value
+        random_deformation[1][1] = f11_value
+        deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
+                                                        material=fem.material,
+                                                        constitutive_model=fem.constitutive_model,
+                                                        plane_stress=True)
+        first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
+            material=fem.material,
+            deformation_gradient=deformation_gradient.F,
+            test=True)
+        p11_values.append(first_piola_kirchhoff_stress[0][0])
+    plt.figure()
+    plt.plot(f11_values, p11_values, 'b', label='P11')
+    plt.xlabel('F11')
+    plt.ylabel('P')
+    plt.title('Stress-strain plot for ' + fem.material.name)
+    plt.legend(loc='best')
+    plt.show()
 
 
 def run():
@@ -171,7 +213,7 @@ def run():
     # tests.material_frame_indifference()
     # tests.material_symmetry()
     # plane_stress()
-    uniaxial_deformation()
-
+    # uniaxial_deformation()
+    equibiaxial_deformation()
 
 run()

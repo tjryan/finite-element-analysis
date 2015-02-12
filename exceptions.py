@@ -103,3 +103,14 @@ class PlaneStressError(BaseException):
                                                        + ' for plane stress. It has non-zero shear components in the'
                                                        + ' normal direction: \n'
                                                        + 'F = ' + str(deformation_gradient))
+
+
+class StretchRatioNegativeError(BaseException):
+    """Stretch ratio assigned to a negative value in Newton's method solver."""
+
+    def __init__(self, stretch_ratio):
+        super(StretchRatioNegativeError, self).__init__(message='Stretch ratio assigned to a negative value in'
+                                                                + ' Newton\'s method solver, likely due to a bad initial'
+                                                                + ' guess. \n'
+                                                                + 'stretch ratio: ' + str(stretch_ratio))
+
