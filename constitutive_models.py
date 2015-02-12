@@ -18,11 +18,6 @@ class Neohookean:
     and extended to the compressive range (volume can change).
     """
 
-    def __init__(self, plane_stress=False, plane_strain=False):
-        # Assumptions
-        self.plane_stress = plane_stress
-        self.plane_strain = plane_strain
-
     def calculate_all(self, material, deformation_gradient, test=True):
         """Calculate and return the values of the first Piola-Kirchhoff stress, the tangent moduli, and the strain
         energy density.
