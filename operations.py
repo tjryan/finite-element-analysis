@@ -85,8 +85,7 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
     # TODO function to make a good initial guess
     # Make an initial guess for the thickness stretch ratio
     stretch_ratio = 1
-    # Initialize the error and the current iteration counter
-    error = float('inf')
+    # Initialize current iteration counter
     current_iteration = 0
     # Loop until the stress converges to within tolerance of zero, or max iterations is exceeded.
     while True:

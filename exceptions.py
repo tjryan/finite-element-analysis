@@ -6,10 +6,10 @@ errors.py contains all error definitions.
 
 
 class BaseException(Exception):
-    '''Exception raised when simulation encounters a problem
+    """Exception raised when simulation encounters a problem
 
     :param str message: description of error
-    '''
+    """
 
     def __init__(self, message):
         super(BaseException).__init__()

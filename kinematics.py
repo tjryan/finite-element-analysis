@@ -6,7 +6,6 @@ kinematics.py contains functions for computing kinematic quantities.
 
 import numpy
 
-import body
 import tests
 
 
@@ -19,10 +18,9 @@ def deformation_gradient(deformed_basis, undeformed_basis):
     """
     # Check that bases are compatible for matrix operations
     tests.check_covariance(deformed_basis, undeformed_basis)
-    F = (numpy.outer(deformed_basis.vector1, undeformed_basis.vector1)
+    result = (numpy.outer(deformed_basis.vector1, undeformed_basis.vector1)
          + numpy.outer(deformed_basis.vector2, undeformed_basis.vector2)
          + numpy.outer(deformed_basis.vector3, undeformed_basis.vector3))
-    result = body.DeformationGradient(F)
     return result
 
 

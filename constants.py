@@ -11,7 +11,7 @@ CONTRAVARIANT = 'contravariant'
 """Indicates that a Basis is contravariant and expressed in curvilinear coordinates."""
 
 LAB = 'lab'
-"""Indicates that a Basis is in the lab frame and is therefore expresses in Cartisian coordinates."""
+"""Indicates that a Basis is in the lab frame and is therefore expresses in Cartesian coordinates."""
 
 ERROR_TOLERANCE = 1e-6
 """The tolerated error for verification tests."""

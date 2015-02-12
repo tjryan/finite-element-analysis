@@ -16,6 +16,7 @@ import model
 import constitutive_models
 import kinematics
 import operations
+import tests
 
 
 def homework1_part1():
@@ -73,12 +74,13 @@ def homework1_part1():
                                                           contravariant_basis=deformed_configuration_contravariant)
 
     # Compute deformation gradient and other kinematic quantities
-    deformation_gradient = kinematics.deformation_gradient(deformed_configuration_covariant,
-                                                           reference_configuration_contravariant)
+    deformation_gradient_matrix = kinematics.deformation_gradient(deformed_configuration_covariant,
+                                                                  reference_configuration_contravariant)
+    tests.check_deformation_gradient_physical(numpy.linalg.det(deformation_gradient_matrix))
     right_cauchy_green_deformation = kinematics.right_cauchy_green_deformation_tensor(
-        deformation_gradient.F)
+        deformation_gradient_matrix)
     left_cauchy_green_deformation = kinematics.left_cauchy_green_deformation_tensor(
-        deformation_gradient.F)
+        deformation_gradient_matrix)
     green_lagrange_strain = kinematics.green_lagrange_strain(right_cauchy_green_deformation)
 
 
