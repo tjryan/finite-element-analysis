@@ -165,21 +165,23 @@ def material_frame_indifference():
                                                         quantity='first Piola-Kirchhoff stress',
                                                         difference=p_max_error,
                                                         tolerance=constants.ERROR_TOLERANCE)
-        # TODO fix this loop (waiting on answer from Klug)
-        # c_errors = []
-        # for i in range(3):
-        # for j in range(3):
-        # for k in range(3):
-        # for l in range(3):
-        # c_comparison = random_rotation[i][j] * random_rotation[k][l] * c[i][j][k][l]
-        # c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
-        # c_errors.append(c_error)
-        # c_max_error = max(c_errors)
-        # if c_max_error > constants.ERROR_TOLERANCE:
-        #     raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
-        #                                                     quantity='tangent moduli',
-        #                                                     difference=c_max_error,
-        #                                                     tolerance=constants.ERROR_TOLERANCE)
+    c_errors = []
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
+                    c_comparison = 0
+                    for m in range(3):
+                        for n in range(3):
+                            c_comparison += random_rotation[i][m] * random_rotation[k][n] * c[m][j][n][l]
+                    c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
+                    c_errors.append(c_error)
+    c_max_error = max(c_errors)
+    if c_max_error > constants.ERROR_TOLERANCE:
+        raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
+                                                        quantity='tangent moduli',
+                                                        difference=c_max_error,
+                                                        tolerance=constants.ERROR_TOLERANCE)
 
 
 def material_symmetry():
