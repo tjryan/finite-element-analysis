@@ -180,7 +180,7 @@ def equibiaxial_deformation():
     # uniaxial=True)
     random_deformation = numpy.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]], dtype=float)
     # For a range of F11 values, compute the first Piola-Kirchhoff stress
-    f11_values = numpy.arange(.2, 1.6, .2)
+    f11_values = numpy.arange(.2, 2, .2)
     p11_values = []
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
