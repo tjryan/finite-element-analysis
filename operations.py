@@ -102,7 +102,6 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
     while True:
         # Assign the 3-3 element of the deformation gradient to the current stretch ratio
         deformation_gradient[2][2] = stretch_ratio
-        # TODO is it a problem if the stretch ratio becomes negative in this loop?
         # tests.check_deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
                                                               deformation_gradient=deformation_gradient,
@@ -119,8 +118,10 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
             # Compute correction to the stretch ratio
             delta_stretch = -(1 / C3333) * P33
             stretch_ratio += delta_stretch
+            # If there is a negative (unphysical) stretch ratio, adjust it to be a very small positive value
+            # to avoid negative jacobian errors and give the solver another chance to converge
             if stretch_ratio < 0:
-                raise exceptions.StretchRatioNegativeError(stretch_ratio=stretch_ratio)
+                stretch_ratio = 1e-6
             # If the loop has reached the max number of iterations, raise an error
             if current_iteration == max_iterations:
                 raise exceptions.NewtonMethodMaxIterationsExceededError(iterations=max_iterations,

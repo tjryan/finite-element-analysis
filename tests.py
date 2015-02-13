@@ -165,7 +165,7 @@ def material_frame_indifference():
                                                         quantity='first Piola-Kirchhoff stress',
                                                         difference=p_max_error,
                                                         tolerance=constants.ERROR_TOLERANCE)
-        # TODO fix this loop
+        # TODO fix this loop (waiting on answer from Klug)
         # c_errors = []
         # for i in range(3):
         # for j in range(3):
