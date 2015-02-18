@@ -13,17 +13,38 @@ import operations
 import tests
 
 
+class BaseConstitutiveLaw:
+    """Base constitutive law class, containing methods that should overriden for each constitutive law."""
+
+    def calculate_all(self):
+        """Should be overridden"""
+        return None
+
+    def first_piola_kirchhoff_stress(self):
+        """Should be overriden"""
+        return None
+
+    def strain_energy_density(self):
+        """Should be overriden"""
+        return None
+
+    def tangent_moduli(self):
+        """Should be overriden"""
+        return None
+
+
 class Neohookean:
     """A hyperelastic model with non-linear stress-strain behavior of materials undergoing large deformations
     and extended to the compressive range (volume can change).
     """
 
-    def calculate_all(self, material, deformation_gradient, test=True):
+    def calculate_all(self, material, deformation_gradient, dimension=3, test=True):
         """Calculate and return the values of the first Piola-Kirchhoff stress, the tangent moduli, and the strain
         energy density.
 
         :param material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
+        :param int dimension: desired dimension of the returned tensors
         :param bool test: whether to perform the verification test for the stress result
         :return numpy.ndarray first_piola_kirchhoff_stress: 3x3 matrix representing the first Piola-Kirchhoff stress in the body
         :return numpy.ndarray tangent_moduli: 3x3x3x3 tensor representing the tangent moduli of the body
@@ -33,16 +54,21 @@ class Neohookean:
                                                            deformation_gradient=deformation_gradient)
         first_piola_kirchhoff_stress = self.first_piola_kirchhoff_stress(material=material,
                                                                          deformation_gradient=deformation_gradient,
+                                                                         dimension=dimension,
                                                                          test=test)
-        tangent_moduli = self.tangent_moduli(material=material, deformation_gradient=deformation_gradient, test=test)
+        tangent_moduli = self.tangent_moduli(material=material,
+                                             deformation_gradient=deformation_gradient,
+                                             dimension=dimension,
+                                             test=test)
         return strain_energy_density, first_piola_kirchhoff_stress, tangent_moduli
 
-    def first_piola_kirchhoff_stress(self, material, deformation_gradient, test=True):
+    def first_piola_kirchhoff_stress(self, material, deformation_gradient, dimension=3, test=True):
         """Compute the first Piola-Kirchhoff stress for the material from the deformation gradient under
         the specified assumptions.
 
         :param material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
+        :param int dimension: desired dimension of the returned matrix
         :param bool test: whether to perform the verification test for the stress result
         """
         result = (
@@ -55,11 +81,16 @@ class Neohookean:
                                                       material=material,
                                                       deformation_gradient=deformation_gradient,
                                                       first_piola_kirchhoff_stress=result)
-        return result
+        # Return a 2x2 matrix if requested for plane stress:
+        if dimension == 2:
+            return result[0:2, 0:2]
+        # Otherwise return the full 3x3 matrix
+        else:
+            return result
 
     def strain_energy_density(self, material, deformation_gradient):
         """Compute the strain energy density for the material from the deformation gradient under
-        the specified assumptions.
+        the specified assumptions. Note that this value is the same in 2D and 3D.
 
         :param model.Material material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
@@ -71,13 +102,14 @@ class Neohookean:
                       numpy.trace(numpy.dot(deformation_gradient.T, deformation_gradient)) - 3))
         return result
 
-    def tangent_moduli(self, material, deformation_gradient, test=True):
+    def tangent_moduli(self, material, deformation_gradient, dimension=3, test=True):
         """Compute the tangent moduli for the material from the deformation gradient under
         the specified assumptions.
 
         :param model.Material material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
         :param bool test: whether to perform the verification test for the stress result
+        :param int dimension: desired dimension of the returned tensor
         """
         J = numpy.linalg.det(deformation_gradient)
         F_inverse = numpy.linalg.inv(deformation_gradient)
@@ -98,6 +130,24 @@ class Neohookean:
             tests.verify_tangent_moduli(constitutive_model=self, material=material,
                                         deformation_gradient=deformation_gradient,
                                         tangent_moduli=tangent_moduli)
-        return tangent_moduli
+        # If the requested dimension is 2, corrected the tangent moduli for plane stress
+        if dimension == 2:
+            return self.tangent_moduli_two_dimensions(tangent_moduli)
+        # Otherwise return the full tangent moduli
+        else:
+            return tangent_moduli
+
+    def tangent_moduli_two_dimensions(self, tangent_moduli):
+        """Calculate the two-dimensional tangent moduli by correcting for plane stress"""
+        # Initialize tangent moduli as an empty 4-dimensional array
+        corrected_tangent_moduli = numpy.empty(shape=(2, 2, 2, 2), dtype=float)
+        for a in range(2):
+            for b in range(2):
+                for c in range(2):
+                    for d in range(2):
+                        corrected_tangent_moduli[a][b][c][d] = (
+                            tangent_moduli[a][b][c][d] - tangent_moduli[a][b][3][3]
+                            * tangent_moduli[3][3][c][d] / tangent_moduli[3][3][3][3])
+        return corrected_tangent_moduli
 
 

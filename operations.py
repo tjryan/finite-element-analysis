@@ -46,7 +46,7 @@ def generate_random_deformation_gradient(plane_stress=False, uniaxial=False, equ
     """
     det = -1
     while det < 0:
-        random_deformation = numpy.random.rand(3, 3)
+        random_deformation = numpy.eye(3) + numpy.random.rand(3, 3)
         det = numpy.linalg.det(random_deformation)
     # If plane stress is requested, restructure the matrix for plane stress
     if plane_stress:

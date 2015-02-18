@@ -42,7 +42,7 @@ class Node:
         self.deformed_position = None  # position vector
         self.displacements = None  # vector
         self.rotations = None  # vector
-        self.parent_element = None  # the element object that this node belongs to
+        self.parent_elements = []  # the elements object that this node belongs to
 
 
 class QuadraturePoint:

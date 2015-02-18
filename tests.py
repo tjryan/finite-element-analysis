@@ -41,88 +41,6 @@ def check_deformation_gradient_plane_stress(deformation_gradient):
         raise exceptions.PlaneStressError(deformation_gradient=deformation_gradient)
 
 
-def verify_first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
-                                        first_piola_kirchhoff_stress, h=1e-6):
-    """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
-
-    :param constitutive_model: a constitutive model object from constitutive_models.py
-    :param material: the material undergoing deformation
-    :param deformation_gradient: deformation gradient matrix used to compute the Piola-Kirchhoff Stress
-    :param first_piola_kirchhoff_stress: the stress tensor calculated from the deformation gradient
-    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
-    """
-    errors = []
-    # For each element in the stress tensor
-    for i in range(3):
-        for j in range(3):
-            # make a copy of the deformation gradient to perturb
-            perturbed_deformation = deformation_gradient.copy()
-            # Perturb the element in the positive direction
-            perturbed_deformation[i][j] += h
-            # Compute positively perturbed strain energy density
-            strain_energy_density_plus = constitutive_model.strain_energy_density(material=material,
-                                                                                  deformation_gradient=perturbed_deformation)
-            # Perturb the element in the negative direction
-            perturbed_deformation[i][j] -= 2 * h
-            # Compute the negatively perturbed strain energy density
-            strain_energy_density_minus = constitutive_model.strain_energy_density(material=material,
-                                                                                   deformation_gradient=perturbed_deformation)
-            # Compute the result of numerical differentiation
-            numerical_value = (strain_energy_density_plus - strain_energy_density_minus) / (2 * h)
-            computed_value = first_piola_kirchhoff_stress[i][j]
-            error = math.fabs(computed_value - numerical_value)
-            errors.append(error)
-    max_error = max(errors)
-    # If the result is not within tolerance of the provided value, raise an error
-    if max_error > constants.ERROR_TOLERANCE:
-        raise exceptions.DifferentiationError(computed_value=computed_value,
-                                              numerical_value=numerical_value,
-                                              difference=max_error,
-                                              tolerance=constants.ERROR_TOLERANCE)
-
-
-def verify_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
-    """Verify that the computed tangent moduli tensor is within tolerance of the result from numerical differentiation
-    using the 3 point method.
-
-    :param constitutive_model: a constitutive model object from constitutive_models.py
-    :param material: the material undergoing deformation
-    :param deformation_gradient: deformation gradient matrix used to compute the tangent moduli
-    :param tangent_moduli: tangent moduli tensor computed from the provided deformation gradient
-    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
-    """
-    errors = []
-    # For each element of the tangent moduli
-    for i in range(3):
-        for j in range(3):
-            for k in range(3):
-                for l in range(3):
-                    # Make a copy of the deformation gradient to perturb
-                    perturbed_deformation = deformation_gradient.copy()
-                    # Perturb in the positive direction
-                    perturbed_deformation[k][l] += h
-                    piola_kirchhoff_plus = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                                           deformation_gradient=perturbed_deformation,
-                                                                                           test=False)
-                    # Perturb in the negative direction
-                    perturbed_deformation[k][l] -= 2 * h
-                    piola_kirchhoff_minus = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                                            deformation_gradient=perturbed_deformation,
-                                                                                            test=False)
-                    # Compute the result of numerical differentiation
-                    numerical_value = (piola_kirchhoff_plus[i][j] - piola_kirchhoff_minus[i][j]) / (2 * h)
-                    computed_value = tangent_moduli[i][j][k][l]
-                    error = math.fabs(computed_value - numerical_value)
-                    errors.append(error)
-    max_error = max(errors)
-    # If the result is not within tolerance of the provided value, raise an error
-    if max_error > constants.ERROR_TOLERANCE:
-        raise exceptions.DifferentiationError(computed_value=computed_value,
-                                              numerical_value=numerical_value,
-                                              difference=max_error,
-                                              tolerance=constants.ERROR_TOLERANCE)
-
-
 def material_frame_indifference():
     """Check for frame indifference of the material model by verifying that the strain energy density, first
     Piola-Kirchhoff stress, and tangent_moduli all remain unchanged under a random rotation.
@@ -246,3 +164,86 @@ def material_symmetry():
                                                quantity='tangent moduli',
                                                difference=c_max_error,
                                                tolerance=constants.ERROR_TOLERANCE)
+
+
+def verify_first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
+                                        first_piola_kirchhoff_stress, h=1e-6):
+    """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
+
+    :param constitutive_model: a constitutive model object from constitutive_models.py
+    :param material: the material undergoing deformation
+    :param deformation_gradient: deformation gradient matrix used to compute the Piola-Kirchhoff Stress
+    :param first_piola_kirchhoff_stress: the stress tensor calculated from the deformation gradient
+    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
+    """
+    errors = []
+    # For each element in the stress tensor
+    for i in range(3):
+        for j in range(3):
+            # make a copy of the deformation gradient to perturb
+            perturbed_deformation = deformation_gradient.copy()
+            # Perturb the element in the positive direction
+            perturbed_deformation[i][j] += h
+            # Compute positively perturbed strain energy density
+            strain_energy_density_plus = constitutive_model.strain_energy_density(material=material,
+                                                                                  deformation_gradient=perturbed_deformation)
+            # Perturb the element in the negative direction
+            perturbed_deformation[i][j] -= 2 * h
+            # Compute the negatively perturbed strain energy density
+            strain_energy_density_minus = constitutive_model.strain_energy_density(material=material,
+                                                                                   deformation_gradient=perturbed_deformation)
+            # Compute the result of numerical differentiation
+            numerical_value = (strain_energy_density_plus - strain_energy_density_minus) / (2 * h)
+            computed_value = first_piola_kirchhoff_stress[i][j]
+            error = math.fabs(computed_value - numerical_value)
+            errors.append(error)
+    max_error = max(errors)
+    # If the result is not within tolerance of the provided value, raise an error
+    if max_error > constants.ERROR_TOLERANCE:
+        raise exceptions.DifferentiationError(difference=max_error,
+                                              tolerance=constants.ERROR_TOLERANCE)
+    return max_error
+
+
+def verify_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
+    """Verify that the computed tangent moduli tensor is within tolerance of the result from numerical differentiation
+    using the 3 point method.
+
+    :param constitutive_model: a constitutive model object from constitutive_models.py
+    :param material: the material undergoing deformation
+    :param deformation_gradient: deformation gradient matrix used to compute the tangent moduli
+    :param tangent_moduli: tangent moduli tensor computed from the provided deformation gradient
+    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
+    """
+    errors = []
+    # For each element of the tangent moduli
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
+                    # Make a copy of the deformation gradient to perturb
+                    perturbed_deformation = deformation_gradient.copy()
+                    # Perturb in the positive direction
+                    perturbed_deformation[k][l] += h
+                    piola_kirchhoff_plus = constitutive_model.first_piola_kirchhoff_stress(material=material,
+                                                                                           deformation_gradient=perturbed_deformation,
+                                                                                           test=False)
+                    # Perturb in the negative direction
+                    perturbed_deformation[k][l] -= 2 * h
+                    piola_kirchhoff_minus = constitutive_model.first_piola_kirchhoff_stress(material=material,
+                                                                                            deformation_gradient=perturbed_deformation,
+                                                                                            test=False)
+                    # Compute the result of numerical differentiation
+                    numerical_value = (piola_kirchhoff_plus[i][j] - piola_kirchhoff_minus[i][j]) / (2 * h)
+                    computed_value = tangent_moduli[i][j][k][l]
+                    error = math.fabs(computed_value - numerical_value)
+                    errors.append(error)
+    max_error = max(errors)
+    # If the result is not within tolerance of the provided value, raise an error
+    if max_error > constants.ERROR_TOLERANCE:
+        raise exceptions.DifferentiationError(difference=max_error,
+                                              tolerance=constants.ERROR_TOLERANCE)
+    return max_error
+
+
+

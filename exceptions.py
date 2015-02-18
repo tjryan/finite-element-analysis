@@ -31,11 +31,9 @@ class BasisMismatchError(BaseException):
 class DifferentiationError(BaseException):
     """Computed derivative value in not within tolerance of the result from numerical differentiation"""
 
-    def __init__(self, computed_value, numerical_value, difference, tolerance):
+    def __init__(self, difference, tolerance):
         super(DifferentiationError, self).__init__(message='Computed derivative value is not within tolerance of '
                                                            + 'numerical differentiation result: \n'
-                                                           + 'computed value: ' + str(computed_value) + '\n'
-                                                           + 'numerical value: ' + str(numerical_value) + '\n'
                                                            + 'difference: ' + str(difference) + '\n'
                                                            + 'tolerance: ' + str(tolerance))
 

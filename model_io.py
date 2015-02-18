@@ -24,7 +24,7 @@ def homework1_part1():
     """Curvilinear Kinematics: Uniaxial deformation of a cylinder"""
     # Position at which to evaluate
     radius = 10
-    angle = math.pi / 16
+    angle = math.pi / 4
 
     # Constants
     lambda1 = 2
@@ -96,9 +96,11 @@ def homework1_part2():
     # Select constitutive model and state assumptions
     fem.constitutive_model = constitutive_models.Neohookean()
     # Create a material for the body
-    fem.material = materials.Custom(name='custom material', first_lame_parameter=1, shear_modulus=1)
+    fem.material = materials.Custom(name='custom material', first_lame_parameter=6, shear_modulus=3)
+    p_errors = []
+    c_errors = []
     # Make a set of elements to add to model
-    for i in range(10):
+    for i in range(100):
         # Make a new element and add it to the model
         element = model.Element()
         fem.elements.append(element)
@@ -107,6 +109,7 @@ def homework1_part2():
         element.quadrature_points.append(quadrature_point)
         # Initialize a random deformation gradient (with positive determinant) from which to compute other quantities
         random_deformation = operations.generate_random_deformation_gradient()
+        # random_deformation = numpy.array([[2, 1, 0], [1, 2, 0], [0, 0, 1]], dtype='float')
         quadrature_point.deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
                                                                          material=fem.material,
                                                                          constitutive_model=fem.constitutive_model)
@@ -114,16 +117,71 @@ def homework1_part2():
          quadrature_point.first_piola_kirchhoff_stress,
          quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
                                                                                  deformation_gradient=random_deformation)
+        # h_value = 7.5e-4
+        # h_value = 1.0e-5
+        # h_value = 2.5e-5
+        # h_value = 5.0e-5
+        # h_value = 7.5e-5
+        # h_value = 1.0e-6
+        # h_value = 2.5e-6
+        # h_value = 5.0e-6
+        h_value = 7.5e-6
+        p_error = tests.verify_first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
+                                                            material=fem.material,
+                                                            deformation_gradient=random_deformation,
+                                                            first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress,
+                                                            h=h_value)
+        c_error = tests.verify_tangent_moduli(constitutive_model=fem.constitutive_model,
+                                              material=fem.material,
+                                              deformation_gradient=random_deformation,
+                                              tangent_moduli=quadrature_point.tangent_moduli,
+                                              h=h_value)
+        p_errors.append(p_error)
+        c_errors.append(c_error)
+    p_error_avg = numpy.mean(p_errors)
+    p_error_max = max(p_errors)
+    c_error_avg = numpy.mean(c_errors)
+    c_error_max = max(c_errors)
+    print('hi')
 
 
 def error_testing():
-    for i in range(10):
-        deformation_gradient = operations.generate_random_deformation_gradient()
-        material = materials.Custom(name='custom material', first_lame_parameter=5, shear_modulus=3)
-        constitutive_model = constitutive_models.Neohookean()
-        first_piola_kirchhoff_stress = constitutive_model.first_piola_kirchhoff_stress(material, deformation_gradient)
-        w = constitutive_model.strain_energy_density(material, deformation_gradient)
-        c = constitutive_model.tangent_moduli(material, deformation_gradient)
+    # NOTE: this test will result in an error for the default tolerance value, because this function is intended
+    # to violate the tolerance for the purposes of showing the behavior of the error as a function of h.
+    deformation_gradient = operations.generate_random_deformation_gradient()  # uncomment for "bad" F: - numpy.eye(3)
+    material = materials.Custom(name='custom material', first_lame_parameter=5, shear_modulus=3)
+    constitutive_model = constitutive_models.Neohookean()
+    (strain_energy_density,
+     first_piola_kirchhoff_stress,
+     tangent_moduli) = constitutive_model.calculate_all(material=material,
+                                                        deformation_gradient=deformation_gradient)
+    h_values = list(numpy.logspace(-2, -10, 100))
+    p_errors = []
+    c_errors = []
+    for h_value in h_values:
+        p_error = tests.verify_first_piola_kirchhoff_stress(constitutive_model=constitutive_model,
+                                                            material=material,
+                                                            deformation_gradient=deformation_gradient,
+                                                            first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
+                                                            h=h_value)
+        c_error = tests.verify_tangent_moduli(constitutive_model=constitutive_model,
+                                              material=material,
+                                              deformation_gradient=deformation_gradient,
+                                              tangent_moduli=tangent_moduli,
+                                              h=h_value)
+        p_errors.append(p_error)
+        c_errors.append(c_error)
+    plt.figure()
+    plt.plot(h_values, p_errors, 'b', label='P error')
+    plt.plot(h_values, c_errors, 'r', label='C error')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.ylim(10e-10, 10e-3)
+    plt.title('3-point formula errors for "good" deformation gradient')
+    plt.xlabel('h')
+    plt.ylabel('error')
+    plt.legend(loc='best')
+    plt.show()
 
 
 def plane_stress():
@@ -140,24 +198,23 @@ def plane_stress():
 def uniaxial_deformation():
     fem = model.FEM()
     fem.constitutive_model = constitutive_models.Neohookean()
-    fem.material = materials.Glass
+    fem.material = materials.Glass()
     # fem.material = materials.Custom('test', first_lame_parameter=5, shear_modulus=3)
-    # random_deformation = operations.generate_random_deformation_gradient(plane_stress=True,
-    # uniaxial=True)
-    random_deformation = numpy.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
+    uniaxial_deformation = operations.generate_random_deformation_gradient(plane_stress=True, uniaxial=True)
     # For a range of F11 values, compute the first Piola-Kirchhoff stress
     f11_values = numpy.arange(.2, 2.6, .2)
     p11_values = []
     p22_values = []
     for f11_value in f11_values:
-        random_deformation[0][0] = f11_value
-        deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
+        uniaxial_deformation[0][0] = f11_value
+        deformation_gradient = body.DeformationGradient(deformation_gradient=uniaxial_deformation,
                                                         material=fem.material,
                                                         constitutive_model=fem.constitutive_model,
                                                         plane_stress=True)
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,
+            dimension=2,
             test=True)
         p11_values.append(first_piola_kirchhoff_stress[0][0])
         p22_values.append(first_piola_kirchhoff_stress[1][1])
@@ -174,13 +231,11 @@ def uniaxial_deformation():
 def equibiaxial_deformation():
     fem = model.FEM()
     fem.constitutive_model = constitutive_models.Neohookean()
-    fem.material = materials.TitaniumAlloy
-    # fem.material = materials.Custom('test', first_lame_parameter=5, shear_modulus=3)
-    # random_deformation = operations.generate_random_deformation_gradient(plane_stress=True,
-    # uniaxial=True)
-    random_deformation = numpy.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]], dtype=float)
+    # fem.material = materials.TitaniumAlloy()
+    fem.material = materials.Custom('custom material', first_lame_parameter=5, shear_modulus=3)
+    random_deformation = operations.generate_random_deformation_gradient(plane_stress=True, equibiaxial=True)
     # For a range of F11 values, compute the first Piola-Kirchhoff stress
-    f11_values = numpy.arange(.2, 2, .2)
+    f11_values = numpy.arange(.2, 1.6, .2)
     p11_values = []
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
@@ -192,6 +247,7 @@ def equibiaxial_deformation():
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,
+            dimension=2,
             test=True)
         p11_values.append(first_piola_kirchhoff_stress[0][0])
     plt.figure()
@@ -209,9 +265,10 @@ def run():
     # homework1_part2()
     # error_testing()
     # tests.material_frame_indifference()
-    # tests.material_symmetry()
+    tests.material_symmetry()
     # plane_stress()
     # uniaxial_deformation()
-    equibiaxial_deformation()
+    # equibiaxial_deformation()
+
 
 run()
