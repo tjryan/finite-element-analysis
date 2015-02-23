@@ -96,9 +96,8 @@ def homework1_part2():
     # Select constitutive model and state assumptions
     fem.constitutive_model = constitutive_models.Neohookean()
     # Create a material for the body
-    fem.material = materials.Custom(name='custom material', first_lame_parameter=6, shear_modulus=3)
-    p_errors = []
-    c_errors = []
+    # fem.material = materials.Custom(name='custom material', first_lame_parameter=5, shear_modulus=3)
+    fem.material = materials.TitaniumAlloy()
     # Make a set of elements to add to model
     for i in range(100):
         # Make a new element and add it to the model
@@ -109,7 +108,6 @@ def homework1_part2():
         element.quadrature_points.append(quadrature_point)
         # Initialize a random deformation gradient (with positive determinant) from which to compute other quantities
         random_deformation = operations.generate_random_deformation_gradient()
-        # random_deformation = numpy.array([[2, 1, 0], [1, 2, 0], [0, 0, 1]], dtype='float')
         quadrature_point.deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
                                                                          material=fem.material,
                                                                          constitutive_model=fem.constitutive_model)
@@ -117,32 +115,14 @@ def homework1_part2():
          quadrature_point.first_piola_kirchhoff_stress,
          quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
                                                                                  deformation_gradient=random_deformation)
-        # h_value = 7.5e-4
-        # h_value = 1.0e-5
-        # h_value = 2.5e-5
-        # h_value = 5.0e-5
-        # h_value = 7.5e-5
-        # h_value = 1.0e-6
-        # h_value = 2.5e-6
-        # h_value = 5.0e-6
-        h_value = 7.5e-6
-        p_error = tests.verify_first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
+        tests.verify_first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
                                                             material=fem.material,
                                                             deformation_gradient=random_deformation,
-                                                            first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress,
-                                                            h=h_value)
-        c_error = tests.verify_tangent_moduli(constitutive_model=fem.constitutive_model,
+                                                            first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
+        tests.verify_tangent_moduli(constitutive_model=fem.constitutive_model,
                                               material=fem.material,
                                               deformation_gradient=random_deformation,
-                                              tangent_moduli=quadrature_point.tangent_moduli,
-                                              h=h_value)
-        p_errors.append(p_error)
-        c_errors.append(c_error)
-    p_error_avg = numpy.mean(p_errors)
-    p_error_max = max(p_errors)
-    c_error_avg = numpy.mean(c_errors)
-    c_error_max = max(c_errors)
-    print('hi')
+                                              tangent_moduli=quadrature_point.tangent_moduli)
 
 
 def error_testing():
@@ -261,14 +241,14 @@ def equibiaxial_deformation():
 
 def run():
     """Create and run finite element model"""
-    # homework1_part1()
-    # homework1_part2()
+    homework1_part1()
+    homework1_part2()
     # error_testing()
-    # tests.material_frame_indifference()
+    tests.material_frame_indifference()
     tests.material_symmetry()
-    # plane_stress()
-    # uniaxial_deformation()
-    # equibiaxial_deformation()
+    plane_stress()
+    uniaxial_deformation()
+    equibiaxial_deformation()
 
 
 run()

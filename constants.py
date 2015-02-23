@@ -13,7 +13,7 @@ CONTRAVARIANT = 'contravariant'
 LAB = 'lab'
 """Indicates that a Basis is in the lab frame and is therefore expresses in Cartesian coordinates."""
 
-ERROR_TOLERANCE = 1e-2
+ERROR_TOLERANCE = 1e-6
 """The tolerated error for verification tests."""
 
 NEWTON_METHOD_TOLERANCE = 1e-6

@@ -202,7 +202,6 @@ def verify_first_piola_kirchhoff_stress(constitutive_model, material, deformatio
     if max_error > constants.ERROR_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
                                               tolerance=constants.ERROR_TOLERANCE)
-    return max_error
 
 
 def verify_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
@@ -243,7 +242,6 @@ def verify_tangent_moduli(constitutive_model, material, deformation_gradient, ta
     if max_error > constants.ERROR_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
                                               tolerance=constants.ERROR_TOLERANCE)
-    return max_error
 
 
 
