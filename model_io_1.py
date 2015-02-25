@@ -115,11 +115,11 @@ def homework1_part2():
          quadrature_point.first_piola_kirchhoff_stress,
          quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
                                                                                  deformation_gradient=random_deformation)
-        tests.first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
+        tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=fem.constitutive_model,
                                                             material=fem.material,
                                                             deformation_gradient=random_deformation,
                                                             first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
-        tests.tangent_moduli(constitutive_model=fem.constitutive_model,
+        tests.tangent_moduli_numerical_differentiation(constitutive_model=fem.constitutive_model,
                                               material=fem.material,
                                               deformation_gradient=random_deformation,
                                               tangent_moduli=quadrature_point.tangent_moduli)
@@ -139,12 +139,12 @@ def error_testing():
     p_errors = []
     c_errors = []
     for h_value in h_values:
-        p_error = tests.first_piola_kirchhoff_stress(constitutive_model=constitutive_model,
+        p_error = tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=constitutive_model,
                                                             material=material,
                                                             deformation_gradient=deformation_gradient,
                                                             first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
                                                             h=h_value)
-        c_error = tests.tangent_moduli(constitutive_model=constitutive_model,
+        c_error = tests.tangent_moduli_numerical_differentiation(constitutive_model=constitutive_model,
                                               material=material,
                                               deformation_gradient=deformation_gradient,
                                               tangent_moduli=tangent_moduli,

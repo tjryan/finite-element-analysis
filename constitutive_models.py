@@ -46,8 +46,8 @@ class Neohookean:
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
         :param int dimension: desired dimension of the returned tensors
         :param bool test: whether to perform the verification test for the stress result
-        :return numpy.ndarray first_piola_kirchhoff_stress: 3x3 matrix representing the first Piola-Kirchhoff stress in the body
-        :return numpy.ndarray tangent_moduli: 3x3x3x3 tensor representing the tangent moduli of the body
+        :return numpy.ndarray first_piola_kirchhoff_stress_numerical_differentiation: 3x3 matrix representing the first Piola-Kirchhoff stress in the body
+        :return numpy.ndarray tangent_moduli_numerical_differentiation: 3x3x3x3 tensor representing the tangent moduli of the body
         :return float strain_energy_density: the value of the strain energy density in the body
         """
         strain_energy_density = self.strain_energy_density(material=material,
@@ -77,7 +77,7 @@ class Neohookean:
             + material.shear_modulus * deformation_gradient)
         # Verify the correctness of this result by comparing to numerical differentiation
         if test:
-            tests.first_piola_kirchhoff_stress(constitutive_model=self,
+            tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=self,
                                                       material=material,
                                                       deformation_gradient=deformation_gradient,
                                                       first_piola_kirchhoff_stress=result)
@@ -127,7 +127,7 @@ class Neohookean:
                         tangent_moduli[i][j][k][l] = entry
         # Verify the correctness of this result by comparing it to numerical differentiation
         if test:
-            tests.tangent_moduli(constitutive_model=self, material=material,
+            tests.tangent_moduli_numerical_differentiation(constitutive_model=self, material=material,
                                         deformation_gradient=deformation_gradient,
                                         tangent_moduli=tangent_moduli)
         # If the requested dimension is 2, corrected the tangent moduli for plane stress

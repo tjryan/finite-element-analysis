@@ -42,52 +42,9 @@ def deformation_gradient_plane_stress(deformation_gradient):
         raise exceptions.PlaneStressError(deformation_gradient=deformation_gradient)
 
 
-def partition_unity(element_class, random_r, random_s):
-    """Check that the shape functions for the given element class verify partition of unity at the specified
-    coordinates.
-
-    Partition of unity: the sum of shape function at any point r, s should equal 1.
-
-    :param element_class: class of element to test
-    :param float random_r: random coordinate
-    :param float random_s: random coordinate
-    """
-    partition_unity_sum = sum(
-        [element_class.shape_functions(node_index=node_index, r=random_r, s=random_s) for node_index in range(
-            element_class.node_quantity)])
-    # Compute the error from the expected value of 1
-    partition_unity_error = math.fabs(partition_unity_sum - 1)
-    # If the error is not within tolerance of the expected value, raise an error
-    if partition_unity_error > constants.FLOATING_POINT_TOLERANCE:
-        raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)
-
-
-def partition_nullity(element_class, random_r, random_s):
-    """Check that the shape functions for the given element class verify partition of nullity at the specified
-    coordinates.
-
-    Partition of nullity: the sum of the derivatives of the shape functions at any point r, s should equal 0.
-
-    :param element_class: class of element to test
-    :param float random_r: random coordinate
-    :param float random_s: random coordinate
-    """
-    partition_nullity_sum = 0
-    for coordinate_index in range(element_class.dimension):
-        partition_nullity_sum += sum([
-            element_class.shape_function_derivatives(node_index=node_index, r=random_r, s=random_s,
-                                                     coordinate_index=coordinate_index) for node_index in
-            range(element_class.node_quantity)])
-    # Compute the error with the expected value of 0
-    partition_nullity_error = math.fabs(partition_nullity_sum - 0)
-    # If the error is not within tolerance of the expected value, raise an error
-    if partition_nullity_error > constants.FLOATING_POINT_TOLERANCE:
-        raise exceptions.PartitionNullityError(element_class=element_class, sum=partition_nullity_sum)
-
-
 def material_frame_indifference():
     """Check for frame indifference of the material model by verifying that the strain energy density, first
-    Piola-Kirchhoff stress, and tangent_moduli all remain unchanged under a random rotation.
+    Piola-Kirchhoff stress, and tangent_moduli_numerical_differentiation all remain unchanged under a random rotation.
     """
     # Generate a random deformation gradient
     random_deformation = operations.generate_random_deformation_gradient()
@@ -210,8 +167,8 @@ def material_symmetry():
                                                tolerance=constants.FLOATING_POINT_TOLERANCE)
 
 
-def first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
-                                 first_piola_kirchhoff_stress, h=1e-6):
+def first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model, material, deformation_gradient,
+                                                           first_piola_kirchhoff_stress, h=1e-6):
     """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
 
     :param constitutive_model: a constitutive model object from constitutive_models.py
@@ -248,6 +205,82 @@ def first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradi
                                               tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
+def shape_functions_completeness(element_class):
+    """Check shape functions of the given element for completeness by testing if they can interpolate a
+    random linear polynomial exactly.
+
+    :param element_class: class of element to test
+    """
+    # Define a random linear polynomial
+    random_coefficient_1 = random.uniform(-1, 1)
+    random_coefficient_2 = random.uniform(-1, 1)
+    random_linear_polynomial = lambda r, s: random_coefficient_1 * r + random_coefficient_2 * s
+    # Generate random point
+    random_r = random.uniform(0, 1)
+    random_s = random.uniform(0, random_r)
+    # Evaluate the polynomial at this point
+    comparison_value = random_linear_polynomial(random_r, random_s)
+    # Sample the polynomial at the nodes
+    node_values = [random_linear_polynomial(node_location[0], node_location[1]) for node_location in
+                   element_class.node_locations]
+    # Interpolate sample node values using the shape functions to compute that value at a the random point
+    # by summing over nodes
+    interpolated_value = sum(
+        [node_values[node_index] * element_class.shape_functions(node_index, r=random_r, s=random_s) for node_index in
+         range(element_class.node_quantity)])
+    # Compute the error between the comparison and interpolated values, and raise an error if not within tolerance
+    # of each other
+    error = math.fabs(interpolated_value - comparison_value)
+    # if error > constants.FLOATING_POINT_TOLERANCE:
+    if True:
+        raise exceptions.CompletenessError(element_class=element_class, comparison_value=comparison_value,
+                                           interpolated_value=interpolated_value, error=error,
+                                           tolerance=constants.FLOATING_POINT_TOLERANCE)
+
+
+def shape_functions_partition_nullity(element_class, r, s):
+    """Check that the shape functions for the given element class verify partition of nullity at the specified
+    coordinates.
+
+    Partition of nullity: the sum of the derivatives of the shape functions at any point r, s should equal 0.
+
+    :param element_class: class of element to test
+    :param float r: random coordinate
+    :param float s: random coordinate
+    """
+    partition_nullity_sum = 0
+    for coordinate_index in range(element_class.dimension):
+        partition_nullity_sum += sum([
+            element_class.shape_function_derivatives(node_index=node_index, r=r, s=s,
+                                                     coordinate_index=coordinate_index) for node_index in
+            range(element_class.node_quantity)])
+    # Compute the error with the expected value of 0
+    partition_nullity_error = math.fabs(partition_nullity_sum - 0)
+    # If the error is not within tolerance of the expected value, raise an error
+    if partition_nullity_error > constants.FLOATING_POINT_TOLERANCE:
+        raise exceptions.PartitionNullityError(element_class=element_class, sum=partition_nullity_sum)
+
+
+def shape_functions_partition_unity(element_class, r, s):
+    """Check that the shape functions for the given element class verify partition of unity at the specified
+    coordinates.
+
+    Partition of unity: the sum of shape function at any point r, s should equal 1.
+
+    :param element_class: class of element to test
+    :param float r: random coordinate
+    :param float s: random coordinate
+    """
+    partition_unity_sum = sum(
+        [element_class.shape_functions(node_index=node_index, r=r, s=s) for node_index in range(
+            element_class.node_quantity)])
+    # Compute the error from the expected value of 1
+    partition_unity_error = math.fabs(partition_unity_sum - 1)
+    # If the error is not within tolerance of the expected value, raise an error
+    if partition_unity_error > constants.FLOATING_POINT_TOLERANCE:
+        raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)
+
+
 def shape_functions_triangular_element(element_class):
     """Verify that the shape functions for the given triangular element class are implemented correctly by checking that
     they satisfy partition of unity and that the derivatives satisfy partition of nullity.
@@ -258,11 +291,41 @@ def shape_functions_triangular_element(element_class):
     random_r = random.uniform(0, 1)
     random_s = random.uniform(0, random_r)
     # Perform checks
-    partition_unity(element_class=element_class, random_r=random_r, random_s=random_s)
-    partition_nullity(element_class=element_class, random_r=random_r, random_s=random_s)
+    shape_functions_partition_unity(element_class=element_class, r=random_r, s=random_s)
+    shape_functions_partition_nullity(element_class=element_class, r=random_r, s=random_s)
+    shape_functions_numerical_differentiation(element_class=element_class, r=random_r, s=random_s)
+    shape_functions_completeness(element_class=element_class)
 
 
-def tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
+def shape_functions_numerical_differentiation(element_class, r, s, h=1e-6):
+    """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
+
+    :param element_class: class of element to test
+    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
+    """
+    for node_index in range(element_class.node_quantity):
+        for coordinate_index in range(element_class.dimension):
+            # Check shape function derivative with respect to the specified coordinate by perturbing it
+            perturbed_r_plus = r + h * (coordinate_index == 0)
+            perturbed_s_plus = s + h * (coordinate_index == 1)
+            perturbed_r_minus = r - h * (coordinate_index == 0)
+            perturbed_s_minus = s - h * (coordinate_index == 1)
+            shape_function_plus = element_class.shape_functions(node_index=node_index, r=perturbed_r_plus,
+                                                                s=perturbed_s_plus)
+            shape_function_minus = element_class.shape_functions(node_index=node_index, r=perturbed_r_minus,
+                                                                 s=perturbed_s_minus)
+            numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
+            computed_value = element_class.shape_function_derivatives(node_index=node_index, r=r, s=s,
+                                                                      coordinate_index=coordinate_index)
+            error = math.fabs(computed_value - numerical_value)
+            # If the result is not within tolerance of the provided value, raise an error
+            if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
+                raise exceptions.DifferentiationError(difference=error,
+                                                      tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+
+
+def tangent_moduli_numerical_differentiation(constitutive_model, material, deformation_gradient, tangent_moduli,
+                                             h=1e-6):
     """Verify that the computed tangent moduli tensor is within tolerance of the result from numerical differentiation
     using the 3 point method.
 

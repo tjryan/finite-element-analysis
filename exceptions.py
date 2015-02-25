@@ -28,6 +28,19 @@ class BasisMismatchError(BaseException):
                                                          + 'and basis2 is type ' + basis2.type)
 
 
+class CompletenessError(BaseException):
+    """Shape functions for given class do not satisfy completeness by interpolating a linear polynomial exactly."""
+
+    def __init__(self, element_class, comparison_value, interpolated_value, error, tolerance):
+        super(CompletenessError, self).__init__(
+            message='Completeness is not satisfied for the element ' + element_class.__name__ + '. '
+                    + 'The shape functions do not interpolate a random linear polynomial exactly. \n'
+                    + 'comparison value: ' + str(comparison_value) + '\n'
+                    + 'interpolated value: ' + str(interpolated_value) + '\n'
+                    + 'error: ' + str(error) + '\n'
+                    + 'tolerance: ' + str(tolerance))
+
+
 class DifferentiationError(BaseException):
     """Computed derivative value in not within tolerance of the result from numerical differentiation"""
 
