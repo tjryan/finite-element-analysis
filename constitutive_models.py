@@ -77,7 +77,7 @@ class Neohookean:
             + material.shear_modulus * deformation_gradient)
         # Verify the correctness of this result by comparing to numerical differentiation
         if test:
-            tests.verify_first_piola_kirchhoff_stress(constitutive_model=self,
+            tests.first_piola_kirchhoff_stress(constitutive_model=self,
                                                       material=material,
                                                       deformation_gradient=deformation_gradient,
                                                       first_piola_kirchhoff_stress=result)
@@ -127,7 +127,7 @@ class Neohookean:
                         tangent_moduli[i][j][k][l] = entry
         # Verify the correctness of this result by comparing it to numerical differentiation
         if test:
-            tests.verify_tangent_moduli(constitutive_model=self, material=material,
+            tests.tangent_moduli(constitutive_model=self, material=material,
                                         deformation_gradient=deformation_gradient,
                                         tangent_moduli=tangent_moduli)
         # If the requested dimension is 2, corrected the tangent moduli for plane stress

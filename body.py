@@ -38,7 +38,7 @@ class DeformationGradient:
         distorted, so raise an error.
         """
         jacobian = numpy.linalg.det(self.F)
-        tests.check_deformation_gradient_physical(jacobian=jacobian)
+        tests.deformation_gradient_physical(jacobian=jacobian)
         return jacobian
 
     def enforce_plane_stress(self):
@@ -53,7 +53,7 @@ class DeformationGradient:
         This will be checked before performing any calculations, and an error will be raised if violated.
         """
         # Check that the deformation gradient has the proper structure for plane stress
-        tests.check_deformation_gradient_plane_stress(deformation_gradient=self.F)
+        tests.deformation_gradient_plane_stress(deformation_gradient=self.F)
         thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(material=self.material,
                                                                                    constitutive_model=self.constitutive_model,
                                                                                    deformation_gradient=self.F)

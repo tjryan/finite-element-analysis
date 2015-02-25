@@ -1,5 +1,5 @@
 """
-model_io.py module provides inputs to the model, runs the model, and receives outputs.
+model_io_1.py module interfaces with the model and contains the contain that satisfies the requirements of assignment 1.
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
@@ -77,7 +77,7 @@ def homework1_part1():
     # Compute deformation gradient and other kinematic quantities
     deformation_gradient_matrix = kinematics.deformation_gradient(deformed_configuration_covariant,
                                                                   reference_configuration_contravariant)
-    tests.check_deformation_gradient_physical(numpy.linalg.det(deformation_gradient_matrix))
+    tests.deformation_gradient_physical(numpy.linalg.det(deformation_gradient_matrix))
     right_cauchy_green_deformation = kinematics.right_cauchy_green_deformation_tensor(
         deformation_gradient_matrix)
     left_cauchy_green_deformation = kinematics.left_cauchy_green_deformation_tensor(
@@ -115,11 +115,11 @@ def homework1_part2():
          quadrature_point.first_piola_kirchhoff_stress,
          quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
                                                                                  deformation_gradient=random_deformation)
-        tests.verify_first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
+        tests.first_piola_kirchhoff_stress(constitutive_model=fem.constitutive_model,
                                                             material=fem.material,
                                                             deformation_gradient=random_deformation,
                                                             first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
-        tests.verify_tangent_moduli(constitutive_model=fem.constitutive_model,
+        tests.tangent_moduli(constitutive_model=fem.constitutive_model,
                                               material=fem.material,
                                               deformation_gradient=random_deformation,
                                               tangent_moduli=quadrature_point.tangent_moduli)
@@ -139,12 +139,12 @@ def error_testing():
     p_errors = []
     c_errors = []
     for h_value in h_values:
-        p_error = tests.verify_first_piola_kirchhoff_stress(constitutive_model=constitutive_model,
+        p_error = tests.first_piola_kirchhoff_stress(constitutive_model=constitutive_model,
                                                             material=material,
                                                             deformation_gradient=deformation_gradient,
                                                             first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
                                                             h=h_value)
-        c_error = tests.verify_tangent_moduli(constitutive_model=constitutive_model,
+        c_error = tests.tangent_moduli(constitutive_model=constitutive_model,
                                               material=material,
                                               deformation_gradient=deformation_gradient,
                                               tangent_moduli=tangent_moduli,
@@ -241,14 +241,14 @@ def equibiaxial_deformation():
 
 def run():
     """Create and run finite element model"""
-    homework1_part1()
-    homework1_part2()
+    # homework1_part1()
+    # homework1_part2()
     # error_testing()
     tests.material_frame_indifference()
     tests.material_symmetry()
-    plane_stress()
-    uniaxial_deformation()
-    equibiaxial_deformation()
+    # plane_stress()
+    # uniaxial_deformation()
+    # equibiaxial_deformation()
 
 
 run()

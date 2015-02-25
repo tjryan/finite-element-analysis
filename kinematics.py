@@ -17,7 +17,7 @@ def deformation_gradient(deformed_basis, undeformed_basis):
     :return body.DeformationGradient
     """
     # Check that bases are compatible for matrix operations
-    tests.check_covariance(deformed_basis, undeformed_basis)
+    tests.covariance(deformed_basis, undeformed_basis)
     result = (numpy.outer(deformed_basis.vector1, undeformed_basis.vector1)
          + numpy.outer(deformed_basis.vector2, undeformed_basis.vector2)
          + numpy.outer(deformed_basis.vector3, undeformed_basis.vector3))

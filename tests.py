@@ -5,6 +5,7 @@ tests.py module contains all verification tests used to ensure correctness of th
 """
 
 import math
+import random
 
 import numpy
 
@@ -15,7 +16,7 @@ import materials
 import operations
 
 
-def check_covariance(basis1, basis2):
+def covariance(basis1, basis2):
     """Check that basis1 and basis 2 are compatible for operations, namely that
     one of them is covariant and the other is contravariant.
     """
@@ -25,7 +26,7 @@ def check_covariance(basis1, basis2):
         raise exceptions.BasisMismatchError(basis1, basis2)
 
 
-def check_deformation_gradient_physical(jacobian):
+def deformation_gradient_physical(jacobian):
     """Check that the deformation gradient makes physical sense by checking that the Jacobian is positive.
 
     :param float jacobian: jacobian to check
@@ -34,11 +35,54 @@ def check_deformation_gradient_physical(jacobian):
         raise exceptions.JacobianNegativeError(jacobian=jacobian)
 
 
-def check_deformation_gradient_plane_stress(deformation_gradient):
+def deformation_gradient_plane_stress(deformation_gradient):
     """Check that the deformation gradient has the correct structure for a plane stress case."""
     if (deformation_gradient[0][2] != 0 or deformation_gradient[1][2] != 0
         or deformation_gradient[2][0] != 0 or deformation_gradient[2][1] != 0):
         raise exceptions.PlaneStressError(deformation_gradient=deformation_gradient)
+
+
+def partition_unity(element_class, random_r, random_s):
+    """Check that the shape functions for the given element class verify partition of unity at the specified
+    coordinates.
+
+    Partition of unity: the sum of shape function at any point r, s should equal 1.
+
+    :param element_class: class of element to test
+    :param float random_r: random coordinate
+    :param float random_s: random coordinate
+    """
+    partition_unity_sum = sum(
+        [element_class.shape_functions(node_index=node_index, r=random_r, s=random_s) for node_index in range(
+            element_class.node_quantity)])
+    # Compute the error from the expected value of 1
+    partition_unity_error = math.fabs(partition_unity_sum - 1)
+    # If the error is not within tolerance of the expected value, raise an error
+    if partition_unity_error > constants.FLOATING_POINT_TOLERANCE:
+        raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)
+
+
+def partition_nullity(element_class, random_r, random_s):
+    """Check that the shape functions for the given element class verify partition of nullity at the specified
+    coordinates.
+
+    Partition of nullity: the sum of the derivatives of the shape functions at any point r, s should equal 0.
+
+    :param element_class: class of element to test
+    :param float random_r: random coordinate
+    :param float random_s: random coordinate
+    """
+    partition_nullity_sum = 0
+    for coordinate_index in range(element_class.dimension):
+        partition_nullity_sum += sum([
+            element_class.shape_function_derivatives(node_index=node_index, r=random_r, s=random_s,
+                                                     coordinate_index=coordinate_index) for node_index in
+            range(element_class.node_quantity)])
+    # Compute the error with the expected value of 0
+    partition_nullity_error = math.fabs(partition_nullity_sum - 0)
+    # If the error is not within tolerance of the expected value, raise an error
+    if partition_nullity_error > constants.FLOATING_POINT_TOLERANCE:
+        raise exceptions.PartitionNullityError(element_class=element_class, sum=partition_nullity_sum)
 
 
 def material_frame_indifference():
@@ -66,11 +110,11 @@ def material_frame_indifference():
                                                   test=True)
     # Test that each element is within tolerance of its original value
     w_error = math.fabs(w - w_rotated)
-    if w_error > constants.ERROR_TOLERANCE:
+    if w_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
                                                         quantity='strain energy density',
                                                         difference=w_error,
-                                                        tolerance=constants.ERROR_TOLERANCE)
+                                                        tolerance=constants.FLOATING_POINT_TOLERANCE)
     p_errors = []
     p_comparison = numpy.dot(random_rotation, p)
     for i in range(3):
@@ -78,11 +122,11 @@ def material_frame_indifference():
             p_error = math.fabs(p_rotated[i][j] - p_comparison[i][j])
             p_errors.append(p_error)
     p_max_error = max(p_errors)
-    if p_max_error > constants.ERROR_TOLERANCE:
+    if p_max_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
                                                         quantity='first Piola-Kirchhoff stress',
                                                         difference=p_max_error,
-                                                        tolerance=constants.ERROR_TOLERANCE)
+                                                        tolerance=constants.FLOATING_POINT_TOLERANCE)
     c_errors = []
     for i in range(3):
         for j in range(3):
@@ -95,11 +139,11 @@ def material_frame_indifference():
                     c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
                     c_errors.append(c_error)
     c_max_error = max(c_errors)
-    if c_max_error > constants.ERROR_TOLERANCE:
+    if c_max_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
                                                         quantity='tangent moduli',
                                                         difference=c_max_error,
-                                                        tolerance=constants.ERROR_TOLERANCE)
+                                                        tolerance=constants.FLOATING_POINT_TOLERANCE)
 
 
 def material_symmetry():
@@ -127,11 +171,11 @@ def material_symmetry():
                                                   test=True)
     # Test that each element is within tolerance of its original value
     w_error = math.fabs(w - w_rotated)
-    if w_error > constants.ERROR_TOLERANCE:
+    if w_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialSymmetryError(constitutive_model=constitutive_model,
                                                quantity='strain energy density',
                                                difference=w_error,
-                                               tolerance=constants.ERROR_TOLERANCE)
+                                               tolerance=constants.FLOATING_POINT_TOLERANCE)
     p_errors = []
     p_comparison = numpy.dot(random_rotation, p)
     for i in range(3):
@@ -142,11 +186,11 @@ def material_symmetry():
             p_error = math.fabs(p_rotated[i][j] - p_comparison)
             p_errors.append(p_error)
     p_max_error = max(p_errors)
-    if p_max_error > constants.ERROR_TOLERANCE:
+    if p_max_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialSymmetryError(constitutive_model=constitutive_model,
                                                quantity='first Piola-Kirchhoff stress',
                                                difference=p_max_error,
-                                               tolerance=constants.ERROR_TOLERANCE)
+                                               tolerance=constants.FLOATING_POINT_TOLERANCE)
     c_errors = []
     for i in range(3):
         for j in range(3):
@@ -159,15 +203,15 @@ def material_symmetry():
                     c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
                     c_errors.append(c_error)
     c_max_error = max(c_errors)
-    if c_max_error > constants.ERROR_TOLERANCE:
+    if c_max_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialSymmetryError(constitutive_model=constitutive_model,
                                                quantity='tangent moduli',
                                                difference=c_max_error,
-                                               tolerance=constants.ERROR_TOLERANCE)
+                                               tolerance=constants.FLOATING_POINT_TOLERANCE)
 
 
-def verify_first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
-                                        first_piola_kirchhoff_stress, h=1e-6):
+def first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
+                                 first_piola_kirchhoff_stress, h=1e-6):
     """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
 
     :param constitutive_model: a constitutive model object from constitutive_models.py
@@ -199,12 +243,26 @@ def verify_first_piola_kirchhoff_stress(constitutive_model, material, deformatio
             errors.append(error)
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
-    if max_error > constants.ERROR_TOLERANCE:
+    if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
-                                              tolerance=constants.ERROR_TOLERANCE)
+                                              tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
-def verify_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
+def shape_functions_triangular_element(element_class):
+    """Verify that the shape functions for the given triangular element class are implemented correctly by checking that
+    they satisfy partition of unity and that the derivatives satisfy partition of nullity.
+
+    :param element_class: class of element to test
+    """
+    # Generate random coordinates
+    random_r = random.uniform(0, 1)
+    random_s = random.uniform(0, random_r)
+    # Perform checks
+    partition_unity(element_class=element_class, random_r=random_r, random_s=random_s)
+    partition_nullity(element_class=element_class, random_r=random_r, random_s=random_s)
+
+
+def tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli, h=1e-6):
     """Verify that the computed tangent moduli tensor is within tolerance of the result from numerical differentiation
     using the 3 point method.
 
@@ -239,9 +297,9 @@ def verify_tangent_moduli(constitutive_model, material, deformation_gradient, ta
                     errors.append(error)
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
-    if max_error > constants.ERROR_TOLERANCE:
+    if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
-                                              tolerance=constants.ERROR_TOLERANCE)
+                                              tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
 

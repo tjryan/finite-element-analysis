@@ -102,7 +102,7 @@ def newton_method_thickness_stretch_ratio(material, constitutive_model, deformat
     while True:
         # Assign the 3-3 element of the deformation gradient to the current stretch ratio
         deformation_gradient[2][2] = stretch_ratio
-        # tests.check_deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
+        # tests.deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
                                                               deformation_gradient=deformation_gradient,
                                                               test=False)[2][2]

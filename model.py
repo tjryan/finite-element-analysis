@@ -3,6 +3,7 @@ model.py module contains the primary components for constructing the finite elem
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
+import elements
 
 
 class Element:
@@ -14,19 +15,34 @@ class Element:
         self.nodes = []  # list of node objects
         self.quadrature_points = []  # list of quadrature point objects
 
-    def total_strain_energy(self):
+    def internal_nodal_force_array(self):
+        """Computes the 2D internal nodal force array for the element."""
+        pass
+
+    def jacobian_matrix(self):
+        """Computes the Jacobian matrix for the element."""
+        pass
+
+    def stiffness_tensor(self):
+        """Computes the 4-D stiffness tensor for the element."""
+        pass
+
+    def strain_energy(self):
         """Computes the total strain energy of element."""
         pass
 
 
 class FEM:
     """Finite Element Model containing globally needed values and functions for performing finite element analysis."""
-    # TODO allow for multiple constitutive models and materials
 
     def __init__(self):
         self.constitutive_model = None  # class from constitutive_models.py
-        self.elements = []  # list of Element objects
         self.material = None  # Material object
+        self.element = elements.TriangularElementThreeNode  # Template element object
+        self.elements = []  # list of Element objects
+
+
+        # LATER USE
         self.lab_frame = None  # LabFrame object
         self.reference_configuration = None  # ReferenceConfiguration object
         self.deformed_configuration = None  # DeformedConfiguration object
@@ -64,5 +80,6 @@ class QuadraturePoint:
 class ShapeFunction:
     """Function that interpolates the solution between discrete values obtained at the nodes."""
 
-    def __init__(self):
-        pass
+    def __init__(self, element):
+        if isinstance(element, elements.TriangularElementThreeNode):
+            pass

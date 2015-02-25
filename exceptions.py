@@ -47,6 +47,25 @@ class InvalidArgumentError(BaseException):
                                                            + ' but was passed ' + actual_class.__name__)
 
 
+class InvalidCoordinateError(BaseException):
+    """The requested coordinate does not exist for the element."""
+
+    def __init__(self, coordinate_index, coordinate_quantity):
+        super(InvalidCoordinateError, self).__init__(
+            message='The requested coordinate does not exist for this element. \n'
+                    + 'coordinate index: ' + str(coordinate_index) + '\n'
+                    + 'coordinate quantity: ' + str(coordinate_quantity))
+
+
+class InvalidNodeError(BaseException):
+    """The requested node does not exist for the element."""
+
+    def __init__(self, node_index, node_quantity):
+        super(InvalidNodeError, self).__init__(message='The requested node does not exist for this element. \n'
+                                                       + 'node index: ' + str(node_index) + '\n'
+                                                       + 'node quantity: ' + str(node_quantity))
+
+
 class JacobianNegativeError(BaseException):
     """Jacobian has a negative value"""
 
@@ -91,6 +110,26 @@ class NewtonMethodMaxIterationsExceededError(BaseException):
                     + 'iterations: ' + str(iterations) + '\n'
                     + 'error: ' + str(error) + '\n'
                     + 'tolerance: ' + str(tolerance))
+
+
+class PartitionNullityError(BaseException):
+    """Partition of nullity is not satisfied for the shape functions of the given class."""
+
+    def __init__(self, element_class, sum):
+        super(PartitionNullityError, self).__init__(
+            message='Partition of nullity is not satisfied for the element ' + element_class.__name__ + '. \n'
+                    + 'sum: ' + str(sum) + '\n'
+                    + 'required value: 0')
+
+
+class PartitionUnityError(BaseException):
+    """Partition of unity is not satisfied for the shape functions of the given class."""
+
+    def __init__(self, element_class, sum):
+        super(PartitionUnityError, self).__init__(
+            message='Partition of unity is not satisfied for the element ' + element_class.__name__ + '. \n'
+                    + 'sum: ' + str(sum) + '\n'
+                    + 'required value: 1')
 
 
 class PlaneStressError(BaseException):
