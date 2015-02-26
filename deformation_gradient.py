@@ -17,9 +17,10 @@ class DeformationGradient:
     :ivar float J: Jacobian, representing the determinant of the deformation gradient tensor
     """
     # TODO consistent implementation of deformation gradient as a class everywhere
+    # TODO update docstring
 
-    def __init__(self, deformation_gradient, material, constitutive_model, plane_stress=False, plane_strain=False):
-        self.F = deformation_gradient
+    def __init__(self, F, material, constitutive_model, plane_stress=False, plane_strain=False):
+        self.F = F
         self.material = material
         self.constitutive_model = constitutive_model
         # TODO should I store these?
@@ -63,7 +64,6 @@ class DeformationGradient:
         self.J = self.calculate_jacobian()
 
     def enforce_plane_strain(self):
-        # TODO implement this method
         pass
 
 

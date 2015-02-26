@@ -7,11 +7,72 @@ elements.py module contains classes for each finite element.
 import exceptions
 
 
-class TriangularElementThreeNode:
+class BaseElement:
+    """Base element class containing the basic attributes and functions for a finite element. The class
+    attributes should be overriden by children classes.
+
+    Finite elements discretize the domain of the body and describe the kinematic and kinetic behavior of a small
+    region.
+    """
+    dimension = 0
+    node_quantity = 0
+    node_positions = []
+
+    # TODO add arguments to init everywhere
+    def __init__(self):
+        self.nodes = []
+        self.quadrature_points = []
+        self.jacobian_matrix = None
+        self.jacobian_inverse_transpose = None
+        self.reference_configuration = None  # matrix with node reference positions as row vectors
+        self.current_configuration = None  # matrix with node current positions as row vector
+        # Call one-time methods
+        self.assemble_reference_configuration()
+        self.calculate_jacobian_matrix()
+
+    def assemble_current_configuration(self):
+        """Assemble the current configuration matrix from the node current positions as row vectors.
+        Runs one time and remains constant for the element throughout the analysis."""
+        # self.current_configuration = something
+        pass
+
+    def assemble_reference_configuration(self):
+        """Assemble the reference configuration matrix from the node reference positions as row vectors.
+        Runs one time and remains constant for the element throughout the analysis."""
+        # self.reference_configuration = something
+        pass
+
+    def calculate_jacobian_matrix(self):
+        """Computes the Jacobian matrix and its inverse-transpose for the element.
+        Runs one time and remains constant for the element throughout the analysis."""
+        # self.jacobian_matrix = something
+        # self.jacobian_inverse_transpose = somethingelse
+        pass
+
+    def force_array(self):
+        """Computes the 2D internal nodal force array for the element for the current configuration.
+        Runs for each deformed configuration in the analysis."""
+        # return force_array
+        pass
+
+    def stiffness_tensor(self):
+        """Computes the 4-D stiffness tensor for the element. Runs for each deformed configuration in the analysis."""
+        # return stiffness tensor
+        pass
+
+    def strain_energy(self):
+        """Computes the total strain energy of element. Runs for each deformed configuration in the analysis."""
+        pass
+
+
+class TriangularLinearElement(BaseElement):
     """A 2-D isoparametric triangular element with 3 nodes."""
     dimension = 2
     node_quantity = 3
-    node_locations = [(0, 0), (1, 0), (0, 1)]
+    node_positions = [(0, 0), (1, 0), (0, 1)]
+
+    def __init__(self):
+        super(BaseElement, self).__init__()
 
     @classmethod
     def shape_functions(cls, node_index, r, s):
@@ -70,11 +131,14 @@ class TriangularElementThreeNode:
             raise exceptions.InvalidNodeError(node_index=node_index, node_quantity=cls.node_quantity)
 
 
-class TriangularElementSixNode:
+class TriangularQuadraticElement(BaseElement):
     """A 2-D isoparametric triangular element with 6 nodes."""
     dimension = 2
     node_quantity = 6
-    node_locations = [(0, 0), (1, 0), (0, 1), (.5, 0), (.5, .5), (0, .5)]
+    node_positions = [(0, 0), (1, 0), (0, 1), (.5, 0), (.5, .5), (0, .5)]
+
+    def __init__(self):
+        super(BaseElement, self).__init__()
 
     @classmethod
     def shape_functions(cls, node_index, r, s):

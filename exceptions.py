@@ -67,7 +67,7 @@ class InvalidCoordinateError(BaseException):
         super(InvalidCoordinateError, self).__init__(
             message='The requested coordinate does not exist for this element. \n'
                     + 'coordinate index: ' + str(coordinate_index) + '\n'
-                    + 'coordinate quantity: ' + str(coordinate_quantity))
+                    + 'coordinate point_quantity: ' + str(coordinate_quantity))
 
 
 class InvalidNodeError(BaseException):
@@ -76,7 +76,7 @@ class InvalidNodeError(BaseException):
     def __init__(self, node_index, node_quantity):
         super(InvalidNodeError, self).__init__(message='The requested node does not exist for this element. \n'
                                                        + 'node index: ' + str(node_index) + '\n'
-                                                       + 'node quantity: ' + str(node_quantity))
+                                                       + 'node point_quantity: ' + str(node_quantity))
 
 
 class JacobianNegativeError(BaseException):

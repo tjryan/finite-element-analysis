@@ -9,7 +9,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy
 
-import body
+from deformation_gradient import DeformationGradient
 import constants
 import frames
 import materials
@@ -108,21 +108,21 @@ def homework1_part2():
         element.quadrature_points.append(quadrature_point)
         # Initialize a random deformation gradient (with positive determinant) from which to compute other quantities
         random_deformation = operations.generate_random_deformation_gradient()
-        quadrature_point.deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
-                                                                         material=fem.material,
-                                                                         constitutive_model=fem.constitutive_model)
+        quadrature_point.deformation_gradient = DeformationGradient(F=random_deformation,
+                                                                    material=fem.material,
+                                                                    constitutive_model=fem.constitutive_model)
         (quadrature_point.strain_energy_density,
          quadrature_point.first_piola_kirchhoff_stress,
          quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
                                                                                  deformation_gradient=random_deformation)
         tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=fem.constitutive_model,
-                                                            material=fem.material,
-                                                            deformation_gradient=random_deformation,
-                                                            first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
+                                                                     material=fem.material,
+                                                                     deformation_gradient=random_deformation,
+                                                                     first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
         tests.tangent_moduli_numerical_differentiation(constitutive_model=fem.constitutive_model,
-                                              material=fem.material,
-                                              deformation_gradient=random_deformation,
-                                              tangent_moduli=quadrature_point.tangent_moduli)
+                                                       material=fem.material,
+                                                       deformation_gradient=random_deformation,
+                                                       tangent_moduli=quadrature_point.tangent_moduli)
 
 
 def error_testing():
@@ -140,15 +140,15 @@ def error_testing():
     c_errors = []
     for h_value in h_values:
         p_error = tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=constitutive_model,
-                                                            material=material,
-                                                            deformation_gradient=deformation_gradient,
-                                                            first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
-                                                            h=h_value)
+                                                                               material=material,
+                                                                               deformation_gradient=deformation_gradient,
+                                                                               first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
+                                                                               h=h_value)
         c_error = tests.tangent_moduli_numerical_differentiation(constitutive_model=constitutive_model,
-                                              material=material,
-                                              deformation_gradient=deformation_gradient,
-                                              tangent_moduli=tangent_moduli,
-                                              h=h_value)
+                                                                 material=material,
+                                                                 deformation_gradient=deformation_gradient,
+                                                                 tangent_moduli=tangent_moduli,
+                                                                 h=h_value)
         p_errors.append(p_error)
         c_errors.append(c_error)
     plt.figure()
@@ -169,10 +169,10 @@ def plane_stress():
     fem.constitutive_model = constitutive_models.Neohookean()
     fem.material = materials.Custom(name='test', first_lame_parameter=5, shear_modulus=3)
     random_deformation = operations.generate_random_deformation_gradient(plane_stress=True)
-    deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
-                                                    material=fem.material,
-                                                    constitutive_model=fem.constitutive_model,
-                                                    plane_stress=True)
+    deformation_gradient = DeformationGradient(F=random_deformation,
+                                               material=fem.material,
+                                               constitutive_model=fem.constitutive_model,
+                                               plane_stress=True)
 
 
 def uniaxial_deformation():
@@ -187,10 +187,10 @@ def uniaxial_deformation():
     p22_values = []
     for f11_value in f11_values:
         uniaxial_deformation[0][0] = f11_value
-        deformation_gradient = body.DeformationGradient(deformation_gradient=uniaxial_deformation,
-                                                        material=fem.material,
-                                                        constitutive_model=fem.constitutive_model,
-                                                        plane_stress=True)
+        deformation_gradient = DeformationGradient(F=uniaxial_deformation,
+                                                   material=fem.material,
+                                                   constitutive_model=fem.constitutive_model,
+                                                   plane_stress=True)
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,
@@ -220,10 +220,10 @@ def equibiaxial_deformation():
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
         random_deformation[1][1] = f11_value
-        deformation_gradient = body.DeformationGradient(deformation_gradient=random_deformation,
-                                                        material=fem.material,
-                                                        constitutive_model=fem.constitutive_model,
-                                                        plane_stress=True)
+        deformation_gradient = DeformationGradient(F=random_deformation,
+                                                   material=fem.material,
+                                                   constitutive_model=fem.constitutive_model,
+                                                   plane_stress=True)
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,

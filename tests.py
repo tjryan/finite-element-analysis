@@ -8,6 +8,7 @@ import math
 import random
 
 import numpy
+from scipy.integrate import dblquad
 
 import constants
 import constitutive_models
@@ -205,6 +206,37 @@ def first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model, m
                                               tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
+def gauss_quadrature(quadrature_class):
+    """Check numerical integration using Gauss quadrature against exact integration for an isoparametric
+    triangular element for first and second order polynomials."""
+    # For 1st and 2nd order polynomials
+    for order in [1, 2]:
+        random_polynomial = None
+        if order == 1:
+            # Define a random linear polynomial
+            random_coefficient_1 = random.uniform(-1, 1)
+            random_coefficient_2 = random.uniform(-1, 1)
+            random_polynomial = lambda r, s: random_coefficient_1 * r + random_coefficient_2 * s
+        if order == 2:
+            # Define a random quadratic polynomial
+            random_coefficient_1 = random.uniform(-1, 1)
+            random_coefficient_2 = random.uniform(-1, 1)
+            random_coefficient_3 = random.uniform(-1, 1)
+            random_coefficient_4 = random.uniform(-1, 1)
+            random_coefficient_5 = random.uniform(-1, 1)
+            random_polynomial = (lambda r, s: random_coefficient_1 * r + random_coefficient_2 * s
+                                              + random_coefficient_3 * r * s + random_coefficient_4 * r ** 2
+                                              + random_coefficient_5 * s ** 2)
+        # Compare the result of numerical integration using Gauss quadrature against exact integration
+        gauss_integration_value = quadrature_class.integrate(function=random_polynomial)
+        s_min = 0
+        s_max = 1
+        r_min = lambda s: 0
+        r_max = lambda s: 1 - s
+        exact_integration_value, exact_integration_error = dblquad(random_polynomial, s_min, s_max, r_min, r_max)
+        error = math.fabs(gauss_integration_value - exact_integration_value)
+
+
 def shape_functions_completeness(element_class):
     """Check shape functions of the given element for completeness by testing if they can interpolate a
     random linear polynomial exactly.
@@ -221,8 +253,8 @@ def shape_functions_completeness(element_class):
     # Evaluate the polynomial at this point
     comparison_value = random_linear_polynomial(random_r, random_s)
     # Sample the polynomial at the nodes
-    node_values = [random_linear_polynomial(node_location[0], node_location[1]) for node_location in
-                   element_class.node_locations]
+    node_values = [random_linear_polynomial(node_position[0], node_position[1]) for node_position in
+                   element_class.node_positions]
     # Interpolate sample node values using the shape functions to compute that value at a the random point
     # by summing over nodes
     interpolated_value = sum(
@@ -231,8 +263,7 @@ def shape_functions_completeness(element_class):
     # Compute the error between the comparison and interpolated values, and raise an error if not within tolerance
     # of each other
     error = math.fabs(interpolated_value - comparison_value)
-    # if error > constants.FLOATING_POINT_TOLERANCE:
-    if True:
+    if error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.CompletenessError(element_class=element_class, comparison_value=comparison_value,
                                            interpolated_value=interpolated_value, error=error,
                                            tolerance=constants.FLOATING_POINT_TOLERANCE)

@@ -38,7 +38,7 @@ class FEM:
     def __init__(self):
         self.constitutive_model = None  # class from constitutive_models.py
         self.material = None  # Material object
-        self.element = elements.TriangularElementThreeNode  # Template element object
+        self.element = elements.TriangularLinearElement  # Template element object
         self.elements = []  # list of Element objects
 
 
@@ -54,10 +54,9 @@ class Node:
     """
 
     def __init__(self):
-        self.reference_position = None  # position vector
-        self.deformed_position = None  # position vector
-        self.displacements = None  # vector
-        self.rotations = None  # vector
+        self.id = None  # identifier for the node
+        self.reference_position = None  # vector
+        self.current_position = None  # vector
         self.parent_elements = []  # the elements object that this node belongs to
 
 
@@ -66,6 +65,7 @@ class QuadraturePoint:
     A point in an element at which quantities of interest can be easily evaluated using Gauss quadrature.
     Stores values of shape functions, kinetic, and kinematic quantities at this point.
     """
+    # TODO rethink the use of this class. It might not be needed anymore.
 
     def __init__(self):
         self.position = None
@@ -81,5 +81,5 @@ class ShapeFunction:
     """Function that interpolates the solution between discrete values obtained at the nodes."""
 
     def __init__(self, element):
-        if isinstance(element, elements.TriangularElementThreeNode):
+        if isinstance(element, elements.TriangularLinearElement):
             pass
