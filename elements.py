@@ -35,7 +35,6 @@ class BaseElement:
     node_quantity = 0
     node_positions = []
 
-    # TODO add arguments to init everywhere
     def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
         # Fixed properties
         self.material = material

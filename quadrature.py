@@ -19,19 +19,6 @@ class BaseQuadrature:
     point_positions = []
     point_weights = []
 
-    @classmethod
-    def integrate(cls, function):
-        """Use Gauss quadrature to numerically integrate a function.
-
-        :param function: a lambda function of two variables to integrate numerically
-        """
-        # TODO should I keep this? It is only being used in tests.
-        result = .5 * sum(
-            [function(cls.point_positions[point_index][0], cls.point_positions[point_index][1]) * cls.point_weights[
-                point_index] for
-             point_index in range(cls.point_quantity)])
-        return result
-
 
 class GaussQuadratureOnePoint(BaseQuadrature):
     """Properties of one-point Gauss quadrature.

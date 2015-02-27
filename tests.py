@@ -234,7 +234,10 @@ def gauss_quadrature(quadrature_class):
                                               + random_coefficient_3 * r * s + random_coefficient_4 * r ** 2
                                               + random_coefficient_5 * s ** 2)
         # Compare the result of numerical integration using Gauss quadrature against exact integration
-        gauss_integration_value = quadrature_class.integrate(function=random_polynomial)
+        gauss_integration_value = .5 * sum([
+            random_polynomial(quadrature_class.point_positions[point_index][0],
+                              quadrature_class.point_positions[point_index][1]) *
+            quadrature_class.point_weights[point_index] for point_index in range(quadrature_class.point_quantity)])
         s_min = 0
         s_max = 1
         r_min = lambda s: 0
