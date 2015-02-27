@@ -311,7 +311,7 @@ def shape_functions_partition_unity(element_class, position):
         raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)
 
 
-def shape_functions_triangular_element(element_class):
+def shape_functions(element_class):
     """Verify that the shape functions for the given triangular element class are implemented correctly by checking that
     they satisfy partition of unity and that the derivatives satisfy partition of nullity.
 

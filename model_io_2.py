@@ -13,10 +13,10 @@ def test_shape_functions():
     are implemented correctly."""
     # Test 3 node element
     triangular_linear_element = elements.TriangularLinearElement
-    tests.shape_functions_triangular_element(element_class=triangular_linear_element)
+    tests.shape_functions(element_class=triangular_linear_element)
     # Test 6 node element
     triangular_quadratic_element = elements.TriangularQuadraticElement
-    tests.shape_functions_triangular_element(element_class=triangular_quadratic_element)
+    tests.shape_functions(element_class=triangular_quadratic_element)
 
 
 def test_gauss_quadrature():
