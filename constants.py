@@ -13,7 +13,6 @@ CONTRAVARIANT = 'contravariant'
 FLOATING_POINT_TOLERANCE = 1e-12
 """The tolerated error for computations that should return exact matches, and are limited only by
 16-digit floating point precision."""
-# TODO if this ever becomes a problem, it needs to be scaled based on the values the error is being computed with respect to.
 
 LAB = 'lab'
 """Indicates that a Basis is in the lab frame and is therefore expresses in Cartesian coordinates."""
