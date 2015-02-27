@@ -13,26 +13,6 @@ import operations
 import tests
 
 
-class BaseConstitutiveLaw:
-    """Base constitutive law class, containing methods that should overriden for each constitutive law."""
-
-    def calculate_all(self):
-        """Should be overridden"""
-        return None
-
-    def first_piola_kirchhoff_stress(self):
-        """Should be overriden"""
-        return None
-
-    def strain_energy_density(self):
-        """Should be overriden"""
-        return None
-
-    def tangent_moduli(self):
-        """Should be overriden"""
-        return None
-
-
 class Neohookean:
     """A hyperelastic model with non-linear stress-strain behavior of materials undergoing large deformations
     and extended to the compressive range (volume can change).
@@ -78,9 +58,9 @@ class Neohookean:
         # Verify the correctness of this result by comparing to numerical differentiation
         if test:
             tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=self,
-                                                      material=material,
-                                                      deformation_gradient=deformation_gradient,
-                                                      first_piola_kirchhoff_stress=result)
+                                                                         material=material,
+                                                                         deformation_gradient=deformation_gradient,
+                                                                         first_piola_kirchhoff_stress=result)
         # Return a 2x2 matrix if requested for plane stress:
         if dimension == 2:
             return result[0:2, 0:2]
@@ -119,23 +99,22 @@ class Neohookean:
             for j in range(3):
                 for k in range(3):
                     for l in range(3):
-                        entry = (material.first_lame_parameter * F_inverse[l][k] * F_inverse[j][i]
-                                 - (material.first_lame_parameter * math.log(J) - material.shear_modulus)
-                                 * F_inverse[j][k] * F_inverse[l][i])
+                        tangent_moduli[i][j][k][l] = (material.first_lame_parameter * F_inverse[l][k] * F_inverse[j][i]
+                                                      - (
+                            material.first_lame_parameter * math.log(J) - material.shear_modulus)
+                                                      * F_inverse[j][k] * F_inverse[l][i])
                         if i == k and j == l:
-                            entry += material.shear_modulus
-                        tangent_moduli[i][j][k][l] = entry
+                            tangent_moduli[i][j][k][l] += material.shear_modulus
         # Verify the correctness of this result by comparing it to numerical differentiation
         if test:
             tests.tangent_moduli_numerical_differentiation(constitutive_model=self, material=material,
-                                        deformation_gradient=deformation_gradient,
-                                        tangent_moduli=tangent_moduli)
+                                                           deformation_gradient=deformation_gradient,
+                                                           tangent_moduli=tangent_moduli)
         # If the requested dimension is 2, corrected the tangent moduli for plane stress
         if dimension == 2:
             return self.tangent_moduli_two_dimensions(tangent_moduli)
         # Otherwise return the full tangent moduli
-        else:
-            return tangent_moduli
+        return tangent_moduli
 
     def tangent_moduli_two_dimensions(self, tangent_moduli):
         """Calculate the two-dimensional tangent moduli by correcting for plane stress"""
