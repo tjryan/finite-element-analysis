@@ -18,7 +18,8 @@ class Neohookean:
     and extended to the compressive range (volume can change).
     """
 
-    def calculate_all(self, material, deformation_gradient, dimension=3, test=True):
+    @classmethod
+    def calculate_all(cls, material, deformation_gradient, dimension=3, test=True):
         """Calculate and return the values of the first Piola-Kirchhoff stress, the tangent moduli, and the strain
         energy density.
 
@@ -30,19 +31,20 @@ class Neohookean:
         :return numpy.ndarray tangent_moduli_numerical_differentiation: 3x3x3x3 tensor representing the tangent moduli of the body
         :return float strain_energy_density: the value of the strain energy density in the body
         """
-        strain_energy_density = self.strain_energy_density(material=material,
-                                                           deformation_gradient=deformation_gradient)
-        first_piola_kirchhoff_stress = self.first_piola_kirchhoff_stress(material=material,
-                                                                         deformation_gradient=deformation_gradient,
-                                                                         dimension=dimension,
-                                                                         test=test)
-        tangent_moduli = self.tangent_moduli(material=material,
-                                             deformation_gradient=deformation_gradient,
-                                             dimension=dimension,
-                                             test=test)
+        strain_energy_density = cls.strain_energy_density(material=material,
+                                                          deformation_gradient=deformation_gradient)
+        first_piola_kirchhoff_stress = cls.first_piola_kirchhoff_stress(material=material,
+                                                                        deformation_gradient=deformation_gradient,
+                                                                        dimension=dimension,
+                                                                        test=test)
+        tangent_moduli = cls.tangent_moduli(material=material,
+                                            deformation_gradient=deformation_gradient,
+                                            dimension=dimension,
+                                            test=test)
         return strain_energy_density, first_piola_kirchhoff_stress, tangent_moduli
 
-    def first_piola_kirchhoff_stress(self, material, deformation_gradient, dimension=3, test=True):
+    @classmethod
+    def first_piola_kirchhoff_stress(cls, material, deformation_gradient, dimension=3, test=True):
         """Compute the first Piola-Kirchhoff stress for the material from the deformation gradient under
         the specified assumptions.
 
@@ -57,7 +59,7 @@ class Neohookean:
             + material.shear_modulus * deformation_gradient)
         # Verify the correctness of this result by comparing to numerical differentiation
         if test:
-            tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=self,
+            tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=cls,
                                                                          material=material,
                                                                          deformation_gradient=deformation_gradient,
                                                                          first_piola_kirchhoff_stress=result)
@@ -68,7 +70,8 @@ class Neohookean:
         else:
             return result
 
-    def strain_energy_density(self, material, deformation_gradient):
+    @classmethod
+    def strain_energy_density(cls, material, deformation_gradient):
         """Compute the strain energy density for the material from the deformation gradient under
         the specified assumptions. Note that this value is the same in 2D and 3D.
 
@@ -82,7 +85,8 @@ class Neohookean:
                       numpy.trace(numpy.dot(deformation_gradient.T, deformation_gradient)) - 3))
         return result
 
-    def tangent_moduli(self, material, deformation_gradient, dimension=3, test=True):
+    @classmethod
+    def tangent_moduli(cls, material, deformation_gradient, dimension=3, test=True):
         """Compute the tangent moduli for the material from the deformation gradient under
         the specified assumptions.
 
@@ -107,16 +111,17 @@ class Neohookean:
                             tangent_moduli[i][j][k][l] += material.shear_modulus
         # Verify the correctness of this result by comparing it to numerical differentiation
         if test:
-            tests.tangent_moduli_numerical_differentiation(constitutive_model=self, material=material,
+            tests.tangent_moduli_numerical_differentiation(constitutive_model=cls, material=material,
                                                            deformation_gradient=deformation_gradient,
                                                            tangent_moduli=tangent_moduli)
         # If the requested dimension is 2, corrected the tangent moduli for plane stress
         if dimension == 2:
-            return self.tangent_moduli_two_dimensions(tangent_moduli)
+            return cls.tangent_moduli_two_dimensions(tangent_moduli)
         # Otherwise return the full tangent moduli
         return tangent_moduli
 
-    def tangent_moduli_two_dimensions(self, tangent_moduli):
+    @classmethod
+    def tangent_moduli_two_dimensions(cls, tangent_moduli):
         """Calculate the two-dimensional tangent moduli by correcting for plane stress.
 
         :param tangent_moduli: a 3x3x3x3 tangent moduli to be condensed by accounting for plane stress
