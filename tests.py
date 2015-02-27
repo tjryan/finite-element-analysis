@@ -237,6 +237,23 @@ def gauss_quadrature(quadrature_class):
         error = math.fabs(gauss_integration_value - exact_integration_value)
 
 
+def shape_functions(element_class):
+    """Verify that the shape functions for the given triangular element class are implemented correctly by checking that
+    they satisfy partition of unity and that the derivatives satisfy partition of nullity.
+
+    :param element_class: class of element to test
+    """
+    # Generate random coordinates
+    random_r = random.uniform(0, 1)
+    random_s = random.uniform(0, random_r)
+    random_position = (random_r, random_s)
+    # Perform checks
+    shape_functions_partition_unity(element_class=element_class, position=random_position)
+    shape_functions_partition_nullity(element_class=element_class, position=random_position)
+    shape_functions_numerical_differentiation(element_class=element_class, position=random_position)
+    shape_functions_completeness(element_class=element_class)
+
+
 def shape_functions_completeness(element_class):
     """Check shape functions of the given element for completeness by testing if they can interpolate a
     random linear polynomial exactly.
@@ -268,6 +285,33 @@ def shape_functions_completeness(element_class):
         raise exceptions.CompletenessError(element_class=element_class, comparison_value=comparison_value,
                                            interpolated_value=interpolated_value, error=error,
                                            tolerance=constants.FLOATING_POINT_TOLERANCE)
+
+
+def shape_functions_numerical_differentiation(element_class, position, h=1e-6):
+    """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
+
+    :param element_class: class of element to test
+    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
+    """
+    for node_index in range(element_class.node_quantity):
+        for coordinate_index in range(element_class.dimension):
+            # Check shape function derivative with respect to the specified coordinate by perturbing it
+            perturbed_r_plus = position[0] + h * (coordinate_index == 0)
+            perturbed_s_plus = position[1] + h * (coordinate_index == 1)
+            perturbed_r_minus = position[0] - h * (coordinate_index == 0)
+            perturbed_s_minus = position[1] - h * (coordinate_index == 1)
+            shape_function_plus = element_class.shape_functions(node_index=node_index,
+                                                                position=(perturbed_r_plus, perturbed_s_plus))
+            shape_function_minus = element_class.shape_functions(node_index=node_index,
+                                                                 position=(perturbed_r_minus, perturbed_s_minus))
+            numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
+            computed_value = element_class.shape_function_derivatives(node_index=node_index, position=position,
+                                                                      coordinate_index=coordinate_index)
+            error = math.fabs(computed_value - numerical_value)
+            # If the result is not within tolerance of the provided value, raise an error
+            if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
+                raise exceptions.DifferentiationError(difference=error,
+                                                      tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
 def shape_functions_partition_nullity(element_class, position):
@@ -309,50 +353,6 @@ def shape_functions_partition_unity(element_class, position):
     # If the error is not within tolerance of the expected value, raise an error
     if partition_unity_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)
-
-
-def shape_functions(element_class):
-    """Verify that the shape functions for the given triangular element class are implemented correctly by checking that
-    they satisfy partition of unity and that the derivatives satisfy partition of nullity.
-
-    :param element_class: class of element to test
-    """
-    # Generate random coordinates
-    random_r = random.uniform(0, 1)
-    random_s = random.uniform(0, random_r)
-    random_position = (random_r, random_s)
-    # Perform checks
-    shape_functions_partition_unity(element_class=element_class, position=random_position)
-    shape_functions_partition_nullity(element_class=element_class, position=random_position)
-    shape_functions_numerical_differentiation(element_class=element_class, position=random_position)
-    shape_functions_completeness(element_class=element_class)
-
-
-def shape_functions_numerical_differentiation(element_class, position, h=1e-6):
-    """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
-
-    :param element_class: class of element to test
-    :param float h: a small deviation that perturbs the evaluation points of the stress tensor
-    """
-    for node_index in range(element_class.node_quantity):
-        for coordinate_index in range(element_class.dimension):
-            # Check shape function derivative with respect to the specified coordinate by perturbing it
-            perturbed_r_plus = position[0] + h * (coordinate_index == 0)
-            perturbed_s_plus = position[1] + h * (coordinate_index == 1)
-            perturbed_r_minus = position[0] - h * (coordinate_index == 0)
-            perturbed_s_minus = position[1] - h * (coordinate_index == 1)
-            shape_function_plus = element_class.shape_functions(node_index=node_index,
-                                                                position=(perturbed_r_plus, perturbed_s_plus))
-            shape_function_minus = element_class.shape_functions(node_index=node_index,
-                                                                 position=(perturbed_r_minus, perturbed_s_minus))
-            numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
-            computed_value = element_class.shape_function_derivatives(node_index=node_index, position=position,
-                                                                      coordinate_index=coordinate_index)
-            error = math.fabs(computed_value - numerical_value)
-            # If the result is not within tolerance of the provided value, raise an error
-            if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
-                raise exceptions.DifferentiationError(difference=error,
-                                                      tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
 def tangent_moduli_numerical_differentiation(constitutive_model, material, deformation_gradient, tangent_moduli,
