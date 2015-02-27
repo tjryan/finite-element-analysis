@@ -72,7 +72,7 @@ class Neohookean:
         """Compute the strain energy density for the material from the deformation gradient under
         the specified assumptions. Note that this value is the same in 2D and 3D.
 
-        :param model.Material material: material to which the deformation gradient applies
+        :param material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
         """
         J = numpy.linalg.det(deformation_gradient)
@@ -86,10 +86,10 @@ class Neohookean:
         """Compute the tangent moduli for the material from the deformation gradient under
         the specified assumptions.
 
-        :param model.Material material: material to which the deformation gradient applies
+        :param material: material to which the deformation gradient applies
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
-        :param bool test: whether to perform the verification test for the stress result
         :param int dimension: desired dimension of the returned tensor
+        :param bool test: whether to perform the verification test for the stress result
         """
         J = numpy.linalg.det(deformation_gradient)
         F_inverse = numpy.linalg.inv(deformation_gradient)
@@ -117,7 +117,10 @@ class Neohookean:
         return tangent_moduli
 
     def tangent_moduli_two_dimensions(self, tangent_moduli):
-        """Calculate the two-dimensional tangent moduli by correcting for plane stress"""
+        """Calculate the two-dimensional tangent moduli by correcting for plane stress.
+
+        :param tangent_moduli: a 3x3x3x3 tangent moduli to be condensed by accounting for plane stress
+        """
         # Initialize tangent moduli as an empty 4-dimensional array
         corrected_tangent_moduli = numpy.empty(shape=(2, 2, 2, 2), dtype=float)
         for a in range(2):

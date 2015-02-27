@@ -13,8 +13,23 @@ class BaseElement:
     """Base element class containing the basic attributes and functions for a finite element. The class
     attributes should be overriden by children classes.
 
-    Finite elements discretize the domain of the body and describe the kinematic and kinetic behavior of a small
+    Finite elements discretize the domain of the body and describe the kinematic and material response of a small
     region.
+
+    :cvar int dimension: the dimension of the element (1D, 2D, 3D)
+    :cvar int node_quantity: the number of nodes in the element
+    :cvar list node_positions: a list of tuples containing the positions of the nodes
+    :param material: material object that described the material the element is composed of
+    :param constitutive_model: constitutive model class that describes the material behavior
+    :param quadrature_class: class that describes the order of quadrature being used
+    :param int degrees_of_freedom: number of degrees of freedom at each node of the element
+    :param float thickness: thickness of the element (assumed to be constant over the element)
+    :param bool plane_stress: whether to enforce plane stress
+    :ivar list nodes: list of node objects contained in the element
+    :ivar list quadrature_points: list of quadrature point objects contained in the element
+    :ivar float strain_energy: strain energy of the element
+    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
     """
     dimension = 0
     node_quantity = 0
@@ -52,12 +67,25 @@ class BaseElement:
 
     @classmethod
     def shape_functions(cls, node_index, position):
-        """Should be overriden by children classes."""
+        """Should be overriden by children classes. Compute the value of the shape function for the specified
+        node_index at the given coordinates. Note that the nodes are indexed starting at 0 for the convenience of
+        iteration when calling this function.
+
+        :param int node_index: index of the node_index at which to compute the shape function
+        :param tuple position: coordinates of point at which to evaluate
+        """
         pass
 
     @classmethod
     def shape_function_derivatives(cls, node_index, position, coordinate_index):
-        """Should be overriden by children classes."""
+        """Should be overriden by children classes. Compute the value of the derivative of the shape function with
+        respect to the specified coordinate, for the specified node_index at the given coordinates. Note that the
+        nodes and coordinates are indexed starting at 0 for the convenience of iteration when calling this function.
+
+        :param int node_index: index of the node at which to compute the shape function
+        :param tuple position: coordinates of point at which to evaluate
+        :param int coordinate_index: index of the coordinate to compute the derivative with respect to
+        """
         pass
 
     def update_current_configuration(self):
@@ -153,13 +181,32 @@ class BaseElement:
 
 
 class TriangularLinearElement(BaseElement):
-    """A 2-D isoparametric triangular element with 3 nodes."""
+    """A 2-D isoparametric linear triangular element with 3 nodes.
+
+    :cvar int dimension: the dimension of the element (1D, 2D, 3D)
+    :cvar int node_quantity: the number of nodes in the element
+    :cvar list node_positions: a list of tuples containing the positions of the nodes
+    :param material: material object that described the material the element is composed of
+    :param constitutive_model: constitutive model class that describes the material behavior
+    :param quadrature_class: class that describes the order of quadrature being used
+    :param int degrees_of_freedom: number of degrees of freedom at each node of the element
+    :param float thickness: thickness of the element (assumed to be constant over the element)
+    :param bool plane_stress: whether to enforce plane stress
+    :ivar list nodes: list of node objects contained in the element
+    :ivar list quadrature_points: list of quadrature point objects contained in the element
+    :ivar float strain_energy: strain energy of the element
+    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
+    """
+
     dimension = 2
     node_quantity = 3
     node_positions = [(0, 0), (1, 0), (0, 1)]
 
-    def __init__(self):
-        super(BaseElement, self).__init__()
+    def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+        super(TriangularLinearElement, self).__init__(material, constitutive_model, quadrature_class,
+                                                      degrees_of_freedom, thickness,
+                                                      plane_stress)
 
     @classmethod
     def shape_functions(cls, node_index, position):
@@ -217,13 +264,31 @@ class TriangularLinearElement(BaseElement):
 
 
 class TriangularQuadraticElement(BaseElement):
-    """A 2-D isoparametric triangular element with 6 nodes."""
+    """A 2-D isoparametric triangular element with 6 nodes.
+
+    :cvar int dimension: the dimension of the element (1D, 2D, 3D)
+    :cvar int node_quantity: the number of nodes in the element
+    :cvar list node_positions: a list of tuples containing the positions of the nodes
+    :param material: material object that described the material the element is composed of
+    :param constitutive_model: constitutive model class that describes the material behavior
+    :param quadrature_class: class that describes the order of quadrature being used
+    :param int degrees_of_freedom: number of degrees of freedom at each node of the element
+    :param float thickness: thickness of the element (assumed to be constant over the element)
+    :param bool plane_stress: whether to enforce plane stress
+    :ivar list nodes: list of node objects contained in the element
+    :ivar list quadrature_points: list of quadrature point objects contained in the element
+    :ivar float strain_energy: strain energy of the element
+    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
+    """
+
     dimension = 2
     node_quantity = 6
     node_positions = [(0, 0), (1, 0), (0, 1), (.5, 0), (.5, .5), (0, .5)]
 
-    def __init__(self):
-        super(BaseElement, self).__init__()
+    def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+        super(TriangularQuadraticElement, self).__init__(material, constitutive_model, quadrature_class,
+                                                         degrees_of_freedom, thickness, plane_stress)
 
     @classmethod
     def shape_functions(cls, node_index, position):

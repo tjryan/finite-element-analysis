@@ -20,7 +20,11 @@ class BaseException(Exception):
 
 
 class BasisMismatchError(BaseException):
-    """Attempted to perform matrix operations with two covariant or two contravariant vectors"""
+    """Attempted to perform matrix operations with two covariant or two contravariant vectors
+
+    :param basis1: basis object
+    :param basis2: basis object
+    """
 
     def __init__(self, basis1, basis2):
         super(BasisMismatchError, self).__init__(message='Bases are not compatible for matrix operations: '
@@ -29,7 +33,14 @@ class BasisMismatchError(BaseException):
 
 
 class CompletenessError(BaseException):
-    """Shape functions for given class do not satisfy completeness by interpolating a linear polynomial exactly."""
+    """Shape functions for given class do not satisfy completeness by interpolating a linear polynomial exactly.
+
+    :param element_class: class of element
+    :param float comparison_value: expected value to which to compare test result
+    :param float interpolated_value: test result to compare against comparison_value
+    :param float error: error between the comparison and interpolated values
+    :param float tolerance: allowed tolerance for error
+    """
 
     def __init__(self, element_class, comparison_value, interpolated_value, error, tolerance):
         super(CompletenessError, self).__init__(
@@ -42,7 +53,11 @@ class CompletenessError(BaseException):
 
 
 class DifferentiationError(BaseException):
-    """Computed derivative value in not within tolerance of the result from numerical differentiation"""
+    """Computed derivative value in not within tolerance of the result from numerical differentiation.
+
+    :param float difference: difference between the approximated result and calculated result
+    :param float tolerance: allowed tolerance for error
+    """
 
     def __init__(self, difference, tolerance):
         super(DifferentiationError, self).__init__(message='Computed derivative value is not within tolerance of '
@@ -51,17 +66,12 @@ class DifferentiationError(BaseException):
                                                            + 'tolerance: ' + str(tolerance))
 
 
-class InvalidArgumentError(BaseException):
-    """Function passed an object of the wrong class"""
-
-    def __init__(self, function, expected_class, actual_class):
-        super(InvalidArgumentError, self).__init__(message='Function ' + function.__name__
-                                                           + ' expected instance of ' + expected_class.__name__
-                                                           + ' but was passed ' + actual_class.__name__)
-
-
 class InvalidCoordinateError(BaseException):
-    """The requested coordinate does not exist for the element."""
+    """The requested coordinate does not exist for the element.
+
+    :param int coordinate_index: index of coordinate
+    :param int coordinate_quantity: number of coordinates that describe the element, or the element dimension.
+    """
 
     def __init__(self, coordinate_index, coordinate_quantity):
         super(InvalidCoordinateError, self).__init__(
@@ -71,7 +81,11 @@ class InvalidCoordinateError(BaseException):
 
 
 class InvalidNodeError(BaseException):
-    """The requested node does not exist for the element."""
+    """The requested node does not exist for the element.
+
+    :param int node_index: index of the node
+    :param int node_quantity: number of nodes contained in the element
+    """
 
     def __init__(self, node_index, node_quantity):
         super(InvalidNodeError, self).__init__(message='The requested node does not exist for this element. \n'
@@ -80,7 +94,10 @@ class InvalidNodeError(BaseException):
 
 
 class JacobianNegativeError(BaseException):
-    """Jacobian has a negative value"""
+    """Jacobian has a negative value.
+
+    :param float jacobian: value of the jacobian, or the determinant of the deformation gradient
+    """
 
     def __init__(self, jacobian):
         super(JacobianNegativeError, self).__init__(message='Jacobian has a negative value: J = ' + str(jacobian) + '.'
@@ -89,7 +106,13 @@ class JacobianNegativeError(BaseException):
 
 
 class MaterialFrameIndifferenceError(BaseException):
-    """Material model is not frame indifferent."""
+    """Material model is not frame indifferent.
+
+    :param constitutive_model: constitutive model class being used
+    :param quantity: quantity being evaluated
+    :param float difference: difference between rotated value and exact value
+    :param float tolerance: allowed tolerance for error
+    """
 
     def __init__(self, constitutive_model, quantity, difference, tolerance):
         super(MaterialFrameIndifferenceError, self).__init__(
@@ -102,7 +125,13 @@ class MaterialFrameIndifferenceError(BaseException):
 
 
 class MaterialSymmetryError(BaseException):
-    """Material model is not frame indifferent."""
+    """Material model is not frame indifferent.
+
+    :param constitutive_model: constitutive model class being used
+    :param quantity: quantity being evaluated
+    :param float difference: difference between rotated value and exact value
+    :param float tolerance: allowed tolerance for error
+    """
 
     def __init__(self, constitutive_model, quantity, difference, tolerance):
         super(MaterialSymmetryError, self).__init__(
@@ -115,7 +144,12 @@ class MaterialSymmetryError(BaseException):
 
 
 class NewtonMethodMaxIterationsExceededError(BaseException):
-    """Newton's method solver has exceeded the max number of iterations without convergence."""
+    """Newton's method solver has exceeded the max number of iterations without convergence.
+
+    :param int iterations: number of iterations performed
+    :param float error: error between the current value and the desired value of the newton solver
+    :param float tolerance: allowed tolerance for error
+    """
 
     def __init__(self, iterations, error, tolerance):
         super(NewtonMethodMaxIterationsExceededError, self).__init__(
@@ -126,7 +160,11 @@ class NewtonMethodMaxIterationsExceededError(BaseException):
 
 
 class PartitionNullityError(BaseException):
-    """Partition of nullity is not satisfied for the shape functions of the given class."""
+    """Partition of nullity is not satisfied for the shape functions of the given class.
+
+    :param element_class: class of the element being evaluated
+    :param float sum: sum of the shape functions
+    """
 
     def __init__(self, element_class, sum):
         super(PartitionNullityError, self).__init__(
@@ -136,7 +174,11 @@ class PartitionNullityError(BaseException):
 
 
 class PartitionUnityError(BaseException):
-    """Partition of unity is not satisfied for the shape functions of the given class."""
+    """Partition of unity is not satisfied for the shape functions of the given class.
+
+    :param element_class: class of the element being evaluated
+    :param float sum: sum of the shape functions
+    """
 
     def __init__(self, element_class, sum):
         super(PartitionUnityError, self).__init__(
@@ -146,7 +188,10 @@ class PartitionUnityError(BaseException):
 
 
 class PlaneStressError(BaseException):
-    """Deformation gradient does not have the right structure for plane stress"""
+    """Deformation gradient does not have the right structure for plane stress.
+
+    :param numpy.ndarray deformation_gradient: deformation gradient matrix being evaluated
+    """
 
     def __init__(self, deformation_gradient):
         super(PlaneStressError, self).__init__(message='Deformation gradient does not have the correct structure'
@@ -156,7 +201,10 @@ class PlaneStressError(BaseException):
 
 
 class StretchRatioNegativeError(BaseException):
-    """Stretch ratio assigned to a negative value in Newton's method solver."""
+    """Stretch ratio assigned to a negative value in Newton's method solver.
+
+    :param float stretch_ratio: value of thickness stretch ratio
+    """
 
     def __init__(self, stretch_ratio):
         super(StretchRatioNegativeError, self).__init__(message='Stretch ratio assigned to a negative value in'

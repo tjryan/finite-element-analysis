@@ -84,11 +84,11 @@ def generate_random_rotation_matrix():
     return rotation_matrix
 
 
-def newton_method_thickness_stretch_ratio(material, constitutive_model, deformation_gradient, max_iterations=15):
+def newton_method_thickness_stretch_ratio(constitutive_model, material, deformation_gradient, max_iterations=15):
     """Use Newton's method to iteratively solve for stretch ratio.
 
-    :param material: material model for the body
     :param constitutive_model: constitutive model object described material behavior
+    :param material: material model for the body
     :param numpy.ndarray deformation_gradient: 3x3 deformation gradient matrix
     :param max_iterations: maximum number of iterations to perform while solving
     :return float thickness_stretch_ratio: ratio of the initial thickness to the deformed thickness

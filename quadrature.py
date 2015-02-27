@@ -8,7 +8,12 @@ import numpy
 
 class BaseQuadrature:
     """Base class for numerical integration of isoparametric triangular elements.
-    Attributes should be overriden by child classes."""
+    Attributes should be overriden by child classes.
+
+    :cvar int point_quantity: number of quadrature points
+    :cvar list point_positions: list of tuples of quadrature point positions
+    :cvar list point_weights: list of quadrature point weights
+    """
 
     point_quantity = 0
     point_positions = []
@@ -20,6 +25,7 @@ class BaseQuadrature:
 
         :param function: a lambda function of two variables to integrate numerically
         """
+        # TODO should I keep this? It is only being used in tests.
         result = .5 * sum(
             [function(cls.point_positions[point_index][0], cls.point_positions[point_index][1]) * cls.point_weights[
                 point_index] for
@@ -28,7 +34,12 @@ class BaseQuadrature:
 
 
 class GaussQuadratureOnePoint(BaseQuadrature):
-    """Properties of one-point Gauss quadrature."""
+    """Properties of one-point Gauss quadrature.
+
+    :cvar int point_quantity: number of quadrature points
+    :cvar list point_positions: list of tuples of quadrature point positions
+    :cvar list point_weights: list of quadrature point weights
+    """
 
     point_quantity = 1
     point_positions = [(1 / 3, 1 / 3)]
@@ -36,7 +47,12 @@ class GaussQuadratureOnePoint(BaseQuadrature):
 
 
 class GaussQuadratureThreePoint(BaseQuadrature):
-    """Properties of three-point Gauss quadrature."""
+    """Properties of three-point Gauss quadrature.
+
+    :cvar int point_quantity: number of quadrature points
+    :cvar list point_positions: list of tuples of quadrature point positions
+    :cvar list point_weights: list of quadrature point weights
+    """
 
     point_quantity = 3
     point_positions = [(1 / 6, 1 / 6), (2 / 3, 1 / 6), (1 / 6, 2 / 3)]
@@ -44,10 +60,23 @@ class GaussQuadratureThreePoint(BaseQuadrature):
 
 
 class QuadraturePoint:
-    """Individual quadrature point containing material responses at a particular point in an isoparametric element."""
-    # TODO add parameters to docstring with data types, then remove tuple comment for position below
+    """Individual quadrature point containing material responses at a particular point in an isoparametric element.
+
+    :param tuple position: coordinates of quadrature point position
+    :param float weight: weight of quadrature point
+    :param element: element object containing the quadrature point
+    :ivar numpy.ndarray jacobian_matrix: jacobian matrix describing the mapping of the reference configuration to the
+    isoparametric configuration at the quadrature point. Remains constant for the whole analysis.
+    :ivar numpy.ndarray jacobian_matrix_inverse: inverse of the jacobian matrix. Remains constant for the whole
+    analysis.
+    :ivar deformation_gradient: DeformationGradient object that describes the deformation for the current configuration
+    as the quadrature point. Updates with every step.
+    :ivar float strain_energy_density: strain energy density at the quadrature point
+    :ivar numpy.ndarray first_piola_kirchhoff_stress: first Piola-Kirchhoff stress at the quadrature point
+    :ivar numpy.ndarray tangent_moduli: tangent moduli at the quadrature point
+    """
     def __init__(self, position, weight, element):
-        self.position = position  # tuple (r,s)
+        self.position = position
         self.weight = weight
 
         # Calculated one time

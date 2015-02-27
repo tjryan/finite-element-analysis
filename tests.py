@@ -37,7 +37,10 @@ def deformation_gradient_physical(jacobian):
 
 
 def deformation_gradient_plane_stress(deformation_gradient):
-    """Check that the deformation gradient has the correct structure for a plane stress case."""
+    """Check that the deformation gradient has the correct structure for a plane stress case.
+
+    :param numpy.ndarray deformation_gradient: deformation gradient matrix
+    """
     if (deformation_gradient[0][2] != 0 or deformation_gradient[1][2] != 0
         or deformation_gradient[2][0] != 0 or deformation_gradient[2][1] != 0):
         raise exceptions.PlaneStressError(deformation_gradient=deformation_gradient)
@@ -208,7 +211,10 @@ def first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model, m
 
 def gauss_quadrature(quadrature_class):
     """Check numerical integration using Gauss quadrature against exact integration for an isoparametric
-    triangular element for first and second order polynomials."""
+    triangular element for first and second order polynomials.
+
+    :param quadrature_class: class of quadrature to test
+    """
     # For 1st and 2nd order polynomials
     for order in [1, 2]:
         random_polynomial = None
@@ -291,6 +297,7 @@ def shape_functions_numerical_differentiation(element_class, position, h=1e-6):
     """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
 
     :param element_class: class of element to test
+    :param tuple position: coordinates of point at which to evaluate
     :param float h: a small deviation that perturbs the evaluation points of the stress tensor
     """
     for node_index in range(element_class.node_quantity):

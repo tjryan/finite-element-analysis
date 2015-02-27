@@ -30,7 +30,7 @@ class DeformationGradient:
         tests.deformation_gradient_physical(jacobian=jacobian)
         return jacobian
 
-    def enforce_plane_stress(self, material, constitutive_model):
+    def enforce_plane_stress(self, constitutive_model, material):
         """Enforce the plane stress assumption solving for the thickness stretch (the 3-3 component of the
         deformation gradient), while assuming that the  first Piola-Kirchhoff stress is zero in the direction
         normal to the plane.
@@ -41,13 +41,14 @@ class DeformationGradient:
                             [ 0   0  F33]
         This will be checked before performing any calculations, and an error will be raised if violated.
 
-        :param material: material object representing the material undergoing deformation
         :param constitutive_model: constitutive model class that described material response
+        :param material: material object representing the material undergoing deformation
         """
         # Check that the deformation gradient has the proper structure for plane stress
         tests.deformation_gradient_plane_stress(deformation_gradient=self.F)
-        thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(material=material,
-                                                                                   constitutive_model=constitutive_model,
+        thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(
+            constitutive_model=constitutive_model,
+            material=material,
                                                                                    deformation_gradient=self.F)
         # Assign the 3-3 component of the deformation gradient to be the computed thickness stretch ratio
         self.F[2][2] = thickness_stretch_ratio
@@ -60,12 +61,11 @@ class DeformationGradient:
 
         :param numpy.ndarray new_F: new 3x3 deformation gradient matrix
         :param material: material object representing the material undergoing deformation
-        :param constitutive_model: constitutive model class that described material response
+        :param constitutive_model: constitutive model class that describes material response
         :param bool enforce_plane_stress: whether to enforce the plane stress condition on the new deformation gradient
         """
         self.F = new_F
         if enforce_plane_stress:
             self.enforce_plane_stress(material=material, constitutive_model=constitutive_model)
         self.J = self.calculate_jacobian()
-
 
