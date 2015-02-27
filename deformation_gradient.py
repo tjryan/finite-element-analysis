@@ -45,7 +45,7 @@ class DeformationGradient:
         :param constitutive_model: constitutive model class that described material response
         """
         # Check that the deformation gradient has the proper structure for plane stress
-        tests.deformation_gradient_plane_stress(deformation_gradient=self)
+        tests.deformation_gradient_plane_stress(deformation_gradient=self.F)
         thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(material=material,
                                                                                    constitutive_model=constitutive_model,
                                                                                    deformation_gradient=self.F)
