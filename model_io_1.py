@@ -86,13 +86,12 @@ def homework1_part1():
 
 
 def homework1_part2():
-    """Plane Stress Nonlinear Elasticity:
+    """Plane Stress Nonlinear Elasticity: Create random deformation and calculate the material response.
+    Check that the response satisfies a tests against numerical differentiation.
+    """
 
-    In this part of the assignment you will derive the stress response and tangent moduli for a nonlinear
-    hyperelastic constitutive law subject to the assumption of plane stress, and write a program using
-    these results to compute the response of a planar sheet made of this material."""
     # Initialize a new finite element model
-    fem = model.FEM()
+    fem = model.Model()
     # Select constitutive model and state assumptions
     fem.constitutive_model = constitutive_models.Neohookean()
     # Create a material for the body
@@ -100,29 +99,16 @@ def homework1_part2():
     fem.material = materials.TitaniumAlloy()
     # Make a set of elements to add to model
     for i in range(100):
-        # Make a new element and add it to the model
-        element = model.Element()
-        fem.elements.append(element)
-        # Make a new quadrature point and add it to the element
-        quadrature_point = model.QuadraturePoint()
-        element.quadrature_points.append(quadrature_point)
         # Initialize a random deformation gradient (with positive determinant) from which to compute other quantities
         random_deformation = operations.generate_random_deformation_gradient()
-        quadrature_point.deformation_gradient = DeformationGradient(F=random_deformation,
-                                                                    material=fem.material,
-                                                                    constitutive_model=fem.constitutive_model)
-        (quadrature_point.strain_energy_density,
-         quadrature_point.first_piola_kirchhoff_stress,
-         quadrature_point.tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
-                                                                                 deformation_gradient=random_deformation)
-        tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=fem.constitutive_model,
-                                                                     material=fem.material,
-                                                                     deformation_gradient=random_deformation,
-                                                                     first_piola_kirchhoff_stress=quadrature_point.first_piola_kirchhoff_stress)
-        tests.tangent_moduli_numerical_differentiation(constitutive_model=fem.constitutive_model,
-                                                       material=fem.material,
-                                                       deformation_gradient=random_deformation,
-                                                       tangent_moduli=quadrature_point.tangent_moduli)
+        deformation_gradient = DeformationGradient()
+        deformation_gradient.update_F(new_F=random_deformation, material=fem.material,
+                                      constitutive_model=fem.constitutive_model, enforce_plane_stress=False)
+        (strain_energy_density,
+         first_piola_kirchhoff_stress,
+         tangent_moduli) = fem.constitutive_model.calculate_all(material=fem.material,
+                                                                deformation_gradient=random_deformation,
+                                                                test=True)
 
 
 def error_testing():
@@ -139,6 +125,7 @@ def error_testing():
     p_errors = []
     c_errors = []
     for h_value in h_values:
+        # NOTE these functions don't normally return these values
         p_error = tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=constitutive_model,
                                                                                material=material,
                                                                                deformation_gradient=deformation_gradient,
@@ -165,18 +152,19 @@ def error_testing():
 
 
 def plane_stress():
-    fem = model.FEM()
+    fem = model.Model()
     fem.constitutive_model = constitutive_models.Neohookean()
     fem.material = materials.Custom(name='test', first_lame_parameter=5, shear_modulus=3)
     random_deformation = operations.generate_random_deformation_gradient(plane_stress=True)
-    deformation_gradient = DeformationGradient(F=random_deformation,
-                                               material=fem.material,
-                                               constitutive_model=fem.constitutive_model,
-                                               plane_stress=True)
+    deformation_gradient = DeformationGradient()
+    deformation_gradient.update_F(new_F=random_deformation,
+                                  material=fem.material,
+                                  constitutive_model=fem.constitutive_model,
+                                  enforce_plane_stress=True)
 
 
 def uniaxial_deformation():
-    fem = model.FEM()
+    fem = model.Model()
     fem.constitutive_model = constitutive_models.Neohookean()
     fem.material = materials.Glass()
     # fem.material = materials.Custom('test', first_lame_parameter=5, shear_modulus=3)
@@ -187,10 +175,11 @@ def uniaxial_deformation():
     p22_values = []
     for f11_value in f11_values:
         uniaxial_deformation[0][0] = f11_value
-        deformation_gradient = DeformationGradient(F=uniaxial_deformation,
-                                                   material=fem.material,
-                                                   constitutive_model=fem.constitutive_model,
-                                                   plane_stress=True)
+        deformation_gradient = DeformationGradient()
+        deformation_gradient.update_F(new_F=uniaxial_deformation,
+                                      material=fem.material,
+                                      constitutive_model=fem.constitutive_model,
+                                      enforce_plane_stress=True)
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,
@@ -209,7 +198,7 @@ def uniaxial_deformation():
 
 
 def equibiaxial_deformation():
-    fem = model.FEM()
+    fem = model.Model()
     fem.constitutive_model = constitutive_models.Neohookean()
     # fem.material = materials.TitaniumAlloy()
     fem.material = materials.Custom('custom material', first_lame_parameter=5, shear_modulus=3)
@@ -220,10 +209,11 @@ def equibiaxial_deformation():
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
         random_deformation[1][1] = f11_value
-        deformation_gradient = DeformationGradient(F=random_deformation,
-                                                   material=fem.material,
-                                                   constitutive_model=fem.constitutive_model,
-                                                   plane_stress=True)
+        deformation_gradient = DeformationGradient()
+        deformation_gradient.update_F(new_F=random_deformation,
+                                      material=fem.material,
+                                      constitutive_model=fem.constitutive_model,
+                                      enforce_plane_stress=True)
         first_piola_kirchhoff_stress = fem.constitutive_model.first_piola_kirchhoff_stress(
             material=fem.material,
             deformation_gradient=deformation_gradient.F,
@@ -241,14 +231,14 @@ def equibiaxial_deformation():
 
 def run():
     """Create and run finite element model"""
-    # homework1_part1()
-    # homework1_part2()
+    homework1_part1()
+    homework1_part2()
     # error_testing()
     tests.material_frame_indifference()
     tests.material_symmetry()
-    # plane_stress()
-    # uniaxial_deformation()
-    # equibiaxial_deformation()
+    plane_stress()
+    uniaxial_deformation()
+    equibiaxial_deformation()
 
 
 run()
