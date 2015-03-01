@@ -27,8 +27,8 @@ class Neohookean:
         :param numpy.ndarray deformation_gradient: 3x3 matrix describing the deformation of the body
         :param int dimension: desired dimension of the returned tensors
         :param bool test: whether to perform the verification test for the stress result
-        :return numpy.ndarray first_piola_kirchhoff_stress_numerical_differentiation: 3x3 matrix representing the first Piola-Kirchhoff stress in the body
-        :return numpy.ndarray tangent_moduli_numerical_differentiation: 3x3x3x3 tensor representing the tangent moduli of the body
+        :return numpy.ndarray numerical_differentiation_first_piola_kirchhoff_stress: 3x3 matrix representing the first Piola-Kirchhoff stress in the body
+        :return numpy.ndarray numerical_differentiation_tangent_moduli: 3x3x3x3 tensor representing the tangent moduli of the body
         :return float strain_energy_density: the value of the strain energy density in the body
         """
         strain_energy_density = cls.strain_energy_density(material=material,
@@ -59,7 +59,7 @@ class Neohookean:
             + material.shear_modulus * deformation_gradient)
         # Verify the correctness of this result by comparing to numerical differentiation
         if test:
-            tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=cls,
+            tests.numerical_differentiation_first_piola_kirchhoff_stress(constitutive_model=cls,
                                                                          material=material,
                                                                          deformation_gradient=deformation_gradient,
                                                                          first_piola_kirchhoff_stress=result)
@@ -111,7 +111,7 @@ class Neohookean:
                             tangent_moduli[i][j][k][l] += material.shear_modulus
         # Verify the correctness of this result by comparing it to numerical differentiation
         if test:
-            tests.tangent_moduli_numerical_differentiation(constitutive_model=cls, material=material,
+            tests.numerical_differentiation_tangent_moduli(constitutive_model=cls, material=material,
                                                            deformation_gradient=deformation_gradient,
                                                            tangent_moduli=tangent_moduli)
         # If the requested dimension is 2, corrected the tangent moduli for plane stress
@@ -133,8 +133,8 @@ class Neohookean:
                 for c in range(2):
                     for d in range(2):
                         corrected_tangent_moduli[a][b][c][d] = (
-                            tangent_moduli[a][b][c][d] - tangent_moduli[a][b][3][3]
-                            * tangent_moduli[3][3][c][d] / tangent_moduli[3][3][3][3])
+                            tangent_moduli[a][b][c][d] - tangent_moduli[a][b][2][2]
+                            * tangent_moduli[2][2][c][d] / tangent_moduli[2][2][2][2])
         return corrected_tangent_moduli
 
 
