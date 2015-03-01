@@ -126,12 +126,12 @@ def error_testing():
     c_errors = []
     for h_value in h_values:
         # NOTE these functions don't normally return these values
-        p_error = tests.first_piola_kirchhoff_stress_numerical_differentiation(constitutive_model=constitutive_model,
+        p_error = tests.numerical_differentiation_first_piola_kirchhoff_stress(constitutive_model=constitutive_model,
                                                                                material=material,
                                                                                deformation_gradient=deformation_gradient,
                                                                                first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
                                                                                h=h_value)
-        c_error = tests.tangent_moduli_numerical_differentiation(constitutive_model=constitutive_model,
+        c_error = tests.numerical_differentiation_tangent_moduli(constitutive_model=constitutive_model,
                                                                  material=material,
                                                                  deformation_gradient=deformation_gradient,
                                                                  tangent_moduli=tangent_moduli,
