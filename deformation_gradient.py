@@ -49,23 +49,26 @@ class DeformationGradient:
         thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(
             constitutive_model=constitutive_model,
             material=material,
-                                                                                   deformation_gradient=self.F)
+            deformation_gradient=self.F)
         # Assign the 3-3 component of the deformation gradient to be the computed thickness stretch ratio
         self.F[2][2] = thickness_stretch_ratio
         # Update the Jacobian for the new deformation gradient
         self.J = self.calculate_jacobian()
 
-    def update_F(self, new_F, material, constitutive_model, enforce_plane_stress):
+    def update_F(self, new_F, constitutive_model, material, enforce_plane_stress):
         """Update the deformation gradient matrix with the newly provided matrix and enforce plane stress
         if necessary.
 
         :param numpy.ndarray new_F: new 3x3 deformation gradient matrix
-        :param material: material object representing the material undergoing deformation
         :param constitutive_model: constitutive model class that describes material response
+        :param material: material object representing the material undergoing deformation
         :param bool enforce_plane_stress: whether to enforce the plane stress condition on the new deformation gradient
         """
         self.F = new_F
+        # Test to make sure the deformation gradient is physical before enforcing plane stress
+        tests.deformation_gradient_physical(jacobian=numpy.linalg.det(self.F))
         if enforce_plane_stress:
             self.enforce_plane_stress(material=material, constitutive_model=constitutive_model)
-        self.J = self.calculate_jacobian()
+        else:
+            self.calculate_jacobian()
 
