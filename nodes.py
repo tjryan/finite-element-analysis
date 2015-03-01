@@ -3,6 +3,7 @@ nodes.py contains the nodes for the finite elements.
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
+import operations
 
 
 class Node:
@@ -19,8 +20,8 @@ class Node:
 
     def update_current_position(self):
         """Update the current position of the node."""
-        # TODO implement this
-        pass
+        # TODO implement this. For now we'll add a small perturbation to the previous deformed position
+        operations.generate_random_node_current_position(node=self)
 
 
 class CornerNode(Node):

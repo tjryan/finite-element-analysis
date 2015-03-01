@@ -5,6 +5,8 @@ quadrature.py contains Gauss quadrature tables for use in numerical integration.
 """
 import numpy
 
+import deformation_gradient
+
 
 class BaseQuadrature:
     """Base class for numerical integration of isoparametric triangular elements.
@@ -62,6 +64,7 @@ class QuadraturePoint:
     :ivar numpy.ndarray first_piola_kirchhoff_stress: first Piola-Kirchhoff stress at the quadrature point
     :ivar numpy.ndarray tangent_moduli: tangent moduli at the quadrature point
     """
+
     def __init__(self, position, weight, element):
         self.position = position
         self.weight = weight
@@ -72,7 +75,7 @@ class QuadraturePoint:
         self.calculate_jacobian_matrix(element)
 
         # Updated every deformation
-        self.deformation_gradient = None
+        self.deformation_gradient = deformation_gradient.DeformationGradient()
         self.strain_energy_density = None
         self.first_piola_kirchhoff_stress = None
         self.tangent_moduli = None
@@ -89,8 +92,7 @@ class QuadraturePoint:
                 for node_index in range(element.node_quantity):
                     jacobian_matrix[dof][coordinate_index] += (
                         element.nodes[node_index].reference_position[dof] * element.shape_function_derivatives(
-                            node_index=node_index, r=self.position[0], s=self.position[1],
-                            coordinate_index=coordinate_index))
+                            node_index=node_index, position=self.position, coordinate_index=coordinate_index))
         self.jacobian_matrix = jacobian_matrix
         self.jacobian_matrix_inverse = numpy.linalg.inv(jacobian_matrix)
 
@@ -99,7 +101,8 @@ class QuadraturePoint:
 
         :param element: element object that is deformed
         """
-        new_deformation_gradient = numpy.zeros((element.degrees_of_freedom, element.degrees_of_freedom))
+        # Deformation gradient initialized as a 3x3 matrix, always
+        new_deformation_gradient = numpy.zeros((3, 3))
         for dof_1 in range(element.degrees_of_freedom):
             for dof_2 in range(element.degrees_of_freedom):
                 # Sum over nodes to interpolate value at this quadrature point
@@ -107,11 +110,13 @@ class QuadraturePoint:
                     for coordinate_index in range(element.dimension):
                         new_deformation_gradient[dof_1][dof_2] += (
                             element.nodes[node_index].current_position[dof_1] * element.shape_function_derivatives(
-                                node_index=node_index, position=self.position)
-                            * self.jacobian_matrix_inverse[dof_1][coordinate_index])
+                                node_index=node_index, position=self.position, coordinate_index=coordinate_index)
+                            * self.jacobian_matrix_inverse[dof_2][coordinate_index])
+        if element.plane_stress:
+            new_deformation_gradient[2][2] = 1
         self.deformation_gradient.update_F(new_F=new_deformation_gradient,
                                            material=element.material,
-                                           constitutive_model=element.contitutive_model,
+                                           constitutive_model=element.constitutive_model,
                                            enforce_plane_stress=element.plane_stress)
 
     def update_material_response(self, element):
@@ -122,7 +127,8 @@ class QuadraturePoint:
         """
         (self.strain_energy_density,
          self.first_piola_kirchhoff_stress,
-         self.tangent_moduli) = element.contitutive_model.calculate_all(
+         self.tangent_moduli) = element.constitutive_model.calculate_all(
+            material=element.material,
             deformation_gradient=self.deformation_gradient.F,
             dimension=element.dimension,
             test=True)  # TODO should this be true or false?
