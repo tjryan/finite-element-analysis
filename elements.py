@@ -7,6 +7,7 @@ import numpy
 
 import exceptions
 import quadrature
+import tests
 
 
 class BaseElement:
@@ -19,8 +20,8 @@ class BaseElement:
     :cvar int dimension: the dimension of the element (1D, 2D, 3D)
     :cvar int node_quantity: the number of nodes in the element
     :cvar list node_positions: a list of tuples containing the positions of the nodes
-    :param material: material object that described the material the element is composed of
     :param constitutive_model: constitutive model class that describes the material behavior
+    :param material: material object that described the material the element is composed of
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
@@ -35,10 +36,10 @@ class BaseElement:
     node_quantity = 0
     node_positions = []
 
-    def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
         # Fixed properties
-        self.material = material
         self.constitutive_model = constitutive_model
+        self.material = material
         self.quadrature_class = quadrature_class
         self.degrees_of_freedom = degrees_of_freedom
         self.thickness = thickness
@@ -53,14 +54,96 @@ class BaseElement:
         self.force_array = None
         self.stiffness_matrix = None
 
-        # Call one-time methods
-        self.create_quadrature_points()
+    def calculate_force_array(self, test=True):
+        """Computes the 2D internal nodal force array for the element for the current configuration using Gauss
+       quadrature. Runs for each deformed configuration in the analysis.
+
+       :param bool test: whether to perform numerical differentiation check on the result
+       """
+        # Initialize force array to be computed using Gauss quadrature
+        force_array = numpy.zeros((self.degrees_of_freedom, self.node_quantity))  # Sum over quadrature points
+        for quadrature_point in self.quadrature_points:
+            # Initialize integrand to be computed for this quadrature point
+            integrand = numpy.zeros((self.degrees_of_freedom, self.node_quantity))
+            for dof_1 in range(self.degrees_of_freedom):
+                for node_index in range(self.node_quantity):
+                    # Sum over repeated indices
+                    for dof_2 in range(self.degrees_of_freedom):
+                        for coordinate_index in range(self.dimension):
+                            integrand[dof_1][node_index] += (
+                                quadrature_point.first_piola_kirchhoff_stress[dof_1][dof_2]
+                                * self.shape_function_derivatives(
+                                    node_index=node_index, position=quadrature_point.position,
+                                    coordinate_index=coordinate_index)
+                                * quadrature_point.jacobian_matrix_inverse[dof_2][coordinate_index])
+            # Weight the integrand
+            integrand *= quadrature_point.weight
+            # Add the integrand to the force_array
+            force_array += integrand
+        # Scale the force array for isoparametric triangle and multiply by the thickness (assumed to be constant)
+        force_array *= .5 * self.thickness
+        if test:
+            tests.numerical_differentiation_force_array(element=self, force_array=force_array)
+        return force_array
+
+    def calculate_strain_energy(self):
+        """Computes the total strain energy of element using Gauss quadrature. Runs for each deformed configuration in
+        the analysis."""
+        strain_energy = .5 * self.thickness * sum(
+            [quadrature_point.strain_energy_density * quadrature_point.weight for quadrature_point in
+             self.quadrature_points])
+        return strain_energy
+
+    def calculate_stiffness_matrix(self, test=True):
+        """Computes the 4-D stiffness tensor for the element using Gauss quadrature. Runs for each deformed
+        configuration in the analysis.
+
+        :param bool test: whether to perform numerical differentiation check on the result
+        """
+        # Initialize stiffness matrix to be computed using Gauss quadrature
+        dimensions = (self.degrees_of_freedom, self.node_quantity, self.degrees_of_freedom, self.node_quantity)
+        stiffness_matrix = numpy.zeros(dimensions)
+        # Sum over quadrature points
+        for quadrature_point in self.quadrature_points:
+            # Initialize integrand to be computed for this quadrature point
+            integrand = numpy.zeros(dimensions)
+            for dof_1 in range(self.degrees_of_freedom):
+                for node_index_1 in range(self.node_quantity):
+                    for dof_3 in range(self.degrees_of_freedom):
+                        for node_index_2 in range(self.node_quantity):
+                            # Sum over repeated indices
+                            for dof_2 in range(self.degrees_of_freedom):
+                                for dof_4 in range(self.degrees_of_freedom):
+                                    for coordinate_index_1 in range(self.dimension):
+                                        for coordinate_index_2 in range(self.dimension):
+                                            integrand[dof_1][node_index_1][dof_3][node_index_2] += (
+                                                quadrature_point.tangent_moduli[dof_1][dof_2][dof_3][dof_4]
+                                                * self.shape_function_derivatives(
+                                                    node_index=node_index_1,
+                                                    position=quadrature_point.position,
+                                                    coordinate_index=coordinate_index_1)
+                                                * self.shape_function_derivatives(
+                                                    node_index=node_index_2,
+                                                    position=quadrature_point.position,
+                                                    coordinate_index=coordinate_index_2)
+                                                * quadrature_point.jacobian_matrix_inverse[dof_2][coordinate_index_1]
+                                                * quadrature_point.jacobian_matrix_inverse[dof_4][coordinate_index_2])
+            # Weight the integrand
+            integrand *= quadrature_point.weight
+            # Add the integrand to the stiffness matrix
+            stiffness_matrix += integrand
+        # Scale the stiffness matrix for isoparametric triangle and multiply by the thickness (assumed to be constant)
+        stiffness_matrix *= .5 * self.thickness
+        if test:
+            tests.numerical_differentiation_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
+        return stiffness_matrix
 
     def create_quadrature_points(self):
-        """Create quadrature points from the quadrature class."""
+        """Create quadrature points from the quadrature class. This is a one-time method called after all nodes
+        have been assigned to the element."""
         for point_index in range(self.quadrature_class.point_quantity):
             quadrature_point = quadrature.QuadraturePoint(position=self.quadrature_class.point_positions[point_index],
-                                                          weight=self.quadrature_class.weights[point_index],
+                                                          weight=self.quadrature_class.point_weights[point_index],
                                                           element=self)
             self.quadrature_points.append(quadrature_point)
 
@@ -96,87 +179,22 @@ class BaseElement:
         # Update the deformation gradient for each quadrature point
         for quadrature_point in self.quadrature_points:
             quadrature_point.update_deformation_gradient(element=self)
-            quadrature_point.update_material_response(constitutive_model=self.constitutive_model,
-                                                      material=self.material,
-                                                      element=self)
+            quadrature_point.update_material_response(element=self)
         # Update the element properties
         self.update_strain_energy()
         self.update_force_array()
         self.update_stiffness_matrix()
 
     def update_force_array(self):
-        """Computes the 2D internal nodal force array for the element for the current configuration using Gauss
-        quadrature. Runs for each deformed configuration in the analysis."""
-        # Initialize force array to be computed using Gauss quadrature
-        force_array = numpy.zeros((self.degrees_of_freedom, self.node_quantity))
-        # Sum over quadrature points
-        for quadrature_point in self.quadrature_points:
-            # Initialize integrand to be computed for this quadrature point
-            integrand = numpy.zeros((self.degrees_of_freedom, self.node_quantity))
-            for dof_1 in range(self.degrees_of_freedom):
-                for node_index in range(self.node_quantity):
-                    # Sum over repeated indices
-                    for dof_2 in range(self.degrees_of_freedom):
-                        for coordinate_index in range(self.dimension):
-                            integrand[dof_1][node_index] += (
-                                quadrature_point.first_piola_kirchhoff_stress * self.shape_function_derivatives(
-                                    node_index=node_index, position=quadrature_point.position,
-                                    coordinate_index=coordinate_index)
-                                * quadrature_point.jacobian_inverse[dof_1][coordinate_index])
-            # Weight the integrand
-            integrand *= quadrature_point.weight
-            # Add the integrand to the force_array
-            force_array += integrand
-        # Scale the force array for isoparametric triangle and multiply by the thickness (assumed to be constant)
-        force_array *= .5 * self.thickness
-        self.force_array = force_array
+        self.force_array = self.calculate_force_array()
 
     def update_strain_energy(self):
-        """Computes the total strain energy of element using Gauss quadrature. Runs for each deformed configuration in
-        the analysis."""
-        strain_energy = .5 * self.thickness * sum(
-            [quadrature_point.strain_energy_density * quadrature_point.weight for quadrature_point in
-             self.quadrature_points])
-        self.strain_energy = strain_energy
+        """Update the strain energy for the current deformation."""
+        self.stiffness_matrix = self.calculate_strain_energy()
 
     def update_stiffness_matrix(self):
-        """Computes the 4-D stiffness tensor for the element using Gauss quadrature. Runs for each deformed
-        configuration in the analysis."""
-        # Initialize stiffness matrix to be computed using Gauss quadrature
-        dimensions = (self.degrees_of_freedom, self.node_quantity, self.degrees_of_freedom, self.node_quantity)
-        stiffness_matrix = numpy.zeros(dimensions)
-        # Sum over quadrature points
-        for quadrature_point in self.quadrature_points:
-            # Initialize integrand to be computed for this quadrature point
-            integrand = numpy.zeros(dimensions)
-            for dof_1 in range(self.degrees_of_freedom):
-                for node_index_1 in range(self.node_quantity):
-                    for dof_3 in range(self.degrees_of_freedom):
-                        for node_index_2 in range(self.node_quantity):
-                            # Sum over repeated indices
-                            for dof_2 in range(self.degrees_of_freedom):
-                                for dof_4 in range(self.degrees_of_freedom):
-                                    for coordinate_index_1 in range(self.dimension):
-                                        for coordinate_index_2 in range(self.dimension):
-                                            integrand[dof_1][node_index_1][dof_3][node_index_2] += (
-                                                quadrature_point.tangent_moduli
-                                                * self.shape_function_derivatives(
-                                                    node_index=node_index_1,
-                                                    position=quadrature_point.position,
-                                                    coordinate_index=coordinate_index_1)
-                                                * self.shape_function_derivatives(
-                                                    node_index=node_index_2,
-                                                    position=quadrature_point.position,
-                                                    coordinate_index=coordinate_index_2)
-                                                * quadrature_point.jacobian_inverse[dof_2][coordinate_index_1]
-                                                * quadrature_point.jacobian_inverse[dof_4][coordinate_index_2])
-            # Weight the integrand
-            integrand *= quadrature_point.weight
-            # Add the integrand to the stiffness matrix
-            stiffness_matrix += integrand
-        # Scale the stiffness matrix for isoparametric triangle and multiply by the thickness (assumed to be constant)
-        stiffness_matrix *= .5 * self.thickness
-        self.stiffness_matrix = stiffness_matrix
+        """Update the stiffness matrix for the current deformation."""
+        self.stiffness_matrix = self.calculate_stiffness_matrix()
 
 
 class TriangularLinearElement(BaseElement):
@@ -185,8 +203,8 @@ class TriangularLinearElement(BaseElement):
     :cvar int dimension: the dimension of the element (1D, 2D, 3D)
     :cvar int node_quantity: the number of nodes in the element
     :cvar list node_positions: a list of tuples containing the positions of the nodes
-    :param material: material object that described the material the element is composed of
     :param constitutive_model: constitutive model class that describes the material behavior
+    :param material: material object that described the material the element is composed of
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
@@ -202,8 +220,8 @@ class TriangularLinearElement(BaseElement):
     node_quantity = 3
     node_positions = [(0, 0), (1, 0), (0, 1)]
 
-    def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
-        super(TriangularLinearElement, self).__init__(material, constitutive_model, quadrature_class,
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+        super(TriangularLinearElement, self).__init__(constitutive_model, material, quadrature_class,
                                                       degrees_of_freedom, thickness,
                                                       plane_stress)
 
@@ -268,8 +286,8 @@ class TriangularQuadraticElement(BaseElement):
     :cvar int dimension: the dimension of the element (1D, 2D, 3D)
     :cvar int node_quantity: the number of nodes in the element
     :cvar list node_positions: a list of tuples containing the positions of the nodes
-    :param material: material object that described the material the element is composed of
     :param constitutive_model: constitutive model class that describes the material behavior
+    :param material: material object that described the material the element is composed of
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
@@ -285,8 +303,8 @@ class TriangularQuadraticElement(BaseElement):
     node_quantity = 6
     node_positions = [(0, 0), (1, 0), (0, 1), (.5, 0), (.5, .5), (0, .5)]
 
-    def __init__(self, material, constitutive_model, quadrature_class, degrees_of_freedom, thickness, plane_stress):
-        super(TriangularQuadraticElement, self).__init__(material, constitutive_model, quadrature_class,
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+        super(TriangularQuadraticElement, self).__init__(constitutive_model, material, quadrature_class,
                                                          degrees_of_freedom, thickness, plane_stress)
 
     @classmethod
