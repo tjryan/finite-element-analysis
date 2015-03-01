@@ -257,6 +257,8 @@ def numerical_differentiation_force_array(element, force_array, h=1e-6):
     # For each element in the force array
     for dof in range(element.degrees_of_freedom):
         for node_index in range(element.node_quantity):
+            # Save the unperturbed location of the node
+            unperturbed_position = element.nodes[node_index].current_position[dof]
             # Perturb current position of the node in the positive direction
             element.nodes[node_index].current_position[dof] += h
             # Update deformation gradient and strain energy density for each quadrature point
@@ -278,6 +280,8 @@ def numerical_differentiation_force_array(element, force_array, h=1e-6):
             computed_value = force_array[dof][node_index]
             error = math.fabs(computed_value - numerical_value)
             errors.append(error)
+            # Reset the node to its original position
+            element.nodes[node_index].current_position[dof] = unperturbed_position
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
     if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
@@ -327,6 +331,8 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
         for node_index_1 in range(element.node_quantity):
             for dof_2 in range(element.degrees_of_freedom):
                 for node_index_2 in range(element.node_quantity):
+                    # Save the unperturbed location of the node
+                    unperturbed_position = element.nodes[node_index_2].current_position[dof_2]
                     # Perturb current position of node 2 in the positive direction
                     element.nodes[node_index_2].current_position[dof_2] += h
                     # Update deformation gradient and strain energy density for each quadrature point
@@ -347,8 +353,11 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
                     numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
                         node_index_1]) / (2 * h)
                     computed_value = stiffness_matrix[dof_1][node_index_1][dof_2][node_index_2]
+                    # TODO bad error whenever node_index_2 = 2 for quadratic element. Why?
                     error = math.fabs(computed_value - numerical_value)
                     errors.append(error)
+                    # Reset the node to its original position
+                    element.nodes[node_index_2].current_position[dof_2] = unperturbed_position
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
     if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
@@ -395,6 +404,18 @@ def numerical_differentiation_tangent_moduli(constitutive_model, material, defor
     if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
                                               tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+
+
+def rank_stiffness_matrix(element, stiffness_matrix):
+    """Return the rank of the stiffness matrix.
+
+    :param element: element for which to check the stiffness matrix
+    :param stiffness_matrix: stiffness matrix to test
+    """
+    reshaped_stiffness_matrix = numpy.reshape(stiffness_matrix, (
+        element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity))
+    rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix)
+    return rank
 
 
 def shape_functions(element_class):

@@ -136,6 +136,7 @@ class BaseElement:
         stiffness_matrix *= .5 * self.thickness
         if test:
             tests.numerical_differentiation_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
+            tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
         return stiffness_matrix
 
     def create_quadrature_points(self):
@@ -190,7 +191,7 @@ class BaseElement:
 
     def update_strain_energy(self):
         """Update the strain energy for the current deformation."""
-        self.stiffness_matrix = self.calculate_strain_energy()
+        self.stiffness_matrix = self.calculate_stiffness_matrix()
 
     def update_stiffness_matrix(self):
         """Update the stiffness matrix for the current deformation."""

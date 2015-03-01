@@ -75,7 +75,7 @@ def generate_random_node_current_position(node):
     """
     # For some reason += does not work here... I have no idea why. It makes the reference position change too.
     node.current_position = node.current_position + .1 * numpy.random.rand(2)
-
+    # pass
 
 def generate_random_node_reference_positions(element_nodes):
     """Generate random reference positions for the 3 corner nodes (and 3 midpoint nodes) of a 2D triangular element.
