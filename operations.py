@@ -66,6 +66,38 @@ def generate_random_deformation_gradient(plane_stress=False, uniaxial=False, equ
     return random_deformation
 
 
+def generate_random_node_current_position(node):
+    """Generate random current positions for the provided node of a 2D triangular element.
+    Start with the previous deformed position and add a small perturbation as a random 2 element array with entries
+    between 0 and 1 scaled by a factor of 0.1.
+
+    :param node: node object to perturb
+    """
+    # For some reason += does not work here... I have no idea why. It makes the reference position change too.
+    node.current_position = node.current_position + .1 * numpy.random.rand(2)
+
+
+def generate_random_node_reference_positions(element_nodes):
+    """Generate random reference positions for the 3 corner nodes (and 3 midpoint nodes) of a 2D triangular element.
+    Start with a equilateral triangular of side length 1 with bottom left corner at the origin, and add a small
+    perturbation as a random 2 element array with entries between 0 and 1 scaled by factor of 0.2.
+
+    :param list element_nodes: list of 3 or 6 node objects to which to assign positions
+    """
+    node_position_1 = numpy.array([0, 0]) + .2 * numpy.random.rand(2)
+    node_position_2 = numpy.array([1, 0]) + .2 * numpy.random.rand(2)
+    node_position_3 = numpy.array([.5, .866]) + .2 * numpy.random.rand(2)
+    node_position_4 = numpy.array([.5, 0]) + .2 * numpy.random.rand(2)
+    node_position_5 = numpy.array([.75, .433]) + .2 * numpy.random.rand(2)
+    node_position_6 = numpy.array([.25, .433]) + .2 * numpy.random.rand(2)
+    node_positions = [node_position_1, node_position_2, node_position_3, node_position_4, node_position_5,
+                      node_position_6]
+    for node_index in range(len(element_nodes)):
+        element_nodes[node_index].reference_position = node_positions[node_index]
+        # Assign the current position to equal the reference position because no deformation has occurred yet
+        element_nodes[node_index].current_position = node_positions[node_index]
+
+
 def generate_random_rotation_matrix():
     """Generate and return a random rotation matrix.
 
