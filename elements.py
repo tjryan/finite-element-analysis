@@ -54,7 +54,7 @@ class BaseElement:
         self.force_array = None
         self.stiffness_matrix = None
 
-    def calculate_force_array(self, test=True):
+    def calculate_force_array(self, test=False):
         """Computes the 2D internal nodal force array for the element for the current configuration using Gauss
        quadrature. Runs for each deformed configuration in the analysis.
 
@@ -75,7 +75,7 @@ class BaseElement:
                                 * self.shape_function_derivatives(
                                     node_index=node_index, position=quadrature_point.position,
                                     coordinate_index=coordinate_index)
-                                * quadrature_point.jacobian_matrix_inverse[dof_2][coordinate_index])
+                                * quadrature_point.jacobian_matrix_inverse[coordinate_index][dof_2])
             # Weight the integrand
             integrand *= quadrature_point.weight
             # Add the integrand to the force_array
@@ -94,7 +94,7 @@ class BaseElement:
              self.quadrature_points])
         return strain_energy
 
-    def calculate_stiffness_matrix(self, test=True):
+    def calculate_stiffness_matrix(self, test=False):
         """Computes the 4-D stiffness tensor for the element using Gauss quadrature. Runs for each deformed
         configuration in the analysis.
 
@@ -126,8 +126,8 @@ class BaseElement:
                                                     node_index=node_index_2,
                                                     position=quadrature_point.position,
                                                     coordinate_index=coordinate_index_2)
-                                                * quadrature_point.jacobian_matrix_inverse[dof_2][coordinate_index_1]
-                                                * quadrature_point.jacobian_matrix_inverse[dof_4][coordinate_index_2])
+                                                * quadrature_point.jacobian_matrix_inverse[coordinate_index_1][dof_2]
+                                                * quadrature_point.jacobian_matrix_inverse[coordinate_index_2][dof_4])
             # Weight the integrand
             integrand *= quadrature_point.weight
             # Add the integrand to the stiffness matrix
@@ -191,7 +191,7 @@ class BaseElement:
 
     def update_strain_energy(self):
         """Update the strain energy for the current deformation."""
-        self.stiffness_matrix = self.calculate_stiffness_matrix()
+        self.strain_energy = self.calculate_strain_energy()
 
     def update_stiffness_matrix(self):
         """Update the stiffness matrix for the current deformation."""

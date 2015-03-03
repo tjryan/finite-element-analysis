@@ -86,7 +86,7 @@ class QuadraturePoint:
 
         :param element: element object that is deformed
         """
-        jacobian_matrix = numpy.zeros((element.degrees_of_freedom, element.degrees_of_freedom))
+        jacobian_matrix = numpy.zeros((element.degrees_of_freedom, element.dimension))
         for dof in range(element.degrees_of_freedom):
             for coordinate_index in range(element.dimension):
                 for node_index in range(element.node_quantity):

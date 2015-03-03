@@ -19,7 +19,7 @@ class Neohookean:
     """
 
     @classmethod
-    def calculate_all(cls, material, deformation_gradient, dimension=3, test=True):
+    def calculate_all(cls, material, deformation_gradient, dimension=3, test=False):
         """Calculate and return the values of the first Piola-Kirchhoff stress, the tangent moduli, and the strain
         energy density.
 
@@ -44,7 +44,7 @@ class Neohookean:
         return strain_energy_density, first_piola_kirchhoff_stress, tangent_moduli
 
     @classmethod
-    def first_piola_kirchhoff_stress(cls, material, deformation_gradient, dimension=3, test=True):
+    def first_piola_kirchhoff_stress(cls, material, deformation_gradient, dimension=3, test=False):
         """Compute the first Piola-Kirchhoff stress for the material from the deformation gradient under
         the specified assumptions.
 
@@ -86,7 +86,7 @@ class Neohookean:
         return result
 
     @classmethod
-    def tangent_moduli(cls, material, deformation_gradient, dimension=3, test=True):
+    def tangent_moduli(cls, material, deformation_gradient, dimension=3, test=False):
         """Compute the tangent moduli for the material from the deformation gradient under
         the specified assumptions.
 

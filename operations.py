@@ -74,8 +74,9 @@ def generate_random_node_current_position(node):
     :param node: node object to perturb
     """
     # For some reason += does not work here... I have no idea why. It makes the reference position change too.
-    node.current_position = node.current_position + .1 * numpy.random.rand(2)
-    # pass
+    node.current_position = node.current_position + .1 * numpy.random.rand(2)  # use for random deformation
+    # pass  # use for no deformation
+
 
 def generate_random_node_reference_positions(element_nodes):
     """Generate random reference positions for the 3 corner nodes (and 3 midpoint nodes) of a 2D triangular element.
@@ -84,10 +85,10 @@ def generate_random_node_reference_positions(element_nodes):
 
     :param list element_nodes: list of 3 or 6 node objects to which to assign positions
     """
-    node_position_1 = numpy.array([0, 0]) + .2 * numpy.random.rand(2)
-    node_position_2 = numpy.array([1, 0]) + .2 * numpy.random.rand(2)
+    node_position_1 = numpy.array([0., 0.]) + .2 * numpy.random.rand(2)
+    node_position_2 = numpy.array([1., 0.]) + .2 * numpy.random.rand(2)
     node_position_3 = numpy.array([.5, .866]) + .2 * numpy.random.rand(2)
-    node_position_4 = numpy.array([.5, 0]) + .2 * numpy.random.rand(2)
+    node_position_4 = numpy.array([.5, 0.]) + .2 * numpy.random.rand(2)
     node_position_5 = numpy.array([.75, .433]) + .2 * numpy.random.rand(2)
     node_position_6 = numpy.array([.25, .433]) + .2 * numpy.random.rand(2)
     node_positions = [node_position_1, node_position_2, node_position_3, node_position_4, node_position_5,

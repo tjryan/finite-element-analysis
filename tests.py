@@ -412,9 +412,26 @@ def rank_stiffness_matrix(element, stiffness_matrix):
     :param element: element for which to check the stiffness matrix
     :param stiffness_matrix: stiffness matrix to test
     """
-    reshaped_stiffness_matrix = numpy.reshape(stiffness_matrix, (
-        element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity))
-    rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix)
+    # NOTE: numpy reshape putting things in the wrong order, I need to be careful about this.
+    # reshaped_stiffness_matrix = numpy.reshape(stiffness_matrix, (
+    # element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity))
+    reshaped_dimensions = (
+        element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity)
+    reshaped_stiffness_matrix = numpy.zeros(reshaped_dimensions)
+    # Manually reshape the 4D tensor into a 2D matrix
+    index_1 = 0
+    index_2 = 0
+    for node_index_2 in range(element.node_quantity):
+        for dof_2 in range(element.degrees_of_freedom):
+            for node_index_1 in range(element.node_quantity):
+                for dof_1 in range(element.degrees_of_freedom):
+                    reshaped_stiffness_matrix[index_1][index_2] = stiffness_matrix[dof_1][node_index_1][dof_2][
+                        node_index_2]
+                    index_2 += 1
+            index_1 += 1
+            index_2 = 0
+    rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix, tol=.0001)
+    print('rank:', rank)
     return rank
 
 
