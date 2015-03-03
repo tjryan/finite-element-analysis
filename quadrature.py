@@ -130,5 +130,4 @@ class QuadraturePoint:
          self.tangent_moduli) = element.constitutive_model.calculate_all(
             material=element.material,
             deformation_gradient=self.deformation_gradient.F,
-            dimension=element.dimension,
-            test=True)  # TODO should this be true or false?
+            dimension=element.dimension)

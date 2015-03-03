@@ -94,18 +94,16 @@ def material_frame_indifference():
     constitutive_model = constitutive_models.Neohookean()
     # Compute quantities for the material model
     w = constitutive_model.strain_energy_density(material=material, deformation_gradient=random_deformation)
-    p = constitutive_model.first_piola_kirchhoff_stress(material=material, deformation_gradient=random_deformation,
-                                                        test=True)
-    c = constitutive_model.tangent_moduli(material=material, deformation_gradient=random_deformation, test=True)
+    p = constitutive_model.first_piola_kirchhoff_stress(material=material, deformation_gradient=random_deformation)
+    c = constitutive_model.tangent_moduli(material=material, deformation_gradient=random_deformation)
     # Generate a random rotation matrix (call a separate function from operations.py)
     random_rotation = operations.generate_random_rotation_matrix()
     rotated_deformation = numpy.dot(random_rotation, random_deformation)
     # Compute quantities for the rotated deformation gradient
     w_rotated = constitutive_model.strain_energy_density(material=material, deformation_gradient=rotated_deformation)
     p_rotated = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                deformation_gradient=rotated_deformation, test=True)
-    c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation,
-                                                  test=True)
+                                                                deformation_gradient=rotated_deformation)
+    c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation)
     # Test that each element is within tolerance of its original value
     w_error = math.fabs(w - w_rotated)
     if w_error > constants.FLOATING_POINT_TOLERANCE:
@@ -155,18 +153,16 @@ def material_symmetry():
     constitutive_model = constitutive_models.Neohookean()
     # Compute quantities for the material model
     w = constitutive_model.strain_energy_density(material=material, deformation_gradient=random_deformation)
-    p = constitutive_model.first_piola_kirchhoff_stress(material=material, deformation_gradient=random_deformation,
-                                                        test=True)
-    c = constitutive_model.tangent_moduli(material=material, deformation_gradient=random_deformation, test=True)
+    p = constitutive_model.first_piola_kirchhoff_stress(material=material, deformation_gradient=random_deformation)
+    c = constitutive_model.tangent_moduli(material=material, deformation_gradient=random_deformation)
     # Generate a random rotation matrix (call a separate function from operations.py)
     random_rotation = operations.generate_random_rotation_matrix()
     rotated_deformation = numpy.dot(random_deformation, random_rotation)
     # Compute quantities for the rotated deformation gradient
     w_rotated = constitutive_model.strain_energy_density(material=material, deformation_gradient=rotated_deformation)
     p_rotated = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                deformation_gradient=rotated_deformation, test=True)
-    c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation,
-                                                  test=True)
+                                                                deformation_gradient=rotated_deformation)
+    c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation)
     # Test that each element is within tolerance of its original value
     w_error = math.fabs(w - w_rotated)
     if w_error > constants.FLOATING_POINT_TOLERANCE:
@@ -340,7 +336,7 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
                         quadrature_point.update_deformation_gradient(element=element)
                         quadrature_point.update_material_response(element=element)
                     # Calculate the perturbed strain energy
-                    force_array_plus = element.calculate_force_array(test=False)
+                    force_array_plus = element.calculate_force_array()
                     # Perturb current position of the node in the negative direction
                     element.nodes[node_index_2].current_position[dof_2] -= 2 * h
                     # Update deformation gradient and strain energy density for each quadrature point
@@ -348,7 +344,7 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
                         quadrature_point.update_deformation_gradient(element=element)
                         quadrature_point.update_material_response(element=element)
                     # Calculate the perturbed strain energy
-                    force_array_minus = element.calculate_force_array(test=False)
+                    force_array_minus = element.calculate_force_array()
                     # Compute the result of numerical differentiation
                     numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
                         node_index_1]) / (2 * h)
@@ -387,13 +383,11 @@ def numerical_differentiation_tangent_moduli(constitutive_model, material, defor
                     # Perturb in the positive direction
                     perturbed_deformation[k][l] += h
                     piola_kirchhoff_plus = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                                           deformation_gradient=perturbed_deformation,
-                                                                                           test=False)
+                                                                                           deformation_gradient=perturbed_deformation)
                     # Perturb in the negative direction
                     perturbed_deformation[k][l] -= 2 * h
                     piola_kirchhoff_minus = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                                                            deformation_gradient=perturbed_deformation,
-                                                                                            test=False)
+                                                                                            deformation_gradient=perturbed_deformation)
                     # Compute the result of numerical differentiation
                     numerical_value = (piola_kirchhoff_plus[i][j] - piola_kirchhoff_minus[i][j]) / (2 * h)
                     computed_value = tangent_moduli[i][j][k][l]

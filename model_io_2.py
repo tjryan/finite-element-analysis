@@ -44,8 +44,8 @@ def test_element_calculations():
     # Choose a constitutive model for analysis
     fem.constitutive_model = constitutive_models.Neohookean
     # Choose a material for the body
-    fem.material = materials.Custom('custom', 10, 5)
-    # fem.material = materials.AluminumAlloy()
+    # fem.material = materials.Custom('custom', 10, 5)
+    fem.material = materials.AluminumAlloy()
     # Choose a class of quadrature to use
     fem.quadrature_class = quadrature.GaussQuadratureOnePoint
     # fem.quadrature_class = quadrature.GaussQuadratureThreePoint
@@ -94,8 +94,6 @@ def test_element_calculations():
         element.create_quadrature_points()
     # Now that all elements have been created, update the current configuration of the model
     fem.update_current_configuration()
-    # TODO verify correctness of internal forces and stiffness using 3 point numerical differentiation
-    # TODO check the rank
 
 
 def run():
