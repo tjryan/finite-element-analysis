@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  2 MAR 2015 23:51
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  3 MAR 2015 00:09
 entering extended mode
 **Finite*Element*Code*Report.tex
 
@@ -209,10 +209,10 @@ Missing character: There is no  in font cmr10!
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux") ) 
 Here is how much of TeX's memory you used:
- 2044 strings out of 493921
- 25724 string characters out of 3147281
+ 2045 strings out of 493921
+ 25732 string characters out of 3147281
  92547 words of memory out of 3000000
- 5333 multiletter control sequences out of 15000+200000
+ 5334 multiletter control sequences out of 15000+200000
  12531 words of font info for 44 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  29i,14n,21p,1479b,270s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -238,7 +238,7 @@ s/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy1
 /Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program 
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "Finite Element Code Report.pdf" (12 pages, 382630 bytes).
+Output written on "Finite Element Code Report.pdf" (12 pages, 383334 bytes).
 PDF statistics:
  139 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
