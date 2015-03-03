@@ -1,0 +1,544 @@
+%  article.tex (Version 3.3, released 19 January 2008)
+%  Article to demonstrate format for SPIE Proceedings
+%  Special instructions are included in this file after the
+%  symbol %>>>>
+%  Numerous commands are commented out, but included to show how
+%  to effect various options, e.g., to print page numbers, etc.
+%  This LaTeX source file is composed for LaTeX2e.
+
+%  The following commands have been added in the SPIE class 
+%  file (spie.cls) and will not be understood in other classes:
+%  \supit{}, \authorinfo{}, \skiplinehalf, \keywords{}
+%  The bibliography style file is called spiebib.bst, 
+%  which replaces the standard style unstr.bst.  
+
+\documentclass[]{spie}  %>>> use for US letter paper
+%%\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
+%%\documentclass[nocompress]{spie}  %>>> to avoid compression of citations
+%% \addtolength{\voffset}{9mm}   %>>> moves text field down
+%% \renewcommand{\baselinestretch}{1.65}   %>>> 1.65 for double spacing, 1.25 for 1.5 spacing 
+%  The following command loads a graphics package to include images 
+%  in the document. It may be necessary to specify a DVI driver option,
+%  e.g., [dvips], but that may be inappropriate for some LaTeX 
+%  installations. 
+\usepackage[]{graphicx}
+\usepackage{bm}
+\usepackage{amsmath}
+
+\newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
+
+\title{Assignment 1: \\
+	Curvilinear Kinematics \& Plane Stress Nonlinear Elasticity} 
+
+%>>>> The author is responsible for formatting the 
+%  author list and their institutions.  Use  \skiplinehalf 
+%  to separate author list from addresses and between each address.
+%  The correspondence between each author and his/her address
+%  can be indicated with a superscript in italics, 
+%  which is easily obtained with \supit{}.
+
+\author{Tyler Ryan \\
+	Tyler.Ryan@engineering.ucla.edu
+\skiplinehalf
+MAE 261B, UCLA \\
+February 6, 2015
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%>>>> uncomment following for page numbers
+\pagestyle{plain}    
+%>>>> uncomment following to start page numbering at 301 
+%\setcounter{page}{301} 
+ 
+\begin{document} 
+\maketitle 
+
+%\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+\label{section: introduction}  % \label{} allows reference to this section
+
+This report represents the first in a series that will describe the process of creating a finite element analysis program in the object-oriented programming language of Python (version 3.3.5). A lot of emphasis has been placed on code architecture and verification testing to ensure that the code is easily extensible and robust for future development. In order to get started, we must first understand the equations for and derivations of the fundamental quantities that will lay the foundation for the program. Then we will explore the implementation of these equations into the code architecture and describe some of the key design choices for code structure. Finally, we will discuss the results of implementation by looking at the deformation of a uniaxial cylinder, the computation of kinetic quantities using the Neo-Hookean constitutive law, plane stress assumptions, and results of verification tests.
+
+\subsection{Curvilinear Coordinates and Frames}
+
+To describe the deformation of an arbitrarily curved body, it is useful to introduce a curvilinear coordinate system that allows us to define a basis in such a way that is natural or convenient for the body. For example, it is easy to describe the deformation of a cylindrical body in cylindrical coordinates, or a spherical body in spherical coordinates. These are idealized examples, but illustrate the point that coordinate axes can be chosen to work well with the geometry of the body undergoing deformation. 
+
+In curvilinear coordinates, we refer to the curved coordinate axes as $\theta^i$, where $i$ ranges from 1 to 3 to represent the three axes. These coordinates are used to describe positions in the body, which will ultimately be expressed in the lab frame. The \textbf{lab frame} can be thought of as the frame of an observer outside of the body, in which positions are described in terms of Cartesian coordinates $x$, $y$, and $z$, or $E_i$. For a given body, we will use curvilinear axes $\theta^i$ in such a way that we can write expressions for $\theta^i$ in terms of $E_i$, and vice versa. 
+
+The curvilinear coordinates are often chose to match the geometry of the body in an \textbf{idealized configuration}. For example, if our body has a shape close to that of a sphere, we would use a sphere as the idealized configuration and spherical coordinates as our curvilinear coordinates. We then define two mappings from the idealized configuration: one to the reference configuration and another to the deformed/current configuration. The \textbf{reference configuration} represents the initial geometry of the body, prior to deformation, and will be represented by capital letter symbols. The \textbf{deformed configuration} represents the geometry of the body at some point in time during deformation, and will be represented with lowercase symbols. This geometry will in general change with time, and thus is often referred to as the current configuration. We can define functions to represent these two mappings in terms of the curvilinear coordinates of the system:
+
+\underline{\textbf{Reference Configuration ($\Omega_0$):}}
+\begin{equation}
+\bm{X} = \bm{\phi_0}(\theta^i) = f_1(\theta^i)\bm{{e_{\theta_1}}} + f_2(\theta^i)\bm{{e_{\theta_2}}} + f_3(\theta^i)\bm{{e_{\theta_3}}}
+\end{equation}
+
+\underline{\textbf{Deformed Configuration ($\Omega$):}}
+\begin{equation}
+\bm{x} = \bm{\phi}(\theta^i) = g_1(\theta^i)\bm{{e_{\theta_1}}} + g_2(\theta^i)\bm{{e_{\theta_2}}} + g_3(\theta^i)\bm{{e_{\theta_3}}}
+\end{equation}
+
+\subsection{Covariant and Contravariant Basis Vectors}
+
+In order to express our reference and deformed configurations, we need to construct bases. Because we are using curvilinear coordinates, we can do this in two ways. The first is to construct the tangent basis vectors, which are tangent to the coordinates axes $\theta^i$. These are referred to as \textbf{covariant basis vectors}, and are denoted with a subscript index as $g_i$. The second is to construct the dual basis vectors, which are normal to the $\theta^i$-surfaces. These surfaces are formed by the plane containing two coordinate axes. For example, the $\theta^1$ surface is the plane containing the $\theta^2$ and $\theta^3$ axes, and the first dual vector will be normal to this surface. These vectors are referred to as \textbf{contravariant basis vectors}, and are denoted with a superscript index as $g^i$. Note that covariant and contravariant basis vector do not in general point in the same direction. 
+
+The covariant and contravariant basis vectors are defined as follows (keeping in mind that capital symbols are used for the reference configuration and lowercase symbols are used for the deformed configuration):
+\begin{equation}
+\bm{G_i} = \frac{\partial \bm{\phi_0}}{\partial \theta^i}, \quad \bm{G^i} = G^{ij}\bm{G_j}, \quad \bm{g_i} = \frac{\partial \bm{\phi}}{\partial \theta^i}, \quad \bm{g^i} = g^{ij}\bm{g_j},
+\end{equation}
+where $G^{ij}$ and $g^{ij}$ represent metric tensors, and are described in more detail below. The covariant and contravariant metric tensors are related by the inverse:
+\begin{equation}
+G^{ij} = [G_{ij}]^{-1}, \quad g^{ij} = [g_{ij}]^{-1}
+\end{equation}
+
+\subsubsection{Properties}
+Because each basis is defined based on three curved axes defined by the geometry of the body, the basis will not in general be orthonormal. In other words, the dot product of two basis vectors will not yield the Kronecker Delta, but will instead give a tensor called the \textbf{metric tensor}.
+\begin{equation}
+\bm{g_i} \cdot \bm{g_j} = g_{ij} \neq \delta_{ij}, \quad \bm{g^i} \cdot \bm{g^j} = g^{ij} \neq \delta_{ij}
+\end{equation}
+The elements of the metric tensor $g_{ij}$ describe the length of the tangent vectors (diagonal elements) and the angles between them (off-diagonal elements). Because the bases arises from the curvilinear coordinate axes, it makes sense that the metric tensor does not generally equal the identity matrix. However, the identity matrix is used to describe the relationship between covariant and contravariant basis vectors:
+\begin{equation}
+\bm{g^i} \cdot \bm{g_j} = \delta^i_j
+\end{equation}
+
+
+\subsection{Kinematic Quantities}
+With the basis vectors defined for both the reference, and deformed configurations, we can now compute the kinematic quantities that describe the deformation of the body. 
+
+The \textbf{deformation gradient} is computed from the outer product of basis vectors in the two configurations, and represents the manner in which the body deforms at a given point in space. The diagonal elements represent stretching and the off-diagonal elements represent twisting of the body. 
+\begin{equation}
+\label{eq: deformation gradient}
+\bm{F} = \bm{g_i} \otimes \bm{G^i}
+\end{equation}
+
+There are three tensor that describe the strains in the body at a point in space, the \textbf{right Cauchy-Green deformation tensor}, the \textbf{left Cauchy-Green deformation tensor}, and the \textbf{Green-Lagrange Strain}:
+
+\begin{align}
+\textrm{Right Cauchy-Green Deformation Tensor:} & \ & \bm{C} 	&= \bm{F}^T\bm{F} & \\
+\textrm{Left Cauchy-Green Deformation Tensor:}	& \ & \bm{B}	&= \bm{F}\bm{F}^T & \\
+\textrm{Green-Lagrange Strain:}					& \ & \bm{E} 	&= \frac{1}{2}(\bm{C} - \bm{I}) &
+\end{align}
+
+\subsection{Constitutive Laws}'
+\label{subsec: constitutive laws}
+The stress-strain relationship for a body is defined by model called a \textbf{constitutive law}. There a various constitutive laws that make different assumptions about the response of a body, such as a material being compressible or incompressible, or behaving elastically or inelastically. In this analysis, we will use the \textbf{Neo-Hookean model}, which assumes hyperelastic material behavior and allows for compression. The law is expressed as an equation for the strain energy density of the body as a function of strain, from which we can derive expression for the \textbf{first Piola-Kirchhoff Stress} and \textbf{tangent moduli}. 
+
+The Neo-Hookean model expresses strain energy density as:
+\begin{equation}
+\label{eq: strain energy density}
+w(\bm{C}) = \frac{\lambda_0}{2}[ln(J)]^2 - \mu_0 ln(J) + \frac{\mu_0}{2}(tr(\bm{C}) - 3),
+\end{equation}
+where $J = det(\bm{F})$ is referred to as the \textbf{Jacobian}, and $\lambda_0$ and $\mu_0$ are the \textbf{first lame parameter} and \textbf{shear modulus} of the material, respectively. The strain energy density can be rewritten entirely as a function of the deformation gradient $\bm{F}$ by expressing $tr(\bm{C})$ in terms of $\bm{F}$:
+\begin{gather*}
+tr(\bm{C}) = C_{kk} = C_{kl}\delta_{kl} \\
+C_{kl} = (F_{km})^T(F_{ml}) = F_{mk}F_{ml} \\
+\implies tr(\bm{C}) = F_{mk}F_{ml}\delta_{kl}
+\end{gather*}
+Now we can derive an expression for the first Piola-Kirchhoff stress $P_{ij}$:
+\begin{align}
+P_{ij} 	&= \frac{\partial w}{\partial F_{ij}} = \frac{\partial}{\partial F_{ij}} \left[\frac{\lambda_0}{2}ln^2(J) - \mu_0 ln(J) + \frac{\mu_0}{2}(F_{mk}F_{ml}\delta_{kl} - 3)\right] \\
+		&= \lambda_0 ln(J) \left(\frac{1}{J}\right) \frac{\partial J}{\partial F_{ij}} - \mu_0 \left(\frac{1}{J}\right) \frac{\partial J}{\partial F_{ij}} + \frac{\mu_0}{2} \left[\frac{\partial F_{mk}}{\partial F_{ij}} F_{ml} \delta_{kl} + F_{mk} \frac{\partial F_{ml}}{\partial F_{ij}} \delta_{kl}\right]
+\end{align}
+Using the identity $\frac{\partial J}{\partial F_{ij}} = J F^{-1}_{ji}$:
+\begin{align}
+P_{ij} 	&= \lambda_0 ln(J) \left(\frac{1}{J}\right) (J F^{-1}_{ji}) - \mu_0 \left(\frac{1}{J}\right) (J F^{-1}_{ji}) + \frac{\mu_0}{2} \left[\delta_{mi}\delta_{kj} F_{ml} \delta_{kl} + F_{mk} \delta_{mi}\delta_{lj} \delta_{kl}\right] \\
+		&= \lambda_0 ln(J) F^{-1}_{ji} - \mu_0 F^{-1}_{ji} + \frac{\mu_0}{2} \left[\delta_{mi}\delta_{kj} F_{mk} + F_{ml} \delta_{mi}\delta_{lj}\right] \\
+		&= \lambda_0 ln(J) F^{-1}_{ji} - \mu_0 F^{-1}_{ji} + \frac{\mu_0}{2} \left[F_{ij} + F_{ij}\right] \\
+		&= \left[\lambda_0 ln(J) - \mu_0 \right]F^{-1}_{ji} + \mu_0 F_{ij}
+\end{align}
+We can take another derivative with respect to the deformation gradient to find the tangent moduli $C_{ijkl}$:
+\begin{align}
+C_{ijkl} 	&= \frac{\partial P_{ij}}{\partial F_{kl}} \\
+			&= \frac{\partial}{\partial F_{kl}} \left[\left[\lambda_0 ln(J) - \mu_0 \right]F^{-1}_{ji} + \mu_0 F_{ij}\right] \\
+			&= \lambda_0 \left(\frac{1}{J}\right) \frac{\partial J}{\partial F_{kl}} F^{-1}_{ji} + \left[\lambda_0 ln(J) - \mu_0 \right] \frac{\partial F^{-1}_{ji}}{\partial F_{kl}} + \mu_0 \frac{\partial F_{ij}}{\partial F_{kl}}
+\end{align}
+Using the identity $\frac{\partial F^{-1}_{ji}}{\partial F_{kl}} = -F^{-1}_{jk} F^{-1}_{li}$:
+\begin{align}
+C_{ijkl}	&= \lambda_0 \left(\frac{1}{J}\right) (J F^{-1}_{lk}) F^{-1}_{ji} + \left[\lambda_0 ln(J) - \mu_0 \right]\left(-F^{-1}_{jk} F^{-1}_{li}\right) + \mu_0 \delta_{ik}\delta_{jl} \\
+			&= \lambda_0  F^{-1}_{lk} F^{-1}_{ji} - \left[\lambda_0 ln(J) - \mu_0 \right] F^{-1}_{jk} F^{-1}_{li} + \mu_0 \delta_{ik}\delta_{jl}
+\end{align}
+
+To summarize, we now have the following three expressions for the Neo-Hookean constitutive law in terms of the deformation gradient $\bm{F}$:
+\begin{align}
+\textrm{Strain Energy Density:}			& \ & w(\bm{F}) &= \frac{\lambda_0}{2}[ln(J)]^2 - \mu_0 ln(J) +
+															\frac{\mu_0}{2}(tr(\bm{F}^T\bm{F}) - 3) & \\
+\textrm{First Piola-Kirchhoff Stress:} 	& \ & P_{ij} 	&= \left[\lambda_0 ln(J) - \mu_0 \right]F^{-1}_{ji} + \mu_0 F_{ij}
+															& \\
+\textrm{Tangent Moduli:}				& \ & C_{ijkl}	&= \lambda_0  F^{-1}_{lk} F^{-1}_{ji} - \left[\lambda_0 ln(J) -
+															\mu_0 \right] F^{-1}_{jk} F^{-1}_{li} + \mu_0 \delta_{ik}\delta_{jl} &
+\end{align}
+
+\subsection{Plane Stress}
+The assumption of plane stress places a constraint on the structure of the deformation gradient as well as the first Piola-Kirchhoff stress tensor. For this example, say we have a thin plate with the thickness aligned with the third coordinate axis. Then the deformation gradient should have no out of plane shear components, and a stretch component $\lambda$ in the 3-direction to account for the fact that there may be some strain through the thickness:
+\begin{equation}
+\bm{F} = 
+\begin{bmatrix}
+F_{11} 	& F_{12} 	& 0 \\
+F_{21} 	& F_{22} 	& 0 \\
+0   	& 0			& \lambda	
+\end{bmatrix}
+\end{equation}
+The first Piola-Kirchhoff stress tensor should have a value of 0 for $P_{33}$. Since the only arbitrary or prescribed quantities of $\bm{F}$ are the 2x2 matrix of in-plane elements, we say that $P_{33}$ is a function only of $F_{\alpha\beta}$ (where $\alpha$ and $\beta$ each run from 1 to 2) and $\lambda$ (referred to as the \textbf{stretch ratio}):
+\begin{equation}
+P_{33}(F_{\alpha\beta}, \lambda) = 0
+\end{equation}  
+Because $F_{\alpha\beta}$ is prescribed, we must solve this equation by finding the value of $\lambda$ that makes it true. $\bm{P}(\bm{F})$ is nonlinear, and therefore must be solved iteratively using Newton's Method. 
+
+\subsubsection{Newton's Method}
+\textbf{Newton's Method} is an iterative technique for solver a nonlinear equation $f(\lambda)$. To use it, we must start by choosing a reasonable initial value for $\lambda$ for which $f(\lambda)$ likely does not equal zero. 
+\begin{equation}
+f(\lambda_0) \neq 0
+\end{equation}
+Then we will perturb $\lambda$ by some small quantity, and use a first order Taylor approximation to solve for the value of the perturbation that will make $f(\lambda)$ equal to zero.
+\begin{equation}
+\label{eq: dlambda}
+f(\lambda + d\lambda) = f(\lambda) + \frac{df(\lambda)}{d\lambda}d\lambda = 0 \implies d\lambda = -\left(\frac{df(\lambda)}{d\lambda}\right)^{-1} f(\lambda)
+\end{equation}
+We then use this perturbation to compute a new value of $\lambda$ and repeat the process. This loop will continue until $f(\lambda)$ is within some tolerance of 0, at which point we say the loop \textbf{converges}. It is very important to note that if $\lambda_0$ is far enough from the final value of $\lambda$, this loop will \textbf{diverge}. In later reports, we will explore in more detail the techniques used to ensure good initial guesses. 
+
+For the plane stress application, the function we are attempting to solve iteratively is $P_{33}(F_{\alpha\beta}, \lambda) = 0$. Therefore we can express equation \ref{eq: dlambda} in terms of the quantities of our problem as:
+\begin{equation}
+\label{eq: dlambda P}
+d\lambda = - (C_{3333})^{-1} P_{33}(F_{\alpha\beta}, \lambda)
+\end{equation}
+
+\subsubsection{2D Tangent Moduli}
+The plane stress assumptions serves to simplify the problem by reducing dimension from 3D to 2D. Once we have solved for lambda using Newton's method, we can now proceed with the analysis using reduced matrices containing only the in-plane components. First, note that 2D and 3D strain energy density are defined to be equal. For the first Piola-Kirchhoff stress, the transition to 2D is simple, because all components in the 3-direction have been forced to zero under the assumption of plane stress. Therefore, the in-plane components of $\bm{P}$ are nothing more than the 2x2 matrix containing the non-zero elements. In other words, $P_{\alpha\beta}$ is subset of $P_{ij}$. For the tangent moduli however, the transition is not that simple. Despite imposing plane stress, there will in general be non-zero elements in the 3-directions, and we cannot simply reduce to 2D by taking a subset of this tensor. Instead, we want to capture the contributions of these non-zero elements by created an adjusted 2x2x2x2 tensor from the full 3x3x3x3 tangent moduli. The components of the 2D tangent moduli can be found in the following way:
+\begin{equation}
+P^{2D}_{\alpha\beta} \equiv \frac{\partial w^{2D}}{\partial F_{\alpha\beta}} = \frac{\partial}{\partial F_{\alpha\beta}}
+						\left[ w(F, \lambda) \right] = \frac{\partial w}{\partial F_{\alpha\beta}} + \frac{\partial w}{\partial \lambda} \frac{\partial \lambda}{\partial F_{\alpha\beta}}
+\end{equation}
+We know that $\frac{\partial w}{\partial F_{\alpha\beta}} = P_{\alpha\beta}$ and $\frac{\partial w}{\partial \lambda} = 0$, so we can write:
+\begin{equation}
+P_{\alpha\beta} = \frac{\partial w(F_{\alpha\beta}, \lambda)}{\partial F_{\alpha\beta}}, \quad P^{2D}_{\alpha\beta} = P_{\alpha\beta}
+\end{equation}
+This shows, as stated previously, that the 2D form of the first Piola-Kirchhoff stress is just a subset of the 3D form. Now we can use this to compute the tangent moduli:
+\begin{equation}
+C^{2D}_{\alpha\beta\delta\gamma}	\equiv \frac{\partial P^{2D}_{\alpha\beta}}{\partial F_{\delta\gamma}} =
+										\frac{\partial^2 w^{2D}}{\partial F_{\alpha\beta}F_{\delta\gamma}} =
+										\frac{\partial}{\partial F_{\delta\gamma}} \left[P_{\alpha\beta}(F_{\alpha\beta}, \lambda)\right] =
+										\frac{\partial P_{\alpha\beta}}{\partial F_{\delta\gamma}} + \frac{\partial P_{\alpha\beta}}{\partial \lambda} \frac{\partial \lambda}{\partial F_{\delta\gamma}}
+\end{equation}
+We know that $\frac{\partial P_{\alpha\beta}}{\partial F_{\delta\gamma}} = C_{\alpha\beta\delta\gamma}$ and $\frac{\partial P_{\alpha\beta}}{\partial \lambda} = \frac{\partial P_{\alpha\beta}}{\partial F_{33}} = C_{\alpha\beta 3 3}$, so we can write:
+\begin{equation}
+C^{2D}_{\alpha\beta\delta\gamma} = C_{\alpha\beta\delta\gamma} + C_{\alpha\beta 3 3} \frac{\partial \lambda}{\partial F_{\delta\gamma}}
+\end{equation}
+Now we can find $\frac{\partial \lambda}{\partial F_{\delta\gamma}}$ by enforcing the plane stress assumption that $P_{33}(F_{\alpha\beta}, \lambda) = 0$. 
+\begin{equation}
+P_{33}(F_{\alpha\beta}, \lambda) = 0 \implies dP_{33} = 0 = \frac{\partial P_{33}}{\partial F_{\alpha\beta}} dF_{\alpha\beta} + \frac{\partial P_{33}}{\partial F_{33}} d\lambda
+\end{equation}
+\begin{align}
+0 &= C_{3 3 \alpha\beta} dF_{\alpha\beta} + C_{3333} d\lambda \\
+0 &= C_{3 3 \alpha\beta} dF_{\alpha\beta} + C_{3333} \frac{\partial \lambda}{\partial F_{\alpha\beta}} dF_{\alpha\beta} \\
+0 &= \left( C_{3 3 \alpha\beta} + C_{3333} \frac{\partial \lambda}{\partial F_{\alpha\beta}} \right) dF_{\alpha\beta}
+\end{align}
+\begin{equation}
+\implies \frac{\partial \lambda}{\partial F_{\alpha\beta}} = - \frac{C_{3 3 \alpha\beta}}{C_{3333}}
+\end{equation}
+Now we can use this value to solve for the components of the 2D tangent moduli:
+\begin{align}
+C^{2D}_{\alpha\beta\delta\gamma} &= \frac{\partial}{\partial F_{\delta\gamma}} \left[ P_{\alpha\beta}(F_{\alpha\beta},
+									\lambda)\right] = C_{\alpha\beta\delta\gamma} + C_{\alpha\beta 3 3} \frac{\partial \lambda}{\partial F_{\delta\gamma}} \\
+& \implies C^{2D}_{\alpha\beta\delta\gamma} = C_{\alpha\beta\delta\gamma} - C_{\alpha\beta 3 3} C_{3 3 \delta\gamma} \left(\frac{1}{C_{3333}}\right)
+\label{eq: 2d tangent moduli}
+\end{align}
+Using this equation we can compute the adjusted 2D tangent moduli under the assumption of plane stress from the components of the full 3D tangent moduli. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS} 
+
+I have put in a lot of effort to ensure that the initial code base is structured to be robust and extensible to future developments. This means that future work will evolve adding more to the existing classes and functions rather than rewriting them. I have done my best to take full advantage of Python as an object-oriented project language to create an architecture that makes sense according to the current state of my evolving understanding of finite element analysis. I will describe my code at the highest level before discussing the details of implementation. Of course, this is all subject to change as I develop further understanding. 
+
+\subsection{Code Architecture}
+
+My goal is to structure the model such that its inputs are provided in an intuitive format that is repeatable for any application. Whether running a simple verification test or a full deformation analysis on a body, the inputs should only differ in their values and the desired output information requested.
+
+To set up an analysis, you start by creating an instance of the FEM class (finite element model). The FEM class contains top-level information such as the constitutive law being used, a list of finite element objects, the material the body is composed of, and the configuration mappings between frames. You choose a constitutive law from a module of classes containing the functions that define each law, and a material from a module of classes containing different materials and their properties. Then you define the mappings for the curvilinear coordinate system for the lab frame, the reference configuration, and deformation configuration. 
+
+With the model setup, it is now time to add elements, quadrature points, and nodes. Each element contains a list of node objects and a list of quadrature point objects. Each node has a position, and each quadrature point has a position, a weight, a remainder, a deformation gradient, and the values of the kinetic quantities computed from the constitutive law (strain energy, first Piola-Kirchhoff stress, and tangent moduli). At this early stage in development and testing, we may only be looking at the deformation at a single quadrature point, for a single element, but the procedure remains the same, just on a small scale. 
+
+\subsubsection{Brief Module Descriptions}
+\begin{description}
+	\item[body.py] deformation gradient class which describes the deformation of the body under specified assumptions.
+	\item[constants.py] integers and strings used throughout the model such they can be conveniently referenced without having to hard-code their values into the model.
+	\item[constitutive\_models.py] contains classes for each constitutive law (ie. Neo-Hookean), each of which contains methods for computing the values of strain energy density, first Piola-Kirchhoff stress, and tangent moduli.
+	\item[exceptions.py] errors that are raised during the analysis (usually from the tests module) in the event of an incorrect or unexpected result, or some kind of violation that indicates a breaking of physical laws or constraints.
+	\item[frames.py] contains classes for the frames/configurations and the basis vectors.
+	\item[kinematics.py] functions that compute the strain tensors from the deformation gradient. 
+	\item[materials.py] contains classes for different material options, each of which contains the properties of the material.
+	\item[model.py] contains the highest-level components of the model, including classes for FEM, elements, nodes, and quadrature points.
+	\item[model\_io.py] this is the module from which the model is set up and run, and is the only file a user will interact with. 
+	\item[operations.py] commonly used functions, such as Newton's Method, or the generation of a random deformation gradient for testing purposes. 
+	\item[tests.py] verification test functions that ensure the accuracy of the code and check for physical violations.
+\end{description}
+
+\subsection{Implementation and Verification Tests}
+In this section, I will describe the key design choices made with regards to implementation, and in particular how these relate to the verification tests that ensure the correctness of the code and validity of the analysis. 
+
+\subsubsection{Finite Element Model}
+The highest level object in the analysis is the FEM class, or the Finite Element Model. This is the "master" of the analysis, and is responsible for keeping track of globally needed information as well as running the analysis itself. Elements are the building blocks of the model, and are composed of nodes and quadrature points. All three of these objects are represented by classes. The model keeps a list of all element objects in the analysis, and each element keeps a list of its node and quadrature point objects. This should allow for easy iteration from the model level, downward. 
+
+The quadrature points contain values for the deformation gradient, as well as the kinematic and kinetic quantities at a point in space. At this point in our analysis, we will simply be looking at the deformation of a single element at a single quadrature point. The nodes are mostly a placeholder as of now, but because a node will ultimately belong to multiple elements for the purposes of stitching together the mesh, the nodes will keep a list of their parent element objects.  
+
+\subsubsection{Deformation Gradient}
+The deformation gradient is extremely important, as it is the driver for all kinematic and kinetic quantities. Therefore, if we begin our analysis with a deformation that does not make physical sense, then neither will our results. For this reason, I decided to make the deformation gradient be represented by a class rather than by a simple 3x3 matrix. Each time a deformation gradient is initialized with its matrix values as one of its attributes, it immediately computes and checks the value of the Jacobian. For the deformation gradient to have physical meaning, the Jacobian must be greater than zero, otherwise there is some unphysical inversion of the body taking place. If the Jacobian is negative, an error is raised to indicate this, and the analysis is halted. This ensures that an unphysical deformation gradient never makes it past initialization. 
+
+This quantity is also unique in that its structure is directly affected by the assumption of plane stress. So if the deformation gradient is initialized with this assumption, it will immediately enforce it by computing the value for the unknown stretch ratio using Newton's Method (more detail on this later), and then again checking the value of the Jacobian from the finalized matrix to ensure validity.
+
+Similarly, the class also contains a method for enforcing plane strain, but this has not yet been implemented. 
+
+\subsubsection{Constitutive Laws}
+The model keeps a reference to the constitutive law object being using for the analysis. As of now, there is only one option, and that is the Neo-Hookean model. The constitutive law is nothing more than a set of three methods that compute kinetic quantities from a 3x3 deformation gradient. The expressions for these quantities are computed by hand such that derivatives do not need to be handled in the code, as this would be very difficult. The class has no knowledge of the assumptions of the model (ie. plane stress/strain), as this information is contained in the construction of the deformation gradient itself, and therefore the return values will reflect this assumption without being aware of it. 
+
+The methods for first Piola-Kirchhoff stress and tangent moduli contain two optional parameters: the requested dimension of the result (defaulted to 3), and a boolean for whether to test the result against 3-point numerical differentiation (defaulted to True). When performing a plane stress analysis, the requested dimension would be 2, in which case the first Piola-Kirchhoff stress will return a 2x2 subset of the 3x3 result, and the tangent moduli will be adjusted according to equation \ref{eq: 2d tangent moduli} and will return a 2x2x2x2 tensor. If the test boolean is set to true, the computed result will perform a verification test \textit{prior} to being returned. This ensures that an incorrect value is not being passed back out to the model. 
+
+The numerical differentiation tests use the 3-point formula to check the validity of our computed results for the first Piola-Kirchhoff and the tangent moduli. The 3-point formula comes from a 3rd order Taylor expansion, and is given by:
+\begin{gather}
+\label{eq: 3 point formula}
+f'(a) \approx \frac{f(a + h) - f(a - h)}{2h} \equiv f'_h(a) \\[1ex]
+\textrm{Error} = f'_h(a) - f'(a) < TOLERANCE \implies pass
+\end{gather}
+The perturbation $h$ is applied element by element, and the approximated value is compared to the exact value computed from the constitutive law to ensure that they are within tolerance of each other. The tolerance is necessary because the two values will not be an exact match, and there is an expected error from the Taylor expansion on the order of $h^2$. 
+
+The approximate values for $P_{ij}$ and $C_{ijkl}$ using the 3-point formula are written as:
+\begin{align}
+(P_h)_{ij} &= \frac{w(F_{ij} + h) - w(F_{ij} - h)}{2h} \\[1ex]
+(C_h)_{ijkl} &= \frac{P_{ij}(F_{kl} + h) - P_{ij}(F_{kl} - h)}{2h}
+\end{align}
+As each element $F_{ij}$ is perturbed, the entire matrix is passed out to the constitutive law, which computes the strain energy and first Piola-Kirchhoff stress, allowing for the numerical derivative to be approximated and compared against the exact value. The error in each element is calculated and the larges value is compared against the tolerance to ensure that there are no elements being computed incorrectly. 
+
+\subsubsection{Newton's Method}
+The Newton's method solver is a loop that iteratively solves for the stretch ratio beginning with an initial guess. If the initial guess is bad enough, it is possible for the lambda update $d\lambda$, computed in equation \ref{eq: dlambda P}, to cause the value of the stretch ratio to go negative. This will produce a negative Jacobian, and therefore an unphysical deformation gradient. If this is the case, the stretch ratio is set to a small negative value, $10^{-6}$, to give the solver another chance to converge rather than simply raising a Jacobian error. In many cases, the solver will still fail to converge, but this implementation at least allows the loop to use that maximum number of iterations, and then raise a convergence error if necessary. 
+
+\subsection{Additional Verification Tests}
+\label{sec: verification tests}
+In additional to the numerical differentiation check using the 3-point formula, which ensures that derivatives are being computed correctly, the code also checks that the kinetic quantities satisfy certain physical rules. These rules include \textbf{material frame indifference} and \textbf{material symmetry}. These tests serve as stand-alone unit tests that are run on the constitutive law classes using randomly generated deformation gradients to ensure that the methods have been written correctly. 
+
+\subsubsection{Material Frame Indifference}
+Material frame indifference suggests that rotating the frame of reference or performing a rigid body rotation should not change the energy of the system. Therefore, if a random rotation is applied to the deformation gradient and then the strain energy density is computed, we should expect the value to remain equivalent to the value prior to rotation. This concept can be expressed as:
+\begin{equation}
+	w(\bm{Q}\bm{F}) = w(\bm{F})
+\end{equation}
+As for the first Piola-Kirchhoff stress and tangent moduli, we do expect their elements to change with rotation. However, it should make no difference if the tensor is computed and then rotated, or the deformation gradient is rotated and then used to compute the tensor. In other words, the order of operation should not matter. This can be expressed as:
+\begin{gather}
+	P_{ij}(\bm{Q}\bm{F}) = Q_{ik}P_{kj}(\bm{F}) \\
+	C_{ijkl}(\bm{Q}\bm{F}) = Q_{im}Q_{kn}C_{mjnl}(\bm{F})
+\end{gather}
+
+\subsubsection{Material Symmetry}
+The material symmetry tests are used to verify that the constitutive laws preserve material symmetries as expected. For example, if a material is isotropic, we expect that the strain energy will be the same if the body is deformed without rotation, and if the body is rotated and then deformed. This can be expressed as:
+\begin{equation}
+	\label{eq: material symmetry}
+	w(\bm{F}\bm{Q}) = w(\bm{F}) , \quad \forall \bm{Q}
+\end{equation}
+We can also imagine that other material symmetries can be demonstrated if equation \ref{eq: material symmetry} is satisfied for only particular rotation matrices. Additionally, we expect the first Piola-Kirchhoff stress and tangent moduli to transform as:
+\begin{gather}
+	P_{ij}(\bm{F}\bm{Q}) = Q_{kj}P_{ik}(\bm{F}) \\
+	C_{ijkl}(\bm{F}\bm{Q}) = Q_{mj}Q_{nl}C_{imkn}(\bm{F})
+\end{gather}
+
+\subsubsection{Random Rotation Matrices}
+For the purposes of the material frame indifference and material symmetry tests, random 3D rotation matrices $\bm{Q}$ are generated using Rodrigues' formula:
+\begin{equation}
+\label{eq: random rotation}
+	\bm{Q} = \bm{I} + \bm{\hat{n}}(\sin\theta)  + (1 - \cos\theta)(\bm{n} \otimes \bm{n} - \bm{I})
+\end{equation}
+where
+\begin{equation}
+	\left[\hat{n}_{ij}\right] = 
+	\begin{bmatrix}
+		0		&	-n_3	&	n_2 \\
+		n_3		&	0		&	-n_1 \\
+		-n_2	& 	n_1		& 0
+	\end{bmatrix} .
+\end{equation}
+
+\subsubsection{Random Deformation Gradients}
+For the purposes of testing, it is useful to be able to generate random deformation gradients that have some resemblance to "real" deformation gradients, such that the tests are meaningful. To generate these random matrices, we begin with the identity matrix and add a random 3x3 matrix with elements having values ranging from 0 to 1. This range could be extended further, but it is not necessary for testing. The expression can be written as (in psuedocode):
+\begin{equation}
+\label{eq: random deformation gradient}
+	\bm{F_{rand}} = \bm{I} + rand(3,3)
+\end{equation}
+
+Once computed, the random deformation gradient is checked for satisfying the physical constraint that the Jacobian is positive before being returned. 
+
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{CALCULATIONS AND RESULTS} 
+
+\subsection{Uniaxial Deformation of a Cylinder}
+As a basic test of handling curvilinear coordinates and the computation of kinematic quantities, we look at the uniaxial deformation of a cylinder loaded with tractions that produce a deformed position map
+\[
+\bm{x} = \bm{\varphi}(R,\Phi,Z) = r(R) \bm{e}_R + z(Z) \bm{e}_Z ,
+\]
+where 
+\[
+r = \lambda_1 R, \quad \text{and} \quad z = \lambda_2 Z,
+\]
+and $\lambda_1$ and $\lambda_2$ are arbitrary positive numbers such that $\lambda_1^2\lambda_2<0$. This constraint is necessary for the deformation mapping to make physical sense. A negative value of $\lambda_1$ or $\lambda_2$ would indicate some kind of impossible inversion of the material. 
+
+The lab frame components of the curvilinear coordinate system is described by standard cylindrical coordinate mappings given by:
+\[
+[\bm{e}_R] = \begin{pmatrix} \cos\Phi \\ \sin\Phi \\ 0 \end{pmatrix}
+\quad
+[\bm{e}_\Phi] = \begin{pmatrix} -\sin\Phi \\ \cos\Phi \\ 0 \end{pmatrix}
+\quad
+[\bm{e}_Z] = \begin{pmatrix} 0\\ 0\\ 1 \end{pmatrix}.
+\]
+
+From the mapping and the lab frame mappings, we compute the covariant and contravariant basis vectors in both the reference and deformed configurations. From here, the deformation gradient is computed using equation \ref{eq: deformation gradient}, and gives:
+\[
+\bm{F} = 
+\begin{pmatrix} 
+\lambda_1 & 0 & 0 \\
+0 & \lambda_1 & 0 \\
+0 & 0 & \lambda_2
+\end{pmatrix}
+\]
+Note that the deformation gradient does not depend on the choice of $R$ or $\Phi$, and therefore neither will the Cauchy-Green deformation tensors or the Green-Lagrange strain. Computing these quantities for $\lambda_1 = 2$ and $\lambda_2 = 3$ gives: 
+\[
+\bm{F} = 
+\begin{pmatrix} 
+2 & 0 & 0 \\
+0 & 2 & 0 \\
+0 & 0 & 3 \\
+\end{pmatrix}
+, \quad 
+\bm{C} = 
+\begin{pmatrix} 
+4 & 0 & 0 \\
+0 & 4 & 0 \\
+0 & 0 & 9 \\
+\end{pmatrix}
+, \quad 
+\bm{B} = 
+\begin{pmatrix} 
+4 & 0 & 0 \\
+0 & 4 & 0 \\
+0 & 0 & 9 \\
+\end{pmatrix}
+, \quad 
+\bm{E} = 
+\begin{pmatrix} 
+1.5 & 0 & 0 \\
+0 & 1.5 & 0 \\
+0 & 0 & 4 \\
+\end{pmatrix}
+\]
+These matrices match those computed by hand.
+
+\subsection{Nonlinear Elasticity -- Neo-Hookean Model}
+The Neo-Hookean constitutive model was implemented using the equations derived in section \ref{subsec: constitutive laws} for the strain energy density, first Piola-Kirchhoff stress, and tangent moduli. In order to check the accuracy of their implementation, we use the 3-point formula numerical differentiation tests, the material frame indifference tests, and the material symmetry tests. 
+
+\subsubsection{3-point formula}
+When using the 3-point formula, there are two important inputs that determine the accuracy of the result: the deformation gradient $\bm{F}$ and the perturbation value $h$. To this end, I noticed there is actually a distinction between "good" and "bad" deformation gradients that satisfy the requirement that the Jacobian be greater than 0. If for example, a random deformation gradient is generated simply by a random 3x3 matrix with elements between 0 and 1, this will usually result in a "bad" deformation gradient, and produce much larger errors for a single value of $h$. But using equation \ref{eq: random deformation gradient} to generate the deformation gradients gives errors much closer to the order of $h^2$ expected from equation \ref{eq: 3 point formula}. 
+
+The plots in figure \ref{fig: numerical differentiation error} show the errors for 100 values of $h$ for both "good" and "bad" deformation gradients. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=3.25in]{error_good_F.png} \quad
+\includegraphics[width=3.25in]{error_bad_F.png} 
+\caption{The "good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$.} 
+\label{fig: numerical differentiation error}
+\end{figure}
+
+In order to find the value of $h$ that gives the minimum errors, I generated 100 random deformation gradients and computed the average error for the stress and for the tangent moduli for several values of $h$ for a custom material with first lame parameter $\lambda = 5$ and shear modulus $\mu = 3$. The results are shown in table \ref{table: h vs. error}.
+
+\begin{table}[h]
+	\centering
+	\caption{The perturbation $h$ affects the error of the 3-point formula approximation.}
+	\begin{tabular}{ | c | c | c | c | c | }
+		\hline
+		h & Average P Error & Max P Error & Average C Error & Max C Error \Tstrut \\ \hline
+		$7.5 \times 10^{-4}$ & $4.4 \times 10^{-6}$  & $1.1 \times 10^{-4}$ & $3.4 \times 10^{-5}$ & $1.2 \times 10^{-3}$ \Tstrut \\
+		$1.0 \times 10^{-5}$ & $5.3 \times 10^{-10}$ & $3.7 \times 10^{-9}$ & $2.5 \times 10^{-9}$ & $2.5 \times 10^{-8}$ \\
+		$2.5 \times 10^{-5}$ & $5.8 \times 10^{-9}$  & $1.9 \times 10^{-7}$ & $4.9 \times 10^{-8}$ & $2.4 \times 10^{-6}$ \\
+		$5.0 \times 10^{-5}$ & $4.9 \times 10^{-8}$  & $3.4 \times 10^{-6}$ & $7.7 \times 10^{-7}$ & $6.7 \times 10^{-5}$ \\
+		$7.5 \times 10^{-5}$ & $6.1 \times 10^{-8}$  & $3.0 \times 10^{-6}$ & $6.5 \times 10^{-7}$ & $4.8 \times 10^{-5}$ \\
+		$\bm{1.0 \times 10^{-6}}$ & $\bm{1.4 \times 10^{-9}}$  & $\bm{2.9 \times 10^{-9}}$ & $\bm{1.2 \times 10^{-9}}$ & $\bm{4.0 \times 10^{-9}}$ \\
+		$2.5 \times 10^{-6}$ & $6.2 \times 10^{-10}$ & $1.5 \times 10^{-9}$ & $9.0 \times 10^{-10}$& $1.8 \times 10^{-8}$ \\
+		$5.0 \times 10^{-6}$ & $3.3 \times 10^{-10}$ & $1.7 \times 10^{-9}$ & $8.4 \times 10^{-10}$& $1.6 \times 10^{-8}$ \\
+		$7.5 \times 10^{-6}$ & $5.8 \times 10^{-10}$ & $1.5 \times 10^{-8}$ & $3.9 \times 10^{-9}$ & $1.7 \times 10^{-7}$ \\
+		\hline
+	\end{tabular}
+\label{table: h vs. error}
+\end{table}
+
+Based on figure \ref{fig: numerical differentiation error} and table \ref{table: h vs. error}, the default value for the perturbation $h$ was selected to be $10^{-6}$ because it seems to provide consistently small average and maximum errors for both the stress and tangent moduli. $h$ is included as an optional parameter in the verification test functions that can be specified if desired. Note that the absolute value of these errors can be affected by the material properties by several orders of magnitude. This will be discussed further in section \ref{sec: discussion}.
+
+\subsection{Verification Tests}
+The material frame indifference and material symmetry tests are performed on random deformation gradients to check for the validity of the constitutive model. Typical results for the quantities defined in section \ref{sec: verification tests} are shown in tables \ref{table: material frame indifference} and \ref{table: material symmetry}.
+
+\begin{table}[h]
+	\centering
+	\caption{Typical results of material frame indifference tests.}
+	\begin{tabular}{ | c | c | }
+		\hline
+		Quantity & Max Error \Tstrut \\ \hline
+		$w$ 		& $1.4 \times 10^{-14}$ \Tstrut \\
+		$\bm{P}$ 	& $3.6 \times 10^{-15}$ \\
+		$\bm{C}$ 	& $4.3 \times 10^{-14}$ \\
+		\hline
+	\end{tabular}
+	\label{table: material frame indifference}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\caption{Typical results of material symmetry tests.}
+	\begin{tabular}{ | c | c | }
+		\hline
+		Quantity & Max Error \Tstrut \\ \hline
+		$w$ 		& $2.8 \times 10^{-14}$ \Tstrut \\
+		$\bm{P}$ 	& $1.4 \times 10^{-14}$ \\
+		$\bm{C}$ 	& $2.1 \times 10^{-14}$ \\
+		\hline
+	\end{tabular}
+	\label{table: material symmetry}
+\end{table}
+
+These quantities should be exact matches, so the only error here is due to loss of precision from floating point operations. These operations give 16 digits of accuracy, which is why we see errors only in the last few digits on the order of $10^{-13}$ to $10^{-15}$ depending on the order of magnitude of the quantity itself.  
+
+\subsection{Tolerance}
+We want to determine the smallest possible tolerance value for which all of our tests will pass. The numerical differentiation test is really the limiting factor here, and as these errors are determined by the quality of the approximation formula, unlike the material tests which provide nearly exact answers only limited by 16-digit precision. The numerical differentiation tests involve expressions that contain material properties $\lambda$ and $\mu$, and therefore the error will actually vary as a function of these parameters as well. The code will raise an exception in the case were the error of the numerical approximation exceeds the tolerance. In order to determine a tolerance value that will work for all materials, 100 tests were run using random deformation gradients for 3 materials, and the exceptions were counted for a given tolerance. One of the materials is a custom material, with $\lambda = 6$ and $\mu = 3$, and the other two are aluminum alloy and glass. The results are shown in table \ref{table: tolerance}. 
+
+\begin{table}[h]
+	\centering
+	\caption{Number of exceptions for 3 materials at various tolerance values out of 100 runs.}
+	\begin{tabular}{ | c | c | c | c | c |}
+		\hline
+		Tolerance  & \# of Exceptions (Custom) & \# of Exceptions (Al) & \# of Exceptions (Glass) & \# of Runs \Tstrut \\ \hline
+		$10^{-6}$  & 0   & 0   & 0   & \ 100 \Tstrut \\
+		$10^{-7}$  & 0   & 2   & 1   & 100 \\
+		$10^{-8}$  & 0   & 64  & 25  & 100 \\
+		$10^{-9}$  & 81  & 100 & 100 & 100 \\
+		$10^{-10}$ & 100 & 100 & 100 & 100 \\
+		\hline
+	\end{tabular}
+	\label{table: tolerance}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{DISCUSSION AND CONCLUSIONS}
+\label{sec: discussion}
+
+This is the fun and maybe most important part, where you get to think deeply about your results as you describe them and decide what they mean. Notice that presenting results is distinct from describing them. The later implies the use of words, and some interpretive effort. In this assignment, you should explain what constitutes “passing” the verification tests, and note how the errors in the verification tests compared to the tolerance you chose. This section is where you draw the connection between the results and the numerical problem, evaluating whether your code worked the way you thought it should (and if it didn't, providing some explanation as to why). Your goal here should be to convince me that your results are correct. That requires some argument for a) what the answers should be and b) that your results are consistent.
+
+The code has been thoroughly tested for over 10,000 random deformation gradients (all of which were checked to be physical) using several different materials such as aluminum alloy, lead, and glass, as well as custom materials. All verification tests pass as well as the numerical differentiation checks. The passing of material frame indifference and material symmetry implies that the constitutive law is implemented correctly, as the quantities behave appropriately under random rotations. These tests yield exact results limited only by the 16-digit precision of floating point operations. 
+
+The passing of the numerical differentiation tests, using the 3-point formula, implies that the computed quantities that come from derivatives of the deformation gradient, namely the first Piola-Kirchhoff stress and the tangent moduli, are within tolerance of the values that result from Taylor Expansion. Whether these checks pass is largely determined by the tolerance value chosen. As discussed previously, the perturbation value $h$ used in the 3-point formula has been selected such that the error is consistently minimized (see \ref{table: h vs. error}). However, the absolutely value of this error is affected by the material selected, because the material properties are used in the expression for the stress and tangent moduli. Based on the results in table \ref{table: tolerance}, as well as some additional testing, I have chose a tolerance of $10^{-6}$, because this value consistently results in 0 exceptions for every material tested, while $10^{-7}$ will occasionally result in an error or two. I could perform further testing at finer intervals than factors of 10, but this will provide an adequate starting point. It should be noted that while the derivation of the 3-point formula implies that errors should be on the order of $h^2$, I have never been able to see an error this small for any material. As can be seen in table \ref{table: tolerance}, errors tend to be on the order of $10^{-8}$ or $10^{-9}$. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{SOURCE CODE LISTING}
+
+\begin{tabular}{ r l }
+\textit{New and updated files:} & body.py, constants.py, constitutive\_models.py, exceptions.py, frames.py, \\
+					  & kinematics.py, materials.py, model.py, model\_io.py, operations.py, tests.py 
+\end{tabular}
+
+\end{document} 
