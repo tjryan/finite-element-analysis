@@ -69,32 +69,11 @@ class QuadraturePoint:
         self.position = position
         self.weight = weight
 
-        # Calculated one time
-        self.jacobian_matrix = None
-        self.jacobian_matrix_inverse = None
-        self.calculate_jacobian_matrix(element)
-
         # Updated every deformation
         self.deformation_gradient = deformation_gradient.DeformationGradient()
         self.strain_energy_density = None
         self.first_piola_kirchhoff_stress = None
         self.tangent_moduli = None
-
-    def calculate_jacobian_matrix(self, element):
-        """Calculate the Jacobian matrix at the quadrature point for the provided element. This is a one time
-        calculation performed during the initialization of the quadrature point.
-
-        :param element: element object that is deformed
-        """
-        jacobian_matrix = numpy.zeros((element.degrees_of_freedom, element.dimension))
-        for dof in range(element.degrees_of_freedom):
-            for coordinate_index in range(element.dimension):
-                for node_index in range(element.node_quantity):
-                    jacobian_matrix[dof][coordinate_index] += (
-                        element.nodes[node_index].reference_position[dof] * element.shape_function_derivatives(
-                            node_index=node_index, position=self.position, coordinate_index=coordinate_index))
-        self.jacobian_matrix = jacobian_matrix
-        self.jacobian_matrix_inverse = numpy.linalg.inv(jacobian_matrix)
 
     def update_deformation_gradient(self, element):
         """Update the deformation gradient object for the current deformation.
@@ -111,7 +90,7 @@ class QuadraturePoint:
                         new_deformation_gradient[dof_1][dof_2] += (
                             element.nodes[node_index].current_position[dof_1] * element.shape_function_derivatives(
                                 node_index=node_index, position=self.position, coordinate_index=coordinate_index)
-                            * self.jacobian_matrix_inverse[dof_2][coordinate_index])
+                            * element.jacobian_matrix_inverse[dof_2][coordinate_index])
         if element.plane_stress:
             new_deformation_gradient[2][2] = 1
         self.deformation_gradient.update_F(new_F=new_deformation_gradient,

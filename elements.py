@@ -49,6 +49,10 @@ class BaseElement:
         self.nodes = []
         self.quadrature_points = []
 
+        # Fixed properties
+        self.jacobian_matrix = None
+        self.jacobian_matrix_inverse = None
+
         # Properties that change with each deformation
         self.strain_energy = None
         self.force_array = None
@@ -75,7 +79,7 @@ class BaseElement:
                                 * self.shape_function_derivatives(
                                     node_index=node_index, position=quadrature_point.position,
                                     coordinate_index=coordinate_index)
-                                * quadrature_point.jacobian_matrix_inverse[coordinate_index][dof_2])
+                                * self.jacobian_matrix_inverse[coordinate_index][dof_2])
             # Weight the integrand
             integrand *= quadrature_point.weight
             # Add the integrand to the force_array
@@ -85,6 +89,22 @@ class BaseElement:
         if test:
             tests.numerical_differentiation_force_array(element=self, force_array=force_array)
         return force_array
+
+    def calculate_jacobian_matrix(self):
+        """Calculate the Jacobian matrix at the first quadrature point for the element. This is a one time
+        calculation performed during the creation of the quadrature points.
+        """
+        quadrature_point = self.quadrature_points[0]
+        jacobian_matrix = numpy.zeros((self.degrees_of_freedom, self.dimension))
+        for dof in range(self.degrees_of_freedom):
+            for coordinate_index in range(self.dimension):
+                for node_index in range(self.node_quantity):
+                    jacobian_matrix[dof][coordinate_index] += (
+                        self.nodes[node_index].reference_position[dof] * self.shape_function_derivatives(
+                            node_index=node_index, position=quadrature_point.position,
+                            coordinate_index=coordinate_index))
+        self.jacobian_matrix = jacobian_matrix
+        self.jacobian_matrix_inverse = numpy.linalg.inv(jacobian_matrix)
 
     def calculate_strain_energy(self):
         """Computes the total strain energy of element using Gauss quadrature. Runs for each deformed configuration in
@@ -126,8 +146,8 @@ class BaseElement:
                                                     node_index=node_index_2,
                                                     position=quadrature_point.position,
                                                     coordinate_index=coordinate_index_2)
-                                                * quadrature_point.jacobian_matrix_inverse[coordinate_index_1][dof_2]
-                                                * quadrature_point.jacobian_matrix_inverse[coordinate_index_2][dof_4])
+                                                * self.jacobian_matrix_inverse[coordinate_index_1][dof_2]
+                                                * self.jacobian_matrix_inverse[coordinate_index_2][dof_4])
             # Weight the integrand
             integrand *= quadrature_point.weight
             # Add the integrand to the stiffness matrix
@@ -140,13 +160,14 @@ class BaseElement:
         return stiffness_matrix
 
     def create_quadrature_points(self):
-        """Create quadrature points from the quadrature class. This is a one-time method called after all nodes
-        have been assigned to the element."""
+        """Create quadrature points from the quadrature class, and calculate the Jacobian matrix for the element.
+        This is a one-time method called after all nodes have been assigned to the element."""
         for point_index in range(self.quadrature_class.point_quantity):
             quadrature_point = quadrature.QuadraturePoint(position=self.quadrature_class.point_positions[point_index],
                                                           weight=self.quadrature_class.point_weights[point_index],
                                                           element=self)
             self.quadrature_points.append(quadrature_point)
+        self.calculate_jacobian_matrix()
 
     @classmethod
     def shape_functions(cls, node_index, position):
