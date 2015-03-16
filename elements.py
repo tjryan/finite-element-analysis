@@ -169,29 +169,6 @@ class BaseElement:
             self.quadrature_points.append(quadrature_point)
         self.calculate_jacobian_matrix()
 
-    @classmethod
-    def shape_functions(cls, node_index, position):
-        """Should be overriden by children classes. Compute the value of the shape function for the specified
-        node_index at the given coordinates. Note that the nodes are indexed starting at 0 for the convenience of
-        iteration when calling this function.
-
-        :param int node_index: index of the node_index at which to compute the shape function
-        :param tuple position: coordinates of point at which to evaluate
-        """
-        pass
-
-    @classmethod
-    def shape_function_derivatives(cls, node_index, position, coordinate_index):
-        """Should be overriden by children classes. Compute the value of the derivative of the shape function with
-        respect to the specified coordinate, for the specified node_index at the given coordinates. Note that the
-        nodes and coordinates are indexed starting at 0 for the convenience of iteration when calling this function.
-
-        :param int node_index: index of the node at which to compute the shape function
-        :param tuple position: coordinates of point at which to evaluate
-        :param int coordinate_index: index of the coordinate to compute the derivative with respect to
-        """
-        pass
-
     def update_current_configuration(self):
         """Update the positions of the node for the current deformation state, and then compute strain energy,
         the internal nodal force array, and the stiffness matrix using Gauss quadrature."""
@@ -217,6 +194,29 @@ class BaseElement:
     def update_stiffness_matrix(self):
         """Update the stiffness matrix for the current deformation."""
         self.stiffness_matrix = self.calculate_stiffness_matrix()
+
+    @classmethod
+    def shape_functions(cls, node_index, position):
+        """Should be overriden by children classes. Compute the value of the shape function for the specified
+        node_index at the given coordinates. Note that the nodes are indexed starting at 0 for the convenience of
+        iteration when calling this function.
+
+        :param int node_index: index of the node_index at which to compute the shape function
+        :param tuple position: coordinates of point at which to evaluate
+        """
+        pass
+
+    @classmethod
+    def shape_function_derivatives(cls, node_index, position, coordinate_index):
+        """Should be overriden by children classes. Compute the value of the derivative of the shape function with
+        respect to the specified coordinate, for the specified node_index at the given coordinates. Note that the
+        nodes and coordinates are indexed starting at 0 for the convenience of iteration when calling this function.
+
+        :param int node_index: index of the node at which to compute the shape function
+        :param tuple position: coordinates of point at which to evaluate
+        :param int coordinate_index: index of the coordinate to compute the derivative with respect to
+        """
+        pass
 
 
 class TriangularLinearElement(BaseElement):
