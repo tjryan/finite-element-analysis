@@ -42,7 +42,7 @@
 	Tyler.Ryan@engineering.ucla.edu
 \skiplinehalf
 MAE 261B, UCLA \\
-February 6, 2015
+March 20, 2015
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -54,13 +54,13 @@ February 6, 2015
 \begin{document} 
 \maketitle 
 
-%\tableofcontents
+\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
 \label{section: introduction}  % \label{} allows reference to this section
 
-This report represents the first in a series that will describe the process of creating a finite element analysis program in the object-oriented programming language of Python (version 3.3.5). A lot of emphasis has been placed on code architecture and verification testing to ensure that the code is easily extensible and robust for future development. In order to get started, we must first understand the equations for and derivations of the fundamental quantities that will lay the foundation for the program. Then we will explore the implementation of these equations into the code architecture and describe some of the key design choices for code structure. Finally, we will discuss the results of implementation by looking at the deformation of a uniaxial cylinder, the computation of kinetic quantities using the Neo-Hookean constitutive law, plane stress assumptions, and results of verification tests.
+This report represents the first in a series that will describe the process of creating a finite element analysis program in the object-oriented programming language of Python (version 3.3.5). A lot of emphasis has been placed on code architecture and verification testing to ensure that the code is easily extensible and robust for future development. In order to get started, we must first understand the equations for and derivations of the fundamental quantities that will lay the foundation for the program. Then we will explore the implementation of these equations into the code architecture and describe some of the key design choices for code structure. Finally, we will discuss the results of implementation by looking at the deformation of a uniaxial cylinder, the computation of material response using the Neo-Hookean constitutive law, plane stress assumptions, and results of verification tests.
 
 \subsection{Curvilinear Coordinates and Frames}
 
@@ -246,32 +246,96 @@ C^{2D}_{\alpha\beta\delta\gamma} &= \frac{\partial}{\partial F_{\delta\gamma}} \
 \end{align}
 Using this equation we can compute the adjusted 2D tangent moduli under the assumption of plane stress from the components of the full 3D tangent moduli. 
 
+\subsection{Finite Elements}
+\label{sec: finite elements}
+In order to analyze the behavior of body, we must discretize the domain into finite elements. These elements can in general have any number of sides, but triangles and quadrilaterals provide more than enough flexibility and are much simpler to work with. In this analysis, we will focus on the use of triangular elements. When a domain in broken up into triangular elements, each triangle will in general have different dimensions and different orientations. For this reason it becomes very useful to map each general element into an isoparametric element.
+
+\textbf{Isoparametric elements} are standard elements defined in a natural coordinate system for which we can use shape functions to interpolate the behavior of the element between nodes. An example of an isoparametric triangular element is shown in figure \ref{fig: isoparametric triangular element}. The element is bounded by nodes, and the shape functions define the shape of the body between them. Shape functions relate the coordinates of every point in the element to the positions of the nodes, allowing for interpolation of values such as displacement within the element.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=7in]{isoparametric_triangular_element.png}
+	\caption{A general triangular element is mapped to an isoparametric triangular element by the Jacobian matrix. A linear triangular element uses only nodes 1-3, removing the midpoint nodes. A quadratic triangular element uses all 6 nodes.} 
+	\label{fig: isoparametric triangular element}
+\end{figure}
+
+The finite element analysis is driven by nodal positions, as the behavior of each element is dependent entirely on the behavior of the nodes. Depending on the desired accuracy, 3-node or 6-node triangular elements may be used. A 3-node triangular element is considered linear, as there is no information between the nodes to allow for curving. Thus the 6-node triangular element is considered quadratic, as the midpoint nodes along the edge allow for nonlinear behavior. For each of these element types, there are a number of shape functions equal to the number of nodes, and every isoparametric element is characterized by these same functions.
+
+A location in the natural coordinate system $(r,x)$ can be interpolated from the lab frame nodal positions $(x,y)$ by the shape functions:
+\begin{equation}
+\label{eq: shape function mapping}
+\bm{x}(r,s) = \sum\limits_{a} N_a(r,s) \bm{x}_a
+\end{equation}
+where $a$ is indexing the nodes. 
+
+\subsubsection{Jacobian Matrix}
+The general element is mapped from the lab frame to the isoparametric domain by the \textbf{Jacobian matrix}. The Jacobian matrix is based on the reference nodal positions and the shape functions, and can be expressed as:
+\begin{equation}
+\label{eq: Jacobian matrix}
+J_{I\alpha} = \sum\limits_{a} X_{ia} N_{a,\alpha}
+\end{equation}
+where $X_{ia}$ are the components of the reference nodal position vectors. The Jacobian matrix has dimensions of (lab frame dimensions) $\times$ (element dimensions). In this analysis, the plane stress assumption will allow for the use of two dimensional elements deforming in a three dimensional lab frame. Therefore the Jacobian matrix will be 3 $\times$ 2. 
+
+With the Jacobian matrix, we have a means for moving between the isoparametric and physical domains, and it will be used in the calculations for numerous quantities that describe the behavior of the element.
+
+\subsubsection{Element Behavior}
+With the Jacobian matrix defined, the deformation gradient can now be computed in alternative manner to using the basis vectors of the reference and current configurations as defined in equation \ref{eq: deformation gradient}. Using the nodal positions in the current configuration $x_{ia}$, and the information about the current configuration carried by the Jacobian matrix, the \textbf{deformation gradient} can be expressed as:
+\begin{equation}
+\label{eq: deformation gradient using Jacobian matrix}
+F_{ij} = \sum\limits_{a} x_{ia} N_{a,\alpha} J_{\alpha j}^{-1}
+\end{equation}
+With the deformation gradient and material response quantities from the constitutive model, three quantities can be computed: strain energy, internal nodal force array, and the stiffness matrix. These quantities describe the behavior of the entire element by integrating the material response quantities over the element domain. Here the isoparametric formulation comes in handy because the integral can be performed in the isoparametric domain and then transformed back to the physical domain using the inverse Jacobian matrix. These integrals are computed using a numerical integration technique called Gauss quadrature, which will be discussed in detail in section \ref{sec: gauss quadrature}. 
+
+The \textbf{strain energy} of the element is determined by integrating the strain energy density:
+\begin{equation}
+\label{eq: strain energy}
+W = \int\limits_{\Omega_0} w dV
+\end{equation}
+
+The \textbf{internal nodal force array} is the representation of a distributed force over the element at the nodes. In other words, the distributed load is converted to a set of equivalent forces acting only on the nodes of the element. The force array is determined by integrating the first Piola-Kirchhoff stress:
+\begin{equation}
+\label{eq: internal nodal force array}
+f_{ia}^{int} = \int\limits_{\Omega_0} P_{ij} N_{a,\alpha} J_{\alpha j}^{-1} dV
+\end{equation}
+
+The \textbf{stiffness matrix} represents the resistance of the element to deformation in various directions. It is determined by integrating the two dimensional tangent moduli that has been adjusted for plane stress:
+\begin{equation}
+\label{eq: stiffness matrix}
+K_{iakb} = \int\limits_{\Omega_0} C_{ijkl}^{2D} N_{a,\alpha} N_{b,\beta} J_{\alpha j}^{-1} J_{\beta l}^{-1} dV
+\end{equation}
+
+\subsubsection{Gauss Quadrature}
+% TODO
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS} 
 
-I have put in a lot of effort to ensure that the initial code base is structured to be robust and extensible to future developments. This means that future work will evolve adding more to the existing classes and functions rather than rewriting them. I have done my best to take full advantage of Python as an object-oriented project language to create an architecture that makes sense according to the current state of my evolving understanding of finite element analysis. I will describe my code at the highest level before discussing the details of implementation. Of course, this is all subject to change as I develop further understanding. 
+I have put in a lot of effort to ensure that the initial code base is structured to be robust and extensible to future developments. This means that future work will involve adding more to the existing classes and functions rather than rewriting them. I have done my best to take full advantage of Python as an object-oriented project language to create an architecture that makes sense according to the current state of my evolving understanding of finite element analysis. I will describe my code at the highest level before discussing the details of implementation.
 
 \subsection{Code Architecture}
-
+% TODO: update
 My goal is to structure the model such that its inputs are provided in an intuitive format that is repeatable for any application. Whether running a simple verification test or a full deformation analysis on a body, the inputs should only differ in their values and the desired output information requested.
 
-To set up an analysis, you start by creating an instance of the FEM class (finite element model). The FEM class contains top-level information such as the constitutive law being used, a list of finite element objects, the material the body is composed of, and the configuration mappings between frames. You choose a constitutive law from a module of classes containing the functions that define each law, and a material from a module of classes containing different materials and their properties. Then you define the mappings for the curvilinear coordinate system for the lab frame, the reference configuration, and deformation configuration. 
-
-With the model setup, it is now time to add elements, quadrature points, and nodes. Each element contains a list of node objects and a list of quadrature point objects. Each node has a position, and each quadrature point has a position, a weight, a remainder, a deformation gradient, and the values of the kinetic quantities computed from the constitutive law (strain energy, first Piola-Kirchhoff stress, and tangent moduli). At this early stage in development and testing, we may only be looking at the deformation at a single quadrature point, for a single element, but the procedure remains the same, just on a small scale. 
+%To set up an analysis, you start by creating an instance of the FEM class (finite element model). The FEM class contains top-level information such as the constitutive law being used, a list of finite element objects, the material the body is composed of, and the configuration mappings between frames. You choose a constitutive law from a module of classes containing the functions that define each law, and a material from a module of classes containing different materials and their properties. Then you define the mappings for the curvilinear coordinate system for the lab frame, the reference configuration, and deformation configuration. 
+%
+%With the model setup, it is now time to add elements, quadrature points, and nodes. Each element contains a list of node objects and a list of quadrature point objects. Each node has a position, and each quadrature point has a position, a weight, a remainder, a deformation gradient, and material response computed from the constitutive law (strain energy, first Piola-Kirchhoff stress, and tangent moduli). At this early stage in development and testing, we may only be looking at the deformation at a single quadrature point, for a single element, but the procedure remains the same, just on a small scale. 
 
 \subsubsection{Brief Module Descriptions}
 \begin{description}
-	\item[body.py] deformation gradient class which describes the deformation of the body under specified assumptions.
 	\item[constants.py] integers and strings used throughout the model such they can be conveniently referenced without having to hard-code their values into the model.
 	\item[constitutive\_models.py] contains classes for each constitutive law (ie. Neo-Hookean), each of which contains methods for computing the values of strain energy density, first Piola-Kirchhoff stress, and tangent moduli.
+	\item[deformation\_gradient.py] deformation gradient class which defines and updates the deformation of the body under specified assumptions.
+	\item[elements.py] contains the different types of isoparametric elements available for use in analysis, including the 3 and 6-node triangular elements. Also contains methods for updating element-level properties such as strain energy. 
 	\item[exceptions.py] errors that are raised during the analysis (usually from the tests module) in the event of an incorrect or unexpected result, or some kind of violation that indicates a breaking of physical laws or constraints.
 	\item[frames.py] contains classes for the frames/configurations and the basis vectors.
 	\item[kinematics.py] functions that compute the strain tensors from the deformation gradient. 
 	\item[materials.py] contains classes for different material options, each of which contains the properties of the material.
-	\item[model.py] contains the highest-level components of the model, including classes for FEM, elements, nodes, and quadrature points.
-	\item[model\_io.py] this is the module from which the model is set up and run, and is the only file a user will interact with. 
+	\item[model.py] contains the finite element model, the master class that manages the analysis and keeps track of the highest level information. 
+	\item[model\_io\_\#.py] this is the module from which the model is set up and run, and is the only file a user will interact with. 
 	\item[operations.py] commonly used functions, such as Newton's Method, or the generation of a random deformation gradient for testing purposes. 
+	\item[nodes.py] contains node classes that keep track of reference and current positions, as well as local and global IDs for assembly purposes. 
+	\item[quadrature.py] contains parameters for one and three point Gauss quadrature, as well as a quadrature point class that contains properties for material response values. 
 	\item[tests.py] verification test functions that ensure the accuracy of the code and check for physical violations.
 \end{description}
 
@@ -279,19 +343,38 @@ With the model setup, it is now time to add elements, quadrature points, and nod
 In this section, I will describe the key design choices made with regards to implementation, and in particular how these relate to the verification tests that ensure the correctness of the code and validity of the analysis. 
 
 \subsubsection{Finite Element Model}
-The highest level object in the analysis is the FEM class, or the Finite Element Model. This is the "master" of the analysis, and is responsible for keeping track of globally needed information as well as running the analysis itself. Elements are the building blocks of the model, and are composed of nodes and quadrature points. All three of these objects are represented by classes. The model keeps a list of all element objects in the analysis, and each element keeps a list of its node and quadrature point objects. This should allow for easy iteration from the model level, downward. 
+The highest level object in the analysis is the Model class, or the Finite Element Model. This is the "master" of the analysis, and is responsible for keeping track of globally needed information as well as setting up and running the analysis. The model keeps track of the material, constitutive model, quadrature class, and element type. It is also responsible for creating the nodes and elements, and performing the global assembly. It stores lists of all element and node objects in the analysis to allow for easy iteration downward from the model level when updating the current configuration. 
 
-The quadrature points contain values for the deformation gradient, as well as the kinematic and kinetic quantities at a point in space. At this point in our analysis, we will simply be looking at the deformation of a single element at a single quadrature point. The nodes are mostly a placeholder as of now, but because a node will ultimately belong to multiple elements for the purposes of stitching together the mesh, the nodes will keep a list of their parent element objects.  
+\paragraph{Model Setup}
+Elements are the building blocks of the model, and are composed of nodes and quadrature points. Nodes define the mesh that discretizes the domain of the body, and belong to multiple parent elements. For this reason, nodes are created first by the model through a meshing function (TO BE ELABORATED ON LATER) and assigned a reference position, a list of parent elements, and both local and global IDs. The reference position defines the position of the node in the reference configuration. The list of parent elements defines the element objects the node belongs to. The local ID keeps track of the node number 1-6 within an element as shown in figure \ref{fig: isoparametric triangular element}. Therefore many nodes will share local IDs, creating the need for a global ID, which creates a unique identifier for the node within the model.
+
+Once the nodes are created, they are assigned to their parent elements, who store a list of their nodes. With nodes assigned, the elements then create their quadrature point(s) based on the quadrature class selected by the model and then perform the one-time calculation of the Jacobian matrix from the reference nodal positions. The primary advantage of using isoparametric elements is that once the general elements have been mapped to the isoparametric domain by the Jacobian matrix, every element can be treated identically.
+
+\paragraph{Updating the Current Configuration}
+
+
+\subsubsection{Elements}
+% TODO
+\textit{Nodes}
+
+\textit{Quadrature Points}
+
+\subsubsection{Shape Functions}
+% TODO
+\textit{Gauss Quadrature}
+
+\subsubsection{Gauss Quadrature}
+\label{sec: gauss quadrature}
 
 \subsubsection{Deformation Gradient}
-The deformation gradient is extremely important, as it is the driver for all kinematic and kinetic quantities. Therefore, if we begin our analysis with a deformation that does not make physical sense, then neither will our results. For this reason, I decided to make the deformation gradient be represented by a class rather than by a simple $3 \times 3$ matrix. Each time a deformation gradient is initialized with its matrix values as one of its attributes, it immediately computes and checks the value of the Jacobian. For the deformation gradient to have physical meaning, the Jacobian must be greater than zero, otherwise there is some unphysical inversion of the body taking place. If the Jacobian is negative, an error is raised to indicate this, and the analysis is halted. This ensures that an unphysical deformation gradient never makes it past initialization. 
+The deformation gradient is extremely important, as it is the driver for all kinematics and material response. Therefore, if we begin our analysis with a deformation that does not make physical sense, then neither will our results. For this reason, I decided to make the deformation gradient be represented by a class rather than by a simple $3 \times 3$ matrix. Each time a deformation gradient is initialized with its matrix values as one of its attributes, it immediately computes and checks the value of the Jacobian. For the deformation gradient to have physical meaning, the Jacobian must be greater than zero, otherwise there is some unphysical inversion of the body taking place. If the Jacobian is negative, an error is raised to indicate this, and the analysis is halted. This ensures that an unphysical deformation gradient never makes it past initialization. 
 
 This quantity is also unique in that its structure is directly affected by the assumption of plane stress. So if the deformation gradient is initialized with this assumption, it will immediately enforce it by computing the value for the unknown stretch ratio using Newton's Method (more detail on this later), and then again checking the value of the Jacobian from the finalized matrix to ensure validity.
 
 Similarly, the class also contains a method for enforcing plane strain, but this has not yet been implemented. 
 
 \subsubsection{Constitutive Laws}
-The model keeps a reference to the constitutive law object being using for the analysis. As of now, there is only one option, and that is the Neo-Hookean model. The constitutive law is nothing more than a set of three methods that compute kinetic quantities from a $3 \times 3$ deformation gradient. The expressions for these quantities are computed by hand such that derivatives do not need to be handled in the code, as this would be very difficult. The class has no knowledge of the assumptions of the model (ie. plane stress/strain), as this information is contained in the construction of the deformation gradient itself, and therefore the return values will reflect this assumption without being aware of it. 
+The model keeps a reference to the constitutive law object being using for the analysis. As of now, there is only one option, and that is the Neo-Hookean model. The constitutive law is nothing more than a set of three methods that compute the material response from a $3 \times 3$ deformation gradient. The expressions for these quantities are computed by hand such that derivatives do not need to be handled in the code, as this would be very difficult. The class has no knowledge of the assumptions of the model (ie. plane stress/strain), as this information is contained in the construction of the deformation gradient itself, and therefore the return values will reflect this assumption without being aware of it. 
 
 The methods for first Piola-Kirchhoff stress and tangent moduli contain two optional parameters: the requested dimension of the result (defaulted to 3), and a boolean for whether to test the result against 3-point numerical differentiation (defaulted to True). When performing a plane stress analysis, the requested dimension would be 2, in which case the first Piola-Kirchhoff stress will return a $2 \times 2$ subset of the $3 \times 3$ result, and the tangent moduli will be adjusted according to equation \ref{eq: 2d tangent moduli} and will return a 2D 4th order tensor. If the test boolean is set to true, the computed result will perform a verification test \textit{prior} to being returned. This ensures that an incorrect value is not being passed back out to the model. 
 
@@ -315,7 +398,7 @@ The Newton's method solver is a loop that iteratively solves for the stretch rat
 
 \subsection{Additional Verification Tests}
 \label{sec: verification tests}
-In additional to the numerical differentiation check using the 3-point formula, which ensures that derivatives are being computed correctly, the code also checks that the kinetic quantities satisfy certain physical rules. These rules include \textbf{material frame indifference} and \textbf{material symmetry}. These tests serve as stand-alone unit tests that are run on the constitutive law classes using randomly generated deformation gradients to ensure that the methods have been written correctly. 
+In additional to the numerical differentiation check using the 3-point formula, which ensures that derivatives are being computed correctly, the code also checks that the material response satisfies certain physical rules. These rules include \textbf{material frame indifference} and \textbf{material symmetry}. These tests serve as stand-alone unit tests that are run on the constitutive law classes using randomly generated deformation gradients to ensure that the methods have been written correctly. 
 
 \subsubsection{Material Frame Indifference}
 Material frame indifference suggests that rotating the frame of reference or performing a rigid body rotation should not change the energy of the system. Therefore, if a random rotation is applied to the deformation gradient and then the strain energy density is computed, we should expect the value to remain equivalent to the value prior to rotation. This concept can be expressed as:
@@ -364,6 +447,9 @@ For the purposes of testing, it is useful to be able to generate random deformat
 \end{equation}
 
 Once computed, the random deformation gradient is checked for satisfying the physical constraint that the Jacobian is positive before being returned. 
+
+\subsection{Order of Operations}
+Talk about method order, one time vs. every time calculations. 
 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

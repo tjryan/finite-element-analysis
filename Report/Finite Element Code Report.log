@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  16 MAR 2015 11:24
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  17 MAR 2015 00:46
 entering extended mode
 **Finite*Element*Code*Report.tex
 
@@ -175,38 +175,60 @@ LaTeX Font Info:    ... okay on input line 54.
 )
 cmr-font_in_spiecls
 10pt
-[1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2] [3] [4] [5]
-[6] [7] [8] [9] <error_good_F.png, id=48, 539.1342pt x 423.5022pt>
+("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
+ort.toc" [1
+
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}])
+\tf@toc=\write3
+ [2] [3]
+[4] [5] [6]
+<isoparametric_triangular_element.png, id=37, 945.5325pt x 423.83344pt>
+File: isoparametric_triangular_element.png Graphic file (type png)
+
+<use isoparametric_triangular_element.png>
+Package pdftex.def Info: isoparametric_triangular_element.png used on input lin
+e 257.
+(pdftex.def)             Requested size: 505.89pt x 226.77127pt.
+
+Overfull \hbox (18.0675pt too wide) in paragraph at lines 257--258
+ [][] 
+ []
+
+[7 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/isoparametric_triangu
+lar_element.png>] [8] [9] [10] [11] [12]
+<error_good_F.png, id=61, 539.1342pt x 423.5022pt>
 File: error_good_F.png Graphic file (type png)
-
-<use error_good_F.png>
-Package pdftex.def Info: error_good_F.png used on input line 443.
+ <use error_good_F.png>
+Package pdftex.def Info: error_good_F.png used on input line 529.
 (pdftex.def)             Requested size: 234.87749pt x 184.49983pt.
- <error_bad_F.png, id=49, 534.798pt x 422.7795pt>
-File: error_bad_F.png Graphic file (type png)
 
-<use error_bad_F.png>
-Package pdftex.def Info: error_bad_F.png used on input line 444.
+<error_bad_F.png, id=62, 534.798pt x 422.7795pt>
+File: error_bad_F.png Graphic file (type png)
+ <use error_bad_F.png>
+Package pdftex.def Info: error_bad_F.png used on input line 530.
 (pdftex.def)             Requested size: 234.87749pt x 185.68164pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[10 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_good_F.png> <C
-:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[11] [12]
+[13]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[14 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_good_F.png> <C
+:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>] [15]
+[16]
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux") ) 
 Here is how much of TeX's memory you used:
- 2045 strings out of 493921
- 25732 string characters out of 3147281
- 92547 words of memory out of 3000000
- 5334 multiletter control sequences out of 15000+200000
+ 2062 strings out of 493921
+ 26357 string characters out of 3147281
+ 93635 words of memory out of 3000000
+ 5347 multiletter control sequences out of 15000+200000
  12531 words of font info for 44 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  29i,14n,21p,1433b,270s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -232,9 +254,9 @@ s/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy1
 /Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program 
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "Finite Element Code Report.pdf" (12 pages, 382587 bytes).
+Output written on "Finite Element Code Report.pdf" (16 pages, 424445 bytes).
 PDF statistics:
- 139 PDF objects out of 1000 (max. 8388607)
+ 155 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
