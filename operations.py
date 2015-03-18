@@ -75,8 +75,6 @@ def generate_random_node_current_position(node):
     """
     # For some reason += does not work here... I have no idea why. It makes the reference position change too.
     # node.current_position = node.current_position + .1 * numpy.random.rand(2)  # use for random deformation
-    # node.current_position = node.current_position + 1
-    # node.current_position = node.current_position - 1
     pass  # use for no deformation
 
 
@@ -98,7 +96,7 @@ def generate_random_node_reference_positions(element_nodes):
     for node_index in range(len(element_nodes)):
         element_nodes[node_index].reference_position = node_positions[node_index]
         # Assign the current position to equal the reference position because no deformation has occurred yet
-        element_nodes[node_index].current_position = node_positions[node_index]
+        element_nodes[node_index].current_position = numpy.copy(node_positions[node_index])
 
 
 def generate_random_rotation_matrix():
