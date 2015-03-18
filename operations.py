@@ -74,8 +74,10 @@ def generate_random_node_current_position(node):
     :param node: node object to perturb
     """
     # For some reason += does not work here... I have no idea why. It makes the reference position change too.
-    node.current_position = node.current_position + .1 * numpy.random.rand(2)  # use for random deformation
-    # pass  # use for no deformation
+    # node.current_position = node.current_position + .1 * numpy.random.rand(2)  # use for random deformation
+    # node.current_position = node.current_position + 1
+    # node.current_position = node.current_position - 1
+    pass  # use for no deformation
 
 
 def generate_random_node_reference_positions(element_nodes):

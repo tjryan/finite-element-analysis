@@ -330,7 +330,7 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
                     # Save the unperturbed location of the node
                     unperturbed_position = element.nodes[node_index_2].current_position[dof_2]
                     # Perturb current position of node 2 in the positive direction
-                    element.nodes[node_index_2].current_position[dof_2] += h
+                    element.nodes[node_index_2].current_position[dof_2] = element.nodes[node_index_2].current_position[dof_2] + h
                     # Update deformation gradient and strain energy density for each quadrature point
                     for quadrature_point in element.quadrature_points:
                         quadrature_point.update_deformation_gradient(element=element)

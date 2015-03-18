@@ -156,7 +156,7 @@ class BaseElement:
         stiffness_matrix *= .5 * self.thickness
         if test:
             tests.numerical_differentiation_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
-            tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
+        tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
         return stiffness_matrix
 
     def create_quadrature_points(self):

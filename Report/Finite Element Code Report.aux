@@ -1,74 +1,88 @@
 \relax 
 \@writefile{toc}{\contentsline {section}{\numberline {1}INTRODUCTION}{2}}
-\newlabel{section: introduction}{{1}{2}}
+\newlabel{section: introduction}{{1}{2}{INTRODUCTION}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Curvilinear Coordinates and Frames}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Covariant and Contravariant Basis Vectors}{3}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.1}Properties}{3}}
+\@writefile{toc}{\contentsline {paragraph}{Properties}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Kinematic Quantities}{3}}
-\newlabel{eq: deformation gradient}{{7}{3}}
+\newlabel{eq: deformation gradient}{{7}{3}{Kinematic Quantities}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Constitutive Laws}{4}}
-\newlabel{subsec: constitutive laws}{{1.4}{4}}
-\newlabel{eq: strain energy density}{{11}{4}}
+\newlabel{subsec: constitutive laws}{{1.4}{4}{Constitutive Laws}{}{}}
+\newlabel{eq: strain energy density}{{11}{4}{Constitutive Laws}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.5}Plane Stress}{5}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.5.1}Newton's Method}{5}}
-\newlabel{eq: dlambda}{{29}{5}}
-\newlabel{eq: dlambda P}{{30}{5}}
+\newlabel{eq: dlambda}{{29}{5}{Newton's Method}{}{}}
+\newlabel{eq: dlambda P}{{30}{5}{Newton's Method}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.5.2}2D Tangent Moduli}{6}}
-\newlabel{eq: 2d tangent moduli}{{41}{6}}
+\newlabel{eq: 2d tangent moduli}{{41}{6}{2D Tangent Moduli}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.6}Finite Elements}{7}}
-\newlabel{sec: finite elements}{{1.6}{7}}
+\newlabel{sec: finite elements}{{1.6}{7}{Finite Elements}{}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces A general triangular element is mapped to an isoparametric triangular element by the Jacobian matrix. A linear triangular element uses only nodes 1-3, removing the midpoint nodes. A quadratic triangular element uses all 6 nodes.}}{7}}
-\newlabel{fig: isoparametric triangular element}{{1}{7}}
-\newlabel{eq: shape function mapping}{{42}{7}}
+\newlabel{fig: isoparametric triangular element}{{1}{7}{A general triangular element is mapped to an isoparametric triangular element by the Jacobian matrix. A linear triangular element uses only nodes 1-3, removing the midpoint nodes. A quadratic triangular element uses all 6 nodes}{}{}}
+\newlabel{eq: shape function mapping}{{42}{7}{Finite Elements}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.6.1}Jacobian Matrix}{7}}
-\newlabel{eq: Jacobian matrix}{{43}{7}}
+\newlabel{eq: Jacobian matrix}{{43}{7}{Jacobian Matrix}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.6.2}Element Behavior}{8}}
-\newlabel{eq: deformation gradient using Jacobian matrix}{{44}{8}}
-\newlabel{eq: strain energy}{{45}{8}}
-\newlabel{eq: internal nodal force array}{{46}{8}}
-\newlabel{eq: stiffness matrix}{{47}{8}}
+\newlabel{eq: deformation gradient using Jacobian matrix}{{44}{8}{Element Behavior}{}{}}
+\newlabel{eq: strain energy}{{45}{8}{Element Behavior}{}{}}
+\newlabel{eq: internal nodal force array}{{46}{8}{Element Behavior}{}{}}
+\newlabel{eq: stiffness matrix}{{47}{8}{Element Behavior}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.6.3}Gauss Quadrature}{8}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS}{8}}
+\newlabel{eq: Gauss quadrature general}{{48}{9}{Gauss Quadrature}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Code Architecture}{9}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Brief Module Descriptions}{9}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Implementation and Verification Tests}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Finite Element Model}{9}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Finite Element Model}{10}}
 \@writefile{toc}{\contentsline {paragraph}{Model Setup}{10}}
-\@writefile{toc}{\contentsline {paragraph}{Updating the Current Configuration}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Elements}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Shape Functions}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.4}Gauss Quadrature}{10}}
-\newlabel{sec: gauss quadrature}{{2.2.4}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.5}Deformation Gradient}{10}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.6}Constitutive Laws}{10}}
-\newlabel{eq: 3 point formula}{{48}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.7}Newton's Method}{11}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{11}}
-\newlabel{sec: verification tests}{{2.3}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Material Symmetry}{12}}
-\newlabel{eq: material symmetry}{{55}{12}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Random Rotation Matrices}{12}}
-\newlabel{eq: random rotation}{{58}{12}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{12}}
-\newlabel{eq: random deformation gradient}{{60}{12}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Order of Operations}{12}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}CALCULATIONS AND RESULTS}{13}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Uniaxial Deformation of a Cylinder}{13}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{13}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{13}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The ``good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$.}}{14}}
-\newlabel{fig: numerical differentiation error}{{2}{14}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The perturbation $h$ affects the error of the 3-point formula approximation.}}{14}}
-\newlabel{table: h vs. error}{{1}{14}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Verification Tests}{14}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Typical results of material frame indifference tests.}}{14}}
-\newlabel{table: material frame indifference}{{2}{14}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Typical results of material symmetry tests.}}{15}}
-\newlabel{table: material symmetry}{{3}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Tolerance}{15}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Number of exceptions for 3 materials at various tolerance values out of 100 runs.}}{15}}
-\newlabel{table: tolerance}{{4}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{15}}
-\newlabel{sec: discussion}{{4}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{16}}
+\@writefile{toc}{\contentsline {paragraph}{Updating the Current Configuration}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Implementation and Verification Tests}{11}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Assembly}{11}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Numerical Differentiation}{11}}
+\newlabel{eq: 3 point formula}{{49}{11}{Numerical Differentiation}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Elements}{12}}
+\@writefile{toc}{\contentsline {paragraph}{Tests}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.4}Shape Functions}{12}}
+\@writefile{toc}{\contentsline {paragraph}{Tests}{12}}
+\newlabel{eq: partition of unity}{{55}{12}{Tests}{}{}}
+\newlabel{eq: partition of nullity}{{56}{12}{Tests}{}{}}
+\newlabel{eq: completeness}{{58}{13}{Tests}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.5}Nodes}{13}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.6}Quadrature}{13}}
+\newlabel{sec: quadrature}{{2.2.6}{13}{Quadrature}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Gauss Quadrature}{13}}
+\newlabel{eq: Gauss quadrature}{{59}{13}{Gauss Quadrature}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.7}Property Levels}{14}}
+\newlabel{sec: property levels}{{2.2.7}{14}{Property Levels}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.8}Deformation Gradient}{14}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.9}Constitutive Laws}{15}}
+\@writefile{toc}{\contentsline {paragraph}{Tests}{15}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.10}Newton's Method}{15}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{15}}
+\newlabel{sec: verification tests}{{2.3}{15}{Additional Verification Tests}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{15}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Material Symmetry}{16}}
+\newlabel{eq: material symmetry}{{65}{16}{Material Symmetry}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Random Rotation Matrices}{16}}
+\newlabel{eq: random rotation}{{68}{16}{Random Rotation Matrices}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{16}}
+\newlabel{eq: random deformation gradient}{{70}{16}{Random Deformation Gradients}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Order of Operations}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}CALCULATIONS AND RESULTS}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Uniaxial Deformation of a Cylinder}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{17}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{17}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The ``good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$.}}{18}}
+\newlabel{fig: numerical differentiation error}{{2}{18}{The ``good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The perturbation $h$ affects the error of the 3-point formula approximation.}}{18}}
+\newlabel{table: h vs. error}{{1}{18}{The perturbation $h$ affects the error of the 3-point formula approximation}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Verification Tests}{18}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Typical results of material frame indifference tests.}}{18}}
+\newlabel{table: material frame indifference}{{2}{18}{Typical results of material frame indifference tests}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Typical results of material symmetry tests.}}{19}}
+\newlabel{table: material symmetry}{{3}{19}{Typical results of material symmetry tests}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Tolerance}{19}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Number of exceptions for 3 materials at various tolerance values out of 100 runs.}}{19}}
+\newlabel{table: tolerance}{{4}{19}{Number of exceptions for 3 materials at various tolerance values out of 100 runs}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{19}}
+\newlabel{sec: discussion}{{4}{19}{DISCUSSION AND CONCLUSIONS}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{20}}

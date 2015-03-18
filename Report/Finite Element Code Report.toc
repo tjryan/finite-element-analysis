@@ -1,7 +1,7 @@
 \contentsline {section}{\numberline {1}INTRODUCTION}{2}
 \contentsline {subsection}{\numberline {1.1}Curvilinear Coordinates and Frames}{2}
 \contentsline {subsection}{\numberline {1.2}Covariant and Contravariant Basis Vectors}{3}
-\contentsline {subsubsection}{\numberline {1.2.1}Properties}{3}
+\contentsline {paragraph}{Properties}{3}
 \contentsline {subsection}{\numberline {1.3}Kinematic Quantities}{3}
 \contentsline {subsection}{\numberline {1.4}Constitutive Laws}{4}
 \contentsline {subsection}{\numberline {1.5}Plane Stress}{5}
@@ -11,30 +11,38 @@
 \contentsline {subsubsection}{\numberline {1.6.1}Jacobian Matrix}{7}
 \contentsline {subsubsection}{\numberline {1.6.2}Element Behavior}{8}
 \contentsline {subsubsection}{\numberline {1.6.3}Gauss Quadrature}{8}
-\contentsline {section}{\numberline {2}CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS}{8}
+\contentsline {section}{\numberline {2}CODE ARCHITECTURE \& FORMULATION OF NUMERICAL METHODS}{9}
 \contentsline {subsection}{\numberline {2.1}Code Architecture}{9}
 \contentsline {subsubsection}{\numberline {2.1.1}Brief Module Descriptions}{9}
-\contentsline {subsection}{\numberline {2.2}Implementation and Verification Tests}{9}
-\contentsline {subsubsection}{\numberline {2.2.1}Finite Element Model}{9}
+\contentsline {subsubsection}{\numberline {2.1.2}Finite Element Model}{10}
 \contentsline {paragraph}{Model Setup}{10}
-\contentsline {paragraph}{Updating the Current Configuration}{10}
-\contentsline {subsubsection}{\numberline {2.2.2}Elements}{10}
-\contentsline {subsubsection}{\numberline {2.2.3}Shape Functions}{10}
-\contentsline {subsubsection}{\numberline {2.2.4}Gauss Quadrature}{10}
-\contentsline {subsubsection}{\numberline {2.2.5}Deformation Gradient}{10}
-\contentsline {subsubsection}{\numberline {2.2.6}Constitutive Laws}{10}
-\contentsline {subsubsection}{\numberline {2.2.7}Newton's Method}{11}
-\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{11}
-\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{11}
-\contentsline {subsubsection}{\numberline {2.3.2}Material Symmetry}{12}
-\contentsline {subsubsection}{\numberline {2.3.3}Random Rotation Matrices}{12}
-\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{12}
-\contentsline {subsection}{\numberline {2.4}Order of Operations}{12}
-\contentsline {section}{\numberline {3}CALCULATIONS AND RESULTS}{13}
-\contentsline {subsection}{\numberline {3.1}Uniaxial Deformation of a Cylinder}{13}
-\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{13}
-\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{13}
-\contentsline {subsection}{\numberline {3.3}Verification Tests}{14}
-\contentsline {subsection}{\numberline {3.4}Tolerance}{15}
-\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{15}
-\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{16}
+\contentsline {paragraph}{Updating the Current Configuration}{11}
+\contentsline {subsection}{\numberline {2.2}Implementation and Verification Tests}{11}
+\contentsline {subsubsection}{\numberline {2.2.1}Assembly}{11}
+\contentsline {subsubsection}{\numberline {2.2.2}Numerical Differentiation}{11}
+\contentsline {subsubsection}{\numberline {2.2.3}Elements}{12}
+\contentsline {paragraph}{Tests}{12}
+\contentsline {subsubsection}{\numberline {2.2.4}Shape Functions}{12}
+\contentsline {paragraph}{Tests}{12}
+\contentsline {subsubsection}{\numberline {2.2.5}Nodes}{13}
+\contentsline {subsubsection}{\numberline {2.2.6}Quadrature}{13}
+\contentsline {paragraph}{Gauss Quadrature}{13}
+\contentsline {subsubsection}{\numberline {2.2.7}Property Levels}{14}
+\contentsline {subsubsection}{\numberline {2.2.8}Deformation Gradient}{14}
+\contentsline {subsubsection}{\numberline {2.2.9}Constitutive Laws}{15}
+\contentsline {paragraph}{Tests}{15}
+\contentsline {subsubsection}{\numberline {2.2.10}Newton's Method}{15}
+\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{15}
+\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{15}
+\contentsline {subsubsection}{\numberline {2.3.2}Material Symmetry}{16}
+\contentsline {subsubsection}{\numberline {2.3.3}Random Rotation Matrices}{16}
+\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{16}
+\contentsline {subsection}{\numberline {2.4}Order of Operations}{16}
+\contentsline {section}{\numberline {3}CALCULATIONS AND RESULTS}{17}
+\contentsline {subsection}{\numberline {3.1}Uniaxial Deformation of a Cylinder}{17}
+\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{17}
+\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{17}
+\contentsline {subsection}{\numberline {3.3}Verification Tests}{18}
+\contentsline {subsection}{\numberline {3.4}Tolerance}{19}
+\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{19}
+\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{20}

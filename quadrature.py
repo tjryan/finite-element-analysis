@@ -90,7 +90,7 @@ class QuadraturePoint:
                         new_deformation_gradient[dof_1][dof_2] += (
                             element.nodes[node_index].current_position[dof_1] * element.shape_function_derivatives(
                                 node_index=node_index, position=self.position, coordinate_index=coordinate_index)
-                            * element.jacobian_matrix_inverse[dof_2][coordinate_index])
+                            * element.jacobian_matrix_inverse[coordinate_index][dof_2])
         if element.plane_stress:
             new_deformation_gradient[2][2] = 1
         self.deformation_gradient.update_F(new_F=new_deformation_gradient,
