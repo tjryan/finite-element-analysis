@@ -49,7 +49,7 @@ class BaseElement:
         self.nodes = []
         self.quadrature_points = []
 
-        # Fixed properties
+        # Calculated one time
         self.jacobian_matrix = None
         self.jacobian_matrix_inverse = None
 
@@ -91,8 +91,8 @@ class BaseElement:
         return force_array
 
     def calculate_jacobian_matrix(self):
-        """Calculate the Jacobian matrix at the first quadrature point for the element. This is a one time
-        calculation performed during the creation of the quadrature points.
+        """Calculate the Jacobian matrix for the element. This is a one time calculation performed during the
+        creation of the quadrature points.
         """
         quadrature_point = self.quadrature_points[0]
         jacobian_matrix = numpy.zeros((self.degrees_of_freedom, self.dimension))
@@ -156,12 +156,12 @@ class BaseElement:
         stiffness_matrix *= .5 * self.thickness
         if test:
             tests.numerical_differentiation_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
-        tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
+            tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
         return stiffness_matrix
 
     def create_quadrature_points(self):
-        """Create quadrature points from the quadrature class, and calculate the Jacobian matrix for the element.
-        This is a one-time method called after all nodes have been assigned to the element."""
+        """Create quadrature points from the quadrature class. This is a one-time method called after all nodes
+        have been assigned to the element."""
         for point_index in range(self.quadrature_class.point_quantity):
             quadrature_point = quadrature.QuadraturePoint(position=self.quadrature_class.point_positions[point_index],
                                                           weight=self.quadrature_class.point_weights[point_index],

@@ -73,9 +73,8 @@ def generate_random_node_current_position(node):
 
     :param node: node object to perturb
     """
-    # For some reason += does not work here... I have no idea why. It makes the reference position change too.
-    # node.current_position = node.current_position + .1 * numpy.random.rand(2)  # use for random deformation
-    pass  # use for no deformation
+    node.current_position = node.current_position + .01 * numpy.random.rand(2)  # use for random deformation
+    # pass  # use for no deformation
 
 
 def generate_random_node_reference_positions(element_nodes):
@@ -85,12 +84,12 @@ def generate_random_node_reference_positions(element_nodes):
 
     :param list element_nodes: list of 3 or 6 node objects to which to assign positions
     """
-    node_position_1 = numpy.array([0., 0.]) + .2 * numpy.random.rand(2)
-    node_position_2 = numpy.array([1., 0.]) + .2 * numpy.random.rand(2)
-    node_position_3 = numpy.array([.5, .866]) + .2 * numpy.random.rand(2)
-    node_position_4 = numpy.array([.5, 0.]) + .2 * numpy.random.rand(2)
-    node_position_5 = numpy.array([.75, .433]) + .2 * numpy.random.rand(2)
-    node_position_6 = numpy.array([.25, .433]) + .2 * numpy.random.rand(2)
+    node_position_1 = numpy.array([0., 0.])  # + .2 * numpy.random.rand(2)
+    node_position_2 = numpy.array([1., 0.])  # + .2 * numpy.random.rand(2)
+    node_position_3 = numpy.array([.5, .866])  # + .2 * numpy.random.rand(2)
+    node_position_4 = numpy.array([.5, 0.])  # + .2 * numpy.random.rand(2)
+    node_position_5 = numpy.array([.75, .433])  # + .2 * numpy.random.rand(2)
+    node_position_6 = numpy.array([.25, .433])  # + .2 * numpy.random.rand(2)
     node_positions = [node_position_1, node_position_2, node_position_3, node_position_4, node_position_5,
                       node_position_6]
     for node_index in range(len(element_nodes)):
@@ -137,8 +136,7 @@ def newton_method_thickness_stretch_ratio(constitutive_model, material, deformat
         deformation_gradient[2][2] = stretch_ratio
         # tests.deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
-                                                              deformation_gradient=deformation_gradient,
-                                                              test=False)[2][2]
+                                                              deformation_gradient=deformation_gradient)[2][2]
         error = math.fabs(0 - P33)
         # If the error is less than the tolerance, the loop has converged, so break out
         if error < constants.NEWTON_METHOD_TOLERANCE:
@@ -146,8 +144,7 @@ def newton_method_thickness_stretch_ratio(constitutive_model, material, deformat
         # Compute a new value for the stretch ratio and try again
         else:
             C3333 = constitutive_model.tangent_moduli(material=material,
-                                                      deformation_gradient=deformation_gradient,
-                                                      test=False)[2][2][2][2]
+                                                      deformation_gradient=deformation_gradient)[2][2][2][2]
             # Compute correction to the stretch ratio
             delta_stretch = -(1 / C3333) * P33
             stretch_ratio += delta_stretch

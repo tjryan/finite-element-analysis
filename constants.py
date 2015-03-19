@@ -17,7 +17,7 @@ FLOATING_POINT_TOLERANCE = 1e-12
 LAB = 'lab'
 """Indicates that a Basis is in the lab frame and is therefore expresses in Cartesian coordinates."""
 
-NUMERICAL_DIFFERENTIATION_TOLERANCE = 100
+NUMERICAL_DIFFERENTIATION_TOLERANCE = 1e-4
 """The tolerated error for numerical differentiation verification tests."""
 
 NEWTON_METHOD_TOLERANCE = 1e-6

@@ -39,6 +39,7 @@ class Model:
 
     def create_elements(self):
         """Create elements."""
+        # TODO how to implement this?
         pass
 
     def update_current_configuration(self):

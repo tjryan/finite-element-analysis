@@ -3,7 +3,6 @@ nodes.py contains the nodes for the finite elements.
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
-import numpy
 import operations
 
 
@@ -15,8 +14,8 @@ class Node:
     def __init__(self):
         self.local_id = None  # local identifier for the node
         self.global_id = None  # global identifier for the node
-        self.reference_position = []
-        self.current_position = []
+        self.reference_position = None  # vector
+        self.current_position = None  # vector
         self.parent_elements = []  # the elements object that this node belongs to
 
     def update_current_position(self):
