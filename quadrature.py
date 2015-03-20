@@ -5,7 +5,8 @@ quadrature.py contains Gauss quadrature tables for use in numerical integration.
 """
 import numpy
 
-import deformation_gradient
+import operations
+import tests
 
 
 class BaseQuadrature:
@@ -70,10 +71,41 @@ class QuadraturePoint:
         self.weight = weight
 
         # Updated every deformation
-        self.deformation_gradient = deformation_gradient.DeformationGradient()
+        self.deformation_gradient = None
+        self.jacobian = None
         self.strain_energy_density = None
         self.first_piola_kirchhoff_stress = None
         self.tangent_moduli = None
+
+    def calculate_jacobian(self):
+        """Compute the value for the Jacobian when the deformation gradient is updated,
+        and confirm that it has a positive value.
+        """
+        jacobian = numpy.linalg.det(self.deformation_gradient)
+        tests.deformation_gradient_physical(jacobian=jacobian)
+        return jacobian
+
+    def enforce_plane_stress(self, element):
+        """Enforce the plane stress assumption solving for the thickness stretch (the 3-3 component of the
+        deformation gradient), while assuming that the  first Piola-Kirchhoff stress is zero in the direction
+        normal to the plane.
+
+        Note: this function assumes that the deformation gradient already has the following form:
+                        F = [F11 F12  0 ]
+                            [F21 F22  0 ]
+                            [ 0   0  F33]
+        This will be checked before performing any calculations, and an error will be raised if violated.
+
+        :param element: element object that contains the quadrature point
+        """
+        # Check that the deformation gradient has the proper structure for plane stress
+        tests.deformation_gradient_plane_stress(deformation_gradient=self.deformation_gradient)
+        thickness_stretch_ratio = operations.newton_method_thickness_stretch_ratio(
+            constitutive_model=element.constitutive_model,
+            material=element.material,
+            deformation_gradient=self.deformation_gradient)
+        # Assign the 3-3 component of the deformation gradient to be the computed thickness stretch ratio
+        self.deformation_gradient[2][2] = thickness_stretch_ratio
 
     def update_deformation_gradient(self, element):
         """Update the deformation gradient object for the current deformation.
@@ -91,12 +123,12 @@ class QuadraturePoint:
                             element.nodes[node_index].current_position[dof_1] * element.shape_function_derivatives(
                                 node_index=node_index, position=self.position, coordinate_index=coordinate_index)
                             * element.jacobian_matrix_inverse[coordinate_index][dof_2])
+        self.deformation_gradient = new_deformation_gradient
         if element.plane_stress:
-            new_deformation_gradient[2][2] = 1
-        self.deformation_gradient.update_F(new_F=new_deformation_gradient,
-                                           material=element.material,
-                                           constitutive_model=element.constitutive_model,
-                                           enforce_plane_stress=element.plane_stress)
+            self.enforce_plane_stress(element=element)
+        # Update the Jacobian for the new deformation gradient
+        self.jacobian = self.calculate_jacobian()
+
 
     def update_material_response(self, element):
         """Update the strain energy density, first Piola-Kirchhoff stress and tangent moduli for the current
@@ -108,5 +140,5 @@ class QuadraturePoint:
          self.first_piola_kirchhoff_stress,
          self.tangent_moduli) = element.constitutive_model.calculate_all(
             material=element.material,
-            deformation_gradient=self.deformation_gradient.F,
+            deformation_gradient=self.deformation_gradient,
             dimension=element.dimension)

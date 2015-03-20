@@ -185,7 +185,7 @@ class BaseElement:
         self.update_stiffness_matrix()
 
     def update_force_array(self):
-        self.force_array = self.calculate_force_array()
+        self.force_array = self.calculate_force_array(test=True)
 
     def update_strain_energy(self):
         """Update the strain energy for the current deformation."""
@@ -193,7 +193,7 @@ class BaseElement:
 
     def update_stiffness_matrix(self):
         """Update the stiffness matrix for the current deformation."""
-        self.stiffness_matrix = self.calculate_stiffness_matrix()
+        self.stiffness_matrix = self.calculate_stiffness_matrix(test=True)
 
     @classmethod
     def shape_functions(cls, node_index, position):

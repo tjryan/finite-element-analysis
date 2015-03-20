@@ -253,6 +253,9 @@ def numerical_differentiation_force_array(element, force_array, h=1e-6):
     :param force_array: the force array calculated from gauss quadrature
     :param float h: a small deviation that perturbs the evaluation points of the force array
     """
+    # h_values = numpy.logspace(-3,-10,num=100)
+    # max_errors = []
+    # for h in h_values:
     errors = []
     # For each element in the force array
     for dof in range(element.degrees_of_freedom):
@@ -282,11 +285,26 @@ def numerical_differentiation_force_array(element, force_array, h=1e-6):
             errors.append(error)
             # Reset the node to its original position
             element.nodes[node_index].current_position[dof] = unperturbed_position
+            # Update deformation gradient and strain energy density for each quadrature point
+            for quadrature_point in element.quadrature_points:
+                quadrature_point.update_deformation_gradient(element=element)
+                quadrature_point.update_material_response(element=element)
     max_error = max(errors)
+    # max_errors.append(max_error)
     # If the result is not within tolerance of the provided value, raise an error
     if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
         raise exceptions.DifferentiationError(difference=max_error,
                                               tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+        # import matplotlib.pyplot as plt
+        # plt.figure()
+        # plt.plot(h_values, max_errors, 'b', label='P error')
+        # plt.xscale('log')
+        # plt.yscale('log')
+        # plt.ylim(10e-10, 10e-3)
+        # plt.xlabel('h')
+        # plt.ylabel('error')
+        # plt.legend(loc='best')
+        # plt.show()
 
 
 def numerical_differentiation_shape_functions(element_class, position, h=1e-6):
@@ -317,7 +335,7 @@ def numerical_differentiation_shape_functions(element_class, position, h=1e-6):
                                                       tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
-def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6):
+def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-5):
     """Verify that the computed stiffness matrix is within tolerance of the result from numerical differentiation
     using the 3 point method.
 
@@ -325,44 +343,60 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-6
     :param stiffness_matrix: the stiffness matrix calculated from gauss quadrature
     :param float h: a small deviation that perturbs the evaluation points of the stress tensor
     """
-    errors = []
-    # For each element of the stiffness matrix
-    for dof_1 in range(element.degrees_of_freedom):
-        for node_index_1 in range(element.node_quantity):
-            for dof_2 in range(element.degrees_of_freedom):
-                for node_index_2 in range(element.node_quantity):
-                    # Save the unperturbed location of the node
-                    unperturbed_position = element.nodes[node_index_2].current_position[dof_2]
-                    # Perturb current position of node 2 in the positive direction
-                    element.nodes[node_index_2].current_position[dof_2] += h
-                    # Update deformation gradient and strain energy density for each quadrature point
-                    for quadrature_point in element.quadrature_points:
-                        quadrature_point.update_deformation_gradient(element=element)
-                        quadrature_point.update_material_response(element=element)
-                    # Calculate the perturbed strain energy
-                    force_array_plus = element.calculate_force_array(test=False)
-                    # Perturb current position of the node in the negative direction
-                    element.nodes[node_index_2].current_position[dof_2] -= 2 * h
-                    # Update deformation gradient and strain energy density for each quadrature point
-                    for quadrature_point in element.quadrature_points:
-                        quadrature_point.update_deformation_gradient(element=element)
-                        quadrature_point.update_material_response(element=element)
-                    # Calculate the perturbed strain energy
-                    force_array_minus = element.calculate_force_array(test=False)
-                    # Compute the result of numerical differentiation
-                    numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
-                        node_index_1]) / (2 * h)
-                    computed_value = stiffness_matrix[dof_1][node_index_1][dof_2][node_index_2]
-                    # TODO bad error whenever node_index_2 = 2 for quadratic element. Why?
-                    error = math.fabs(computed_value - numerical_value)
-                    errors.append(error)
-                    # Reset the node to its original position
-                    element.nodes[node_index_2].current_position[dof_2] = unperturbed_position
-    max_error = max(errors)
-    # If the result is not within tolerance of the provided value, raise an error
-    if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
-        raise exceptions.DifferentiationError(difference=max_error,
-                                              tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+    h_values = numpy.logspace(-3, -10, num=100)
+    max_errors = []
+    for h in h_values:
+        errors = []
+        # For each element of the stiffness matrix
+        for dof_1 in range(element.degrees_of_freedom):
+            for node_index_1 in range(element.node_quantity):
+                for dof_2 in range(element.degrees_of_freedom):
+                    for node_index_2 in range(element.node_quantity):
+                        # Save the unperturbed location of the node
+                        unperturbed_position = element.nodes[node_index_2].current_position[dof_2]
+                        # Perturb current position of node 2 in the positive direction
+                        element.nodes[node_index_2].current_position[dof_2] += h
+                        # Update deformation gradient and strain energy density for each quadrature point
+                        for quadrature_point in element.quadrature_points:
+                            quadrature_point.update_deformation_gradient(element=element)
+                            quadrature_point.update_material_response(element=element)
+                        # Calculate the perturbed strain energy
+                        force_array_plus = element.calculate_force_array(test=False)
+                        # Perturb current position of the node in the negative direction
+                        element.nodes[node_index_2].current_position[dof_2] -= 2 * h
+                        # Update deformation gradient and strain energy density for each quadrature point
+                        for quadrature_point in element.quadrature_points:
+                            quadrature_point.update_deformation_gradient(element=element)
+                            quadrature_point.update_material_response(element=element)
+                        # Calculate the perturbed strain energy
+                        force_array_minus = element.calculate_force_array(test=False)
+                        # Compute the result of numerical differentiation
+                        numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
+                            node_index_1]) / (2 * h)
+                        computed_value = stiffness_matrix[dof_1][node_index_1][dof_2][node_index_2]
+                        error = math.fabs(computed_value - numerical_value)
+                        errors.append(error)
+                        # Reset the node to its original position
+                        element.nodes[node_index_2].current_position[dof_2] = unperturbed_position
+                        # Update deformation gradient and strain energy density for each quadrature point
+                        for quadrature_point in element.quadrature_points:
+                            quadrature_point.update_deformation_gradient(element=element)
+                            quadrature_point.update_material_response(element=element)
+        max_error = max(errors)
+        max_errors.append(max_error)
+        # If the result is not within tolerance of the provided value, raise an error
+        # if max_error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
+        # raise exceptions.DifferentiationError(difference=max_error,
+        # tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+    import matplotlib.pyplot as plt
+
+    plt.figure()
+    plt.plot(h_values, max_errors)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('h')
+    plt.ylabel('error')
+    plt.show()
 
 
 def numerical_differentiation_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli,

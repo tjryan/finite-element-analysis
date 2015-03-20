@@ -47,11 +47,11 @@ def test_element_calculations():
     fem.material = materials.Custom('custom', 10, 5)
     # fem.material = materials.AluminumAlloy()
     # Choose a class of quadrature to use
-    # fem.quadrature_class = quadrature.GaussQuadratureOnePoint
-    fem.quadrature_class = quadrature.GaussQuadratureThreePoint
+    fem.quadrature_class = quadrature.GaussQuadratureOnePoint
+    # fem.quadrature_class = quadrature.GaussQuadratureThreePoint
     # Choose an element type
-    # fem.element_type = elements.TriangularLinearElement
-    fem.element_type = elements.TriangularQuadraticElement
+    fem.element_type = elements.TriangularLinearElement
+    # fem.element_type = elements.TriangularQuadraticElement
     # Choose number of degrees of freedom
     degrees_of_freedom = 2
     # Choose element thickness
