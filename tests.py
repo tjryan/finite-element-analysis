@@ -209,7 +209,7 @@ def material_symmetry():
 
 
 def numerical_differentiation_first_piola_kirchhoff_stress(constitutive_model, material, deformation_gradient,
-                                                           first_piola_kirchhoff_stress, h=1e-6):
+                                                           first_piola_kirchhoff_stress, h=1e-5):
     """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
 
     :param constitutive_model: a constitutive model object from constitutive_models.py
@@ -246,7 +246,7 @@ def numerical_differentiation_first_piola_kirchhoff_stress(constitutive_model, m
                                               tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
 
 
-def numerical_differentiation_force_array(element, force_array, h=1e-6):
+def numerical_differentiation_force_array(element, force_array, h=1e-5):
     """Verify that force array is within tolerance of the result from numerical integration using the 3 point method.
 
     :param element: element object for which the force array was calculated
@@ -307,7 +307,7 @@ def numerical_differentiation_force_array(element, force_array, h=1e-6):
         # plt.show()
 
 
-def numerical_differentiation_shape_functions(element_class, position, h=1e-6):
+def numerical_differentiation_shape_functions(element_class, position, h=1e-5):
     """Verify that tensor is within tolerance of the result from numerical integration using the 3 point method.
 
     :param element_class: class of element to test
@@ -399,7 +399,7 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-5
 
 
 def numerical_differentiation_tangent_moduli(constitutive_model, material, deformation_gradient, tangent_moduli,
-                                             h=1e-6):
+                                             h=1e-5):
     """Verify that the computed tangent moduli tensor is within tolerance of the result from numerical differentiation
     using the 3 point method.
 
