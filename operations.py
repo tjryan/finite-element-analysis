@@ -73,8 +73,8 @@ def generate_random_node_current_position(node):
 
     :param node: node object to perturb
     """
-    node.current_position = node.current_position + .01 * numpy.random.rand(2)  # use for random deformation
-    # pass  # use for no deformation
+    # node.current_position = node.current_position + .01 * numpy.random.rand(2)  # use for random deformation
+    pass  # use for no deformation
 
 
 def generate_random_node_reference_positions(element_nodes):

@@ -9,7 +9,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy
 
-from deformation_gradient import DeformationGradient
 import constants
 import frames
 import materials
@@ -19,6 +18,7 @@ import kinematics
 import operations
 import tests
 
+# TODO update to work with new deformation gradient implementation in the quadrature point class
 
 def homework1_part1():
     """Curvilinear Kinematics: Uniaxial deformation of a cylinder"""
