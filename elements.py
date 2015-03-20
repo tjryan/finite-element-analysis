@@ -114,11 +114,12 @@ class BaseElement:
              self.quadrature_points])
         return strain_energy
 
-    def calculate_stiffness_matrix(self, test=False):
+    def calculate_stiffness_matrix(self, test=False, rank=True):
         """Computes the 4-D stiffness tensor for the element using Gauss quadrature. Runs for each deformed
         configuration in the analysis.
 
         :param bool test: whether to perform numerical differentiation check on the result
+        :param bool rank: whether to check the rank of the stiffness matrix
         """
         # Initialize stiffness matrix to be computed using Gauss quadrature
         dimensions = (self.degrees_of_freedom, self.node_quantity, self.degrees_of_freedom, self.node_quantity)
@@ -156,6 +157,7 @@ class BaseElement:
         stiffness_matrix *= .5 * self.thickness
         if test:
             tests.numerical_differentiation_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
+        if rank:
             tests.rank_stiffness_matrix(element=self, stiffness_matrix=stiffness_matrix)
         return stiffness_matrix
 

@@ -86,10 +86,10 @@ def generate_random_node_reference_positions(element_nodes):
     """
     node_position_1 = numpy.array([0., 0.])  # + .2 * numpy.random.rand(2)
     node_position_2 = numpy.array([1., 0.])  # + .2 * numpy.random.rand(2)
-    node_position_3 = numpy.array([0., 1.])  # + .2 * numpy.random.rand(2)
+    node_position_3 = numpy.array([0, 1])  # + .2 * numpy.random.rand(2)
     node_position_4 = numpy.array([.5, 0.])  # + .2 * numpy.random.rand(2)
-    node_position_5 = numpy.array([.75, .433])  # + .2 * numpy.random.rand(2)
-    node_position_6 = numpy.array([.25, .433])  # + .2 * numpy.random.rand(2)
+    node_position_5 = numpy.array([.5, .5])  # + .2 * numpy.random.rand(2)
+    node_position_6 = numpy.array([0., .5])  # + .2 * numpy.random.rand(2)
     node_positions = [node_position_1, node_position_2, node_position_3, node_position_4, node_position_5,
                       node_position_6]
     for node_index in range(len(element_nodes)):
