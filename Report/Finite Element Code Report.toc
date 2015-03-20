@@ -28,21 +28,23 @@
 \contentsline {subsubsection}{\numberline {2.2.6}Quadrature}{13}
 \contentsline {paragraph}{Gauss Quadrature}{13}
 \contentsline {subsubsection}{\numberline {2.2.7}Property Levels}{14}
-\contentsline {subsubsection}{\numberline {2.2.8}Deformation Gradient}{14}
+\contentsline {subsubsection}{\numberline {2.2.8}Deformation Gradient}{15}
 \contentsline {subsubsection}{\numberline {2.2.9}Constitutive Laws}{15}
 \contentsline {paragraph}{Tests}{15}
 \contentsline {subsubsection}{\numberline {2.2.10}Newton's Method}{15}
-\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{15}
-\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{15}
+\contentsline {subsection}{\numberline {2.3}Additional Verification Tests}{16}
+\contentsline {subsubsection}{\numberline {2.3.1}Material Frame Indifference}{16}
 \contentsline {subsubsection}{\numberline {2.3.2}Material Symmetry}{16}
 \contentsline {subsubsection}{\numberline {2.3.3}Random Rotation Matrices}{16}
-\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{16}
-\contentsline {subsection}{\numberline {2.4}Order of Operations}{16}
+\contentsline {subsubsection}{\numberline {2.3.4}Random Deformation Gradients}{17}
+\contentsline {subsubsection}{\numberline {2.3.5}Stiffness Matrix Rank}{17}
 \contentsline {section}{\numberline {3}CALCULATIONS AND RESULTS}{17}
 \contentsline {subsection}{\numberline {3.1}Uniaxial Deformation of a Cylinder}{17}
-\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{17}
-\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{17}
-\contentsline {subsection}{\numberline {3.3}Verification Tests}{18}
-\contentsline {subsection}{\numberline {3.4}Tolerance}{19}
-\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{19}
-\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{20}
+\contentsline {subsection}{\numberline {3.2}Nonlinear Elasticity -- Neo-Hookean Model}{18}
+\contentsline {subsubsection}{\numberline {3.2.1}3-point formula}{18}
+\contentsline {subsection}{\numberline {3.3}Verification Tests}{19}
+\contentsline {subsubsection}{\numberline {3.3.1}Gauss Quadrature}{20}
+\contentsline {subsubsection}{\numberline {3.3.2}Stiffness Matrix Rank}{20}
+\contentsline {subsection}{\numberline {3.4}Tolerance}{20}
+\contentsline {section}{\numberline {4}DISCUSSION AND CONCLUSIONS}{20}
+\contentsline {section}{\numberline {5}SOURCE CODE LISTING}{21}

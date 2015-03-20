@@ -25,6 +25,8 @@
 \usepackage{bm}
 \usepackage{amsmath}
 \usepackage{nameref}
+%\usepackage{float}
+%\restylefloat{table}
 
 \newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
 \newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
@@ -469,6 +471,8 @@ Because this analysis will make use of isoparametric triangular element under th
 \int\limits_{0}^{1} \int\limits_{0}^{1-s} G_{ij}(r,s)dr ds \approx \frac{1}{2} \sum\limits_{k=1}^{n} G_{ij}(r_k,s_k) w_k
 \end{equation}
 
+As a test for the implementation of Gauss quadrature, equation \ref{eq: Gauss quadrature} should produce exact results for the integration of a random linear polynomial using one-point quadrature, and for a random quadratic polynomial using three-point quadrature. This will be tested by integration polynomials over the isoparametric domain. 
+
 \subsubsection{Property Levels}
 \label{sec: property levels}
 It is important to distinguish the level at which certain key quantities in the analysis are defined. There are three levels we are concerned with: model-level, element-level, and quadrature point-level. At each of these levels, some quantities are defined or computed one time, and others are updated with every deformation step. This information is summarized here:
@@ -512,11 +516,11 @@ It is important to distinguish the level at which certain key quantities in the 
 
 
 \subsubsection{Deformation Gradient}
-The deformation gradient is extremely important, as it is the driver for all kinematics and material response. Therefore, if we begin our analysis with a deformation that does not make physical sense, then neither will our results. For this reason, I decided to make the deformation gradient be represented by a class rather than by a simple $3 \times 3$ matrix. Each time a deformation gradient is initialized with its matrix values as one of its attributes, it immediately computes and checks the value of the Jacobian. For the deformation gradient to have physical meaning, the Jacobian must be greater than zero, otherwise there is some unphysical inversion of the body taking place. If the Jacobian is negative, an error is raised to indicate this, and the analysis is halted. This ensures that an unphysical deformation gradient never makes it past initialization. 
+The deformation gradient is extremely important, as it is the driver for all kinematics and material response. Therefore, if we begin our analysis with a deformation that does not make physical sense, then neither will our results. The deformation gradient is represented as a property of the quadrature point class. Each time a deformation gradient is updated with its matrix values, the Jacobian is immediately computed and checked to be physical. For the deformation gradient to have physical meaning, the Jacobian must be greater than zero, otherwise there is some unphysical inversion of the body taking place. If the Jacobian is negative, an error is raised to indicate this, and the analysis is halted. This ensures that an unphysical deformation gradient never makes it past initialization. 
 
-This quantity is also unique in that its structure is directly affected by the assumption of plane stress. So if the deformation gradient is initialized with this assumption, it will immediately enforce it by computing the value for the unknown stretch ratio using Newton's Method (more detail on this later), and then again checking the value of the Jacobian from the finalized matrix to ensure validity.
+This quantity is also unique in that its structure is directly affected by the assumption of plane stress. So if a quadrature point is initialized with this assumption, it will be enforced by computing the value for the unknown stretch ratio using Newton's Method (more detail on this later), and then again checking the value of the Jacobian from the finalized matrix to ensure validity.
 
-Similarly, the class also contains a method for enforcing plane strain, but this has not yet been implemented. 
+Similarly, the quadrature point class also contains a method for enforcing plane strain, but this has not yet been implemented. 
 
 \subsubsection{Constitutive Laws}
 The model keeps a reference to the constitutive law object being using for the analysis. As of now, there is only one option, and that is the Neo-Hookean model. The constitutive law is nothing more than a set of three methods that compute the material response from a $3 \times 3$ deformation gradient. The expressions for these quantities are computed by hand such that derivatives do not need to be handled in the code, as this would be very difficult. The class has no knowledge of the assumptions of the model (ie. plane stress/strain), as this information is contained in the construction of the deformation gradient itself, and therefore the return values will reflect this assumption without being aware of it. 
@@ -586,8 +590,14 @@ For the purposes of testing, it is useful to be able to generate random deformat
 
 Once computed, the random deformation gradient is checked for satisfying the physical constraint that the Jacobian is positive before being returned. 
 
-\subsection{Order of Operations}
-Talk about method order, one time vs. every time calculations. 
+\subsubsection{Stiffness Matrix Rank}
+The stiffness matrix rank indicates how many degrees of freedom the element has to move without changing the energy of the configuration. For example, in two dimensions, a 3-node triangular element has two degrees of freedom at each node, for a total of six degrees of freedom. These correspond to translations of each node along two in-plane coordinate axes. If there is no external loading on the element, it can translate freely in two dimensions and rotate without changing the energy of the configuration. This means that there are three "zero energy modes", and these are subtracted from the total number of degrees of freedom, 6, to get a rank of 3. 3 indicates the number of non-zero energy modes of the element. 
+
+Now if some external loading is applied, the two translations with still have no effect on the energy, but a rotational will cause a change in energy. This is because the loading has some direction associated with it, and therefore rotating the element will change the direction of the forces relative to the edges of the element, and the stress will change. Therefore, a deformed element has 4 non-zero energy modes, and the stiffness matrix has a rank of 4. 
+
+Similar logic can be followed for the 6-node element. There are two degrees of freedom at each node, giving a total of 12. An undeformed element with again have 3 zero energy modes (2 translations and a rotation), giving a rank of 12 - 3 = 9. A deformed element with have 2 zero energy modes (2 translations) giving a rank of 12 - 2 = 10.
+
+These results provide verification tests that can be performed on the stiffness matrix to ensure the correctness of its implementation. 
 
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -679,11 +689,11 @@ In order to find the value of $h$ that gives the minimum errors, I generated 100
 		\hline
 		h & Average P Error & Max P Error & Average C Error & Max C Error \Tstrut \\ \hline
 		$7.5 \times 10^{-4}$ & $4.4 \times 10^{-6}$  & $1.1 \times 10^{-4}$ & $3.4 \times 10^{-5}$ & $1.2 \times 10^{-3}$ \Tstrut \\
-		$1.0 \times 10^{-5}$ & $5.3 \times 10^{-10}$ & $3.7 \times 10^{-9}$ & $2.5 \times 10^{-9}$ & $2.5 \times 10^{-8}$ \\
+		$\bm{1.0 \times 10^{-5}}$ & $5.3 \times 10^{-10}$ & $3.7 \times 10^{-9}$ & $2.5 \times 10^{-9}$ & $2.5 \times 10^{-8}$ \\
 		$2.5 \times 10^{-5}$ & $5.8 \times 10^{-9}$  & $1.9 \times 10^{-7}$ & $4.9 \times 10^{-8}$ & $2.4 \times 10^{-6}$ \\
 		$5.0 \times 10^{-5}$ & $4.9 \times 10^{-8}$  & $3.4 \times 10^{-6}$ & $7.7 \times 10^{-7}$ & $6.7 \times 10^{-5}$ \\
 		$7.5 \times 10^{-5}$ & $6.1 \times 10^{-8}$  & $3.0 \times 10^{-6}$ & $6.5 \times 10^{-7}$ & $4.8 \times 10^{-5}$ \\
-		$\bm{1.0 \times 10^{-6}}$ & $\bm{1.4 \times 10^{-9}}$  & $\bm{2.9 \times 10^{-9}}$ & $\bm{1.2 \times 10^{-9}}$ & $\bm{4.0 \times 10^{-9}}$ \\
+		$1.0 \times 10^{-6}$ & $1.4 \times 10^{-9}$  & $2.9 \times 10^{-9}$ & $1.2 \times 10^{-9}$ & $4.0 \times 10^{-9}$ \\
 		$2.5 \times 10^{-6}$ & $6.2 \times 10^{-10}$ & $1.5 \times 10^{-9}$ & $9.0 \times 10^{-10}$& $1.8 \times 10^{-8}$ \\
 		$5.0 \times 10^{-6}$ & $3.3 \times 10^{-10}$ & $1.7 \times 10^{-9}$ & $8.4 \times 10^{-10}$& $1.6 \times 10^{-8}$ \\
 		$7.5 \times 10^{-6}$ & $5.8 \times 10^{-10}$ & $1.5 \times 10^{-8}$ & $3.9 \times 10^{-9}$ & $1.7 \times 10^{-7}$ \\
@@ -692,14 +702,24 @@ In order to find the value of $h$ that gives the minimum errors, I generated 100
 \label{table: h vs. error}
 \end{table}
 
-Based on figure \ref{fig: numerical differentiation error} and table \ref{table: h vs. error}, the default value for the perturbation $h$ was selected to be $10^{-6}$ because it seems to provide consistently small average and maximum errors for both the stress and tangent moduli. $h$ is included as an optional parameter in the verification test functions that can be specified if desired. Note that the absolute value of these errors can be affected by the material properties by several orders of magnitude. This will be examined further in the discussion section of the report.
+Based on figure \ref{fig: numerical differentiation error} and table \ref{table: h vs. error}, the default value for the perturbation $h$ was selected to be $10^{-5}$ because it seems to provide consistently small average and maximum errors for both the stress and tangent moduli. $h$ is included as an optional parameter in the verification test functions that can be specified if desired. Note that the absolute value of these errors can be affected by the material properties by several orders of magnitude. This will be examined further in the discussion section of the report.
+
+Using the value of $h$ selected based on the results above, the numerical differentiation tests were performed on the force array and the stiffness matrix for a single element for both an undeformed and a deformed state. $h$ was swept over 100 values from $10^{-3}$ to $10^{-10}$ on a log scale, and the results are plotted in figure \ref{fig: numerical differentiation error, force and stiffness}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{error_undeformed.png} \quad
+	\includegraphics[width=3.25in]{error_deformed.png} 
+	\caption{Numerical differentiation error for the internal nodal force array and stiffness matrix in both undeformed and deformed elements.} 
+	\label{fig: numerical differentiation error, force and stiffness}
+\end{figure}
+
+It should be noted that the element shape function derivatives also passed the numerical differentiation tests as well. 
 
 \subsection{Verification Tests}
 The material frame indifference and material symmetry tests are performed on random deformation gradients to check for the validity of the constitutive model. Typical results for the quantities defined in section \textit{\nameref{sec: verification tests}} are shown in tables \ref{table: material frame indifference} and \ref{table: material symmetry}.
 
 % TODO gaussian quadrature vs. exact integration. Make table for order and element type, error. 
-
-% TODO rank tests for stiffness matrix, meaning and expected values. 
 
 % TODO comment on results for each of the above
 
@@ -731,7 +751,31 @@ The material frame indifference and material symmetry tests are performed on ran
 	\label{table: material symmetry}
 \end{table}
 
+\begin{table}[h]
+	\centering
+	\caption{Typical results of numerical integration using Gauss quadrature vs exact integration.}
+	\begin{tabular}{ | c | c | c | }
+		\hline
+		Quadrature Order & Polynomial Order & Error \Tstrut \\ \hline
+		One-point 	& Linear    &  $2.8 \times 10^{-17}$ \Tstrut \\
+		One-point 	& Quadratic &  $0.0039$ \\
+		Three-point & Linear 	&  $1.7 \times 10^{-17}$ \\
+		Three-point & Quadratic &  $1.4 \times 10^{-17}$ \\
+		\hline
+	\end{tabular}
+	\label{table: gauss quadrature integration}
+\end{table}
+
 These quantities should be exact matches, so the only error here is due to loss of precision from floating point operations. These operations give 16 digits of accuracy, which is why we see errors only in the last few digits on the order of $10^{-13}$ to $10^{-15}$ depending on the order of magnitude of the quantity itself.  
+
+\subsubsection{Gauss Quadrature}
+The results of the integration test using Gauss Quadrature are shown in table \ref{table: gauss quadrature integration}.
+
+
+Notice that 3 of the 4 results are exact, limited only by numerical precision of floating point operations. One-point quadrature on a quadratic polynomial produces a significant error because the single point does not provide enough fidelity to account for the quadratic behavior. This is to be expected. 
+
+\subsubsection{Stiffness Matrix Rank}
+The stiffness matrix rank was tested from both linear and quadratic element for undeformed and deformed cases, and has shown to reliably produce the correct rank over hundreds of random deformations. 
 
 \subsection{Tolerance}
 We want to determine the smallest possible tolerance value for which all of our tests will pass. The numerical differentiation test is really the limiting factor here, and as these errors are determined by the quality of the approximation formula, unlike the material tests which provide nearly exact answers only limited by 16-digit precision. The numerical differentiation tests involve expressions that contain material properties $\lambda$ and $\mu$, and therefore the error will actually vary as a function of these parameters as well. The code will raise an exception in the case were the error of the numerical approximation exceeds the tolerance. In order to determine a tolerance value that will work for all materials, 100 tests were run using random deformation gradients for 3 materials, and the exceptions were counted for a given tolerance. One of the materials is a custom material, with $\lambda = 6$ and $\mu = 3$, and the other two are aluminum alloy and glass. The results are shown in table \ref{table: tolerance}. 
@@ -758,15 +802,20 @@ We want to determine the smallest possible tolerance value for which all of our 
 
 The code has been thoroughly tested for over 10,000 random deformation gradients (all of which were checked to be physical) using several different materials such as aluminum alloy, lead, and glass, as well as custom materials. All verification tests pass as well as the numerical differentiation checks. The passing of material frame indifference and material symmetry implies that the constitutive law is implemented correctly, as the quantities behave appropriately under random rotations. These tests yield exact results limited only by the 16-digit precision of floating point operations. 
 
-The passing of the numerical differentiation tests, using the 3-point formula, implies that the computed quantities that come from derivatives of the deformation gradient, namely the first Piola-Kirchhoff stress and the tangent moduli, are within tolerance of the values that result from Taylor Expansion. Whether these checks pass is largely determined by the tolerance value chosen. As discussed previously, the perturbation value $h$ used in the 3-point formula has been selected such that the error is consistently minimized (see \ref{table: h vs. error}). However, the absolutely value of this error is affected by the material selected, because the material properties are used in the expression for the stress and tangent moduli. Based on the results in table \ref{table: tolerance}, as well as some additional testing, I have chose a tolerance of $10^{-6}$, because this value consistently results in 0 exceptions for every material tested, while $10^{-7}$ will occasionally result in an error or two. I could perform further testing at finer intervals than factors of 10, but this will provide an adequate starting point. It should be noted that while the derivation of the 3-point formula implies that errors should scale with $h^2$, which is indicated by the slope of 2 on the log-log plots shown in figure \ref{fig: numerical differentiation error}. 
+The passing of the numerical differentiation tests, using the 3-point formula, implies that the computed quantities that come from derivatives of the deformation gradient, namely the first Piola-Kirchhoff stress, tangent moduli, force array, stiffness matrix, and shape function derivatives, are within tolerance of the values that result from Taylor Expansion. Whether these checks pass is largely determined by the tolerance value chosen. As discussed previously, the perturbation value $h$ used in the 3-point formula has been selected such that the error is consistently minimized (see \ref{table: h vs. error}). However, the absolutely value of this error is affected by the material selected, because the material properties are used in the expression for the stress and tangent moduli. Based on the results in table \ref{table: tolerance}, as well as some additional testing, I have chose a tolerance of $10^{-6}$, because this value consistently results in 0 exceptions for every material tested, while $10^{-7}$ will occasionally result in an error or two. I could perform further testing at finer intervals than factors of 10, but this will provide an adequate starting point. It should be noted that while the derivation of the 3-point formula implies that errors should scale with $h^2$, which is indicated by the slope of 2 on the log-log plots shown in figure \ref{fig: numerical differentiation error}. 
+
+The error plots for the undeformed and deformed element in figure \ref{fig: numerical differentiation error, force and stiffness} exhibit some erratic behavior, particularly when compared to the plots for the Piola-Kirchhoff and tangent moduli. However, the most important thing about these plots is that they still show the general behavior we hope to see in an error sweep like this. The behavior is erratic for very small values of $h$, which is to be expected, and the curves settle into a slope of 2 to the right of the minimums. Also, notice that the minimums occur at $h$ values nearer to $10^{-5}$ and $10^{-4}$. If there were some error in the implementation of either the force array or stiffness matrix, these plots would show wildly random behavior. This gives me confidence that the results of the numerical differentiation tests indicate that all quantities have been implemented correctly. 
+
+These results coupled with the successful rank verification tests of the stiffness matrix, give me full confidence that everything to this point is working as it should be. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{SOURCE CODE LISTING}
 
 \begin{tabular}{ r l }
-\textit{New and updated files:} & body.py, constants.py, constitutive\_models.py, exceptions.py, frames.py, \\
-					  & kinematics.py, materials.py, model.py, model\_io.py, operations.py, tests.py 
+\textit{New and updated files:} & constitutive\_models.py, elements.py exceptions.py, model.py,  \\ 
+								& nodes.py, operations.py, quadrature.py, tests.py 
+					  
 \end{tabular}
 
 \end{document} 

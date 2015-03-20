@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  18 MAR 2015 18:41
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  20 MAR 2015 00:52
 entering extended mode
 **Finite*Element*Code*Report.tex
 
@@ -178,18 +178,18 @@ LaTeX Info: Redefining \pageref on input line 353.
 )
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux")
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
  ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count102
@@ -219,10 +219,10 @@ File: isoparametric_triangular_element.png Graphic file (type png)
 
 <use isoparametric_triangular_element.png>
 Package pdftex.def Info: isoparametric_triangular_element.png used on input lin
-e 254.
+e 256.
 (pdftex.def)             Requested size: 505.89pt x 226.77127pt.
 
-Overfull \hbox (18.0675pt too wide) in paragraph at lines 254--255
+Overfull \hbox (18.0675pt too wide) in paragraph at lines 256--257
  [][] 
  []
 
@@ -230,42 +230,62 @@ Overfull \hbox (18.0675pt too wide) in paragraph at lines 254--255
 lar_element.png>]
 
 LaTeX Warning: Reference `sec: gauss quadrature' on page 8 undefined on input l
-ine 284.
+ine 286.
 
 [8] [9] [10] [11] [12]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 450.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 452.
 
  ("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 450.
-[13] [14] [15] [16] <error_good_F.png, id=75, 539.1342pt x 423.5022pt>
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 452.
+[13] [14] [15] [16] [17] <error_good_F.png, id=78, 539.1342pt x 423.5022pt>
 File: error_good_F.png Graphic file (type png)
 
 <use error_good_F.png>
-Package pdftex.def Info: error_good_F.png used on input line 667.
+Package pdftex.def Info: error_good_F.png used on input line 677.
 (pdftex.def)             Requested size: 234.87749pt x 184.49983pt.
- <error_bad_F.png, id=76, 534.798pt x 422.7795pt>
+ <error_bad_F.png, id=79, 534.798pt x 422.7795pt>
 File: error_bad_F.png Graphic file (type png)
 
 <use error_bad_F.png>
-Package pdftex.def Info: error_bad_F.png used on input line 668.
+Package pdftex.def Info: error_bad_F.png used on input line 678.
 (pdftex.def)             Requested size: 234.87749pt x 185.68164pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[17]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
 [18 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_good_F.png> <C
-:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>] [19]
-[20]
+:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>]
+<error_undeformed.png, id=85, 589.0005pt x 444.4605pt>
+File: error_undeformed.png Graphic file (type png)
+
+<use error_undeformed.png>
+Package pdftex.def Info: error_undeformed.png used on input line 711.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+
+<error_deformed.png, id=86, 589.0005pt x 444.4605pt>
+File: error_deformed.png Graphic file (type png)
+ <use error_deformed.png>
+Package pdftex.def Info: error_deformed.png used on input line 712.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[19 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_undeformed.png
+> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_deformed.png>]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[20] [21]
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux")
 
@@ -273,13 +293,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 2462 strings out of 493921
- 32942 string characters out of 3147281
- 103199 words of memory out of 3000000
- 5721 multiletter control sequences out of 15000+200000
+ 2474 strings out of 493921
+ 33266 string characters out of 3147281
+ 102441 words of memory out of 3000000
+ 5731 multiletter control sequences out of 15000+200000
  12531 words of font info for 44 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 42i,14n,21p,1433b,274s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 42i,14n,21p,1489b,274s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbsy10.pfb><C:/P
 rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cmextra/cmbsy7.pfb><C:/Prog
 ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program File
@@ -302,9 +322,9 @@ ts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "Finite Element Code Report.pdf" (20 pages, 439181 bytes).
+Output written on "Finite Element Code Report.pdf" (21 pages, 530505 bytes).
 PDF statistics:
- 168 PDF objects out of 1000 (max. 8388607)
+ 175 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 
