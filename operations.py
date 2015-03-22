@@ -35,7 +35,7 @@ def calculate_lambda_from_E_and_G(E, G):
     return first_lame_parameter
 
 
-def generate_random_deformation_gradient(plane_stress=False, uniaxial=False, equibiaxial=False):
+def generate_random_deformation_gradient(plane_stress=True, uniaxial=False, equibiaxial=False):
     """Generate and return a random deformation gradient that is physically valid (Jacobian > 0).
     Note that plane stress must be true for uniaxial or equibiaxial deformation to apply.
 
@@ -84,12 +84,12 @@ def generate_random_node_reference_positions(element_nodes):
 
     :param list element_nodes: list of 3 or 6 node objects to which to assign positions
     """
-    node_position_1 = numpy.array([0., 0.])  # + .2 * numpy.random.rand(2)
-    node_position_2 = numpy.array([1., 0.])  # + .2 * numpy.random.rand(2)
-    node_position_3 = numpy.array([0., 1.])  # + .2 * numpy.random.rand(2)
-    node_position_4 = numpy.array([.5, 0.])  # + .2 * numpy.random.rand(2)
-    node_position_5 = numpy.array([.5, .5])  # + .2 * numpy.random.rand(2)
-    node_position_6 = numpy.array([0., .5])  # + .2 * numpy.random.rand(2)
+    node_position_1 = numpy.array([0., 0., 0])  # + .2 * numpy.random.rand(2)
+    node_position_2 = numpy.array([1., 0., 0])  # + .2 * numpy.random.rand(2)
+    node_position_3 = numpy.array([0., 1., 0])  # + .2 * numpy.random.rand(2)
+    node_position_4 = numpy.array([.5, 0., 0])  # + .2 * numpy.random.rand(2)
+    node_position_5 = numpy.array([.5, .5, 0])  # + .2 * numpy.random.rand(2)
+    node_position_6 = numpy.array([0., .5, 0])  # + .2 * numpy.random.rand(2)
     node_positions = [node_position_1, node_position_2, node_position_3, node_position_4, node_position_5,
                       node_position_6]
     for node_index in range(len(element_nodes)):

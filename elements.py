@@ -25,7 +25,6 @@ class BaseElement:
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
-    :param bool plane_stress: whether to enforce plane stress
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
@@ -36,14 +35,13 @@ class BaseElement:
     node_quantity = 0
     node_positions = []
 
-    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness):
         # Fixed properties
         self.constitutive_model = constitutive_model
         self.material = material
         self.quadrature_class = quadrature_class
         self.degrees_of_freedom = degrees_of_freedom
         self.thickness = thickness
-        self.plane_stress = plane_stress
 
         # Node and quadrature point objects
         self.nodes = []
@@ -104,7 +102,7 @@ class BaseElement:
                             node_index=node_index, position=quadrature_point.position,
                             coordinate_index=coordinate_index))
         self.jacobian_matrix = jacobian_matrix
-        self.jacobian_matrix_inverse = numpy.linalg.inv(jacobian_matrix)
+        # self.jacobian_matrix_inverse = numpy.linalg.inv(jacobian_matrix)
 
     def calculate_strain_energy(self):
         """Computes the total strain energy of element using Gauss quadrature. Runs for each deformed configuration in
@@ -232,7 +230,6 @@ class TriangularLinearElement(BaseElement):
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
-    :param bool plane_stress: whether to enforce plane stress
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
@@ -244,10 +241,9 @@ class TriangularLinearElement(BaseElement):
     node_quantity = 3
     node_positions = [(0, 0), (1, 0), (0, 1)]
 
-    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness):
         super(TriangularLinearElement, self).__init__(constitutive_model, material, quadrature_class,
-                                                      degrees_of_freedom, thickness,
-                                                      plane_stress)
+                                                      degrees_of_freedom, thickness)
 
     @classmethod
     def shape_functions(cls, node_index, position):
@@ -315,7 +311,6 @@ class TriangularQuadraticElement(BaseElement):
     :param quadrature_class: class that describes the order of quadrature being used
     :param int degrees_of_freedom: number of degrees of freedom at each node of the element
     :param float thickness: thickness of the element (assumed to be constant over the element)
-    :param bool plane_stress: whether to enforce plane stress
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
@@ -327,9 +322,9 @@ class TriangularQuadraticElement(BaseElement):
     node_quantity = 6
     node_positions = [(0, 0), (1, 0), (0, 1), (.5, 0), (.5, .5), (0, .5)]
 
-    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness, plane_stress):
+    def __init__(self, constitutive_model, material, quadrature_class, degrees_of_freedom, thickness):
         super(TriangularQuadraticElement, self).__init__(constitutive_model, material, quadrature_class,
-                                                         degrees_of_freedom, thickness, plane_stress)
+                                                         degrees_of_freedom, thickness)
 
     @classmethod
     def shape_functions(cls, node_index, position):

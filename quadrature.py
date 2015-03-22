@@ -5,6 +5,7 @@ quadrature.py contains Gauss quadrature tables for use in numerical integration.
 """
 import numpy
 
+import configurations
 import operations
 import tests
 
@@ -71,11 +72,15 @@ class QuadraturePoint:
         self.weight = weight
 
         # Updated every deformation
+        self.current_configuration = None
         self.deformation_gradient = None
         self.jacobian = None
         self.strain_energy_density = None
         self.first_piola_kirchhoff_stress = None
         self.tangent_moduli = None
+
+        # Create reference configuration
+        self.reference_configuration = configurations.ReferenceConfiguration(element=element, quadrature_point=self)
 
     def calculate_jacobian(self):
         """Compute the value for the Jacobian when the deformation gradient is updated,
@@ -124,11 +129,10 @@ class QuadraturePoint:
                                 node_index=node_index, position=self.position, coordinate_index=coordinate_index)
                             * element.jacobian_matrix_inverse[coordinate_index][dof_2])
         self.deformation_gradient = new_deformation_gradient
-        if element.plane_stress:
-            self.enforce_plane_stress(element=element)
+        # Always enforce plane stress
+        self.enforce_plane_stress(element=element)
         # Update the Jacobian for the new deformation gradient
         self.jacobian = self.calculate_jacobian()
-
 
     def update_material_response(self, element):
         """Update the strain energy density, first Piola-Kirchhoff stress and tangent moduli for the current
