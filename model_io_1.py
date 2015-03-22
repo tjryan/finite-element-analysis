@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 import constants
-import frames
+import configurations
 import materials
 import model
 import constitutive_models
@@ -34,7 +34,7 @@ def homework1_part1():
     lab_vector1 = numpy.array([math.cos(angle), math.sin(angle), 0])
     lab_vector2 = numpy.array([-math.sin(angle), math.cos(angle), 0])
     lab_vector3 = numpy.array([0, 0, 1])
-    lab_frame = frames.Basis(vector1=lab_vector1,
+    lab_frame = configurations.Basis(vector1=lab_vector1,
                              vector2=lab_vector2,
                              vector3=lab_vector3,
                              type=constants.LAB)
@@ -43,35 +43,35 @@ def homework1_part1():
     reference_vector1_covariant = numpy.array(lab_vector1)
     reference_vector2_covariant = numpy.array(radius * lab_vector2)
     reference_vector3_covariant = numpy.array(lab_vector3)
-    reference_configuration_covariant = frames.Basis(vector1=reference_vector1_covariant,
+    reference_configuration_covariant = configurations.Basis(vector1=reference_vector1_covariant,
                                                      vector2=reference_vector2_covariant,
                                                      vector3=reference_vector3_covariant,
                                                      type=constants.COVARIANT)
     reference_vector1_contravariant = numpy.array(lab_vector1)
     reference_vector2_contravariant = numpy.array(1 / radius * lab_vector2)
     reference_vector3_contravariant = numpy.array(lab_vector3)
-    reference_configuration_contravariant = frames.Basis(vector1=reference_vector1_contravariant,
+    reference_configuration_contravariant = configurations.Basis(vector1=reference_vector1_contravariant,
                                                          vector2=reference_vector2_contravariant,
                                                          vector3=reference_vector3_contravariant,
                                                          type=constants.CONTRAVARIANT)
-    reference_configuration = frames.ReferenceConfiguration(covariant_basis=reference_configuration_covariant,
+    reference_configuration = configurations.ReferenceConfiguration(covariant_basis=reference_configuration_covariant,
                                                             contravariant_basis=reference_configuration_contravariant)
     # Deformed configuration
     deformed_vector1_covariant = numpy.array(lambda1 * lab_vector1)
     deformed_vector2_covariant = numpy.array(lambda1 * radius * lab_vector2)
     deformed_vector3_covariant = numpy.array(lambda2 * lab_vector3)
-    deformed_configuration_covariant = frames.Basis(vector1=deformed_vector1_covariant,
+    deformed_configuration_covariant = configurations.Basis(vector1=deformed_vector1_covariant,
                                                     vector2=deformed_vector2_covariant,
                                                     vector3=deformed_vector3_covariant,
                                                     type=constants.COVARIANT)
     deformed_vector1_contravariant = numpy.array(1 / lambda1 * lab_vector1)
     deformed_vector2_contravariant = numpy.array(1 / (lambda1 * radius) * lab_vector2)
     deformed_vector3_contravariant = numpy.array(1 / lambda2 * lab_vector3)
-    deformed_configuration_contravariant = frames.Basis(vector1=deformed_vector1_contravariant,
+    deformed_configuration_contravariant = configurations.Basis(vector1=deformed_vector1_contravariant,
                                                         vector2=deformed_vector2_contravariant,
                                                         vector3=deformed_vector3_contravariant,
                                                         type=constants.CONTRAVARIANT)
-    deformed_configuration = frames.DeformedConfiguration(covariant_basis=deformed_configuration_covariant,
+    deformed_configuration = configurations.DeformedConfiguration(covariant_basis=deformed_configuration_covariant,
                                                           contravariant_basis=deformed_configuration_contravariant)
 
     # Compute deformation gradient and other kinematic quantities

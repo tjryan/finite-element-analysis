@@ -47,17 +47,15 @@ def test_element_calculations():
     fem.material = materials.Custom('custom', 10, 5)
     # fem.material = materials.AluminumAlloy()
     # Choose a class of quadrature to use
-    fem.quadrature_class = quadrature.GaussQuadratureOnePoint
-    # fem.quadrature_class = quadrature.GaussQuadratureThreePoint
+    # fem.quadrature_class = quadrature.GaussQuadratureOnePoint
+    fem.quadrature_class = quadrature.GaussQuadratureThreePoint
     # Choose an element type
-    fem.element_type = elements.TriangularLinearElement
-    # fem.element_type = elements.TriangularQuadraticElement
+    # fem.element_type = elements.TriangularLinearElement
+    fem.element_type = elements.TriangularQuadraticElement
     # Choose number of degrees of freedom
     degrees_of_freedom = 2
     # Choose element thickness
     element_thickness = 1
-    # Choose whether to enforce plane stress
-    plane_stress = True
     # Create elements
     element_quantity = 1
     for i in range(element_quantity):
@@ -81,8 +79,7 @@ def test_element_calculations():
                                    material=fem.material,
                                    quadrature_class=fem.quadrature_class,
                                    degrees_of_freedom=degrees_of_freedom,
-                                   thickness=element_thickness,
-                                   plane_stress=plane_stress)
+                                   thickness=element_thickness)
         # Add the element to the model
         fem.elements.append(element)
         # Add element as parent element of nodes
