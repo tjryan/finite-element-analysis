@@ -4,7 +4,6 @@ tests.py module contains all verification tests used to ensure correctness of th
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
 
-import math
 import random
 
 import numpy
@@ -15,16 +14,6 @@ import constitutive_models
 import exceptions
 import materials
 import operations
-
-
-def covariance(basis1, basis2):
-    """Check that basis1 and basis 2 are compatible for operations, namely that
-    one of them is covariant and the other is contravariant.
-    """
-    types = [basis1.type, basis2.type]
-    # If there is not one covariant and one contravariant basis, raise an error
-    if types.count(constants.COVARIANT) != 1 or types.count(constants.CONTRAVARIANT) != 1:
-        raise exceptions.BasisMismatchError(basis1, basis2)
 
 
 def deformation_gradient_physical(jacobian):
@@ -80,7 +69,7 @@ def gauss_quadrature(quadrature_class):
         r_min = lambda s: 0
         r_max = lambda s: 1 - s
         exact_integration_value, exact_integration_error = dblquad(random_polynomial, s_min, s_max, r_min, r_max)
-        error = math.fabs(gauss_integration_value - exact_integration_value)
+        error = abs(gauss_integration_value - exact_integration_value)
 
 
 def material_frame_indifference():
@@ -107,7 +96,7 @@ def material_frame_indifference():
     c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation,
                                                   test=True)
     # Test that each element is within tolerance of its original value
-    w_error = math.fabs(w - w_rotated)
+    w_error = abs(w - w_rotated)
     if w_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialFrameIndifferenceError(constitutive_model=constitutive_model,
                                                         quantity='strain energy density',
@@ -117,7 +106,7 @@ def material_frame_indifference():
     p_comparison = numpy.dot(random_rotation, p)
     for i in range(3):
         for j in range(3):
-            p_error = math.fabs(p_rotated[i][j] - p_comparison[i][j])
+            p_error = abs(p_rotated[i][j] - p_comparison[i][j])
             p_errors.append(p_error)
     p_max_error = max(p_errors)
     if p_max_error > constants.FLOATING_POINT_TOLERANCE:
@@ -134,7 +123,7 @@ def material_frame_indifference():
                     for m in range(3):
                         for n in range(3):
                             c_comparison += random_rotation[i][m] * random_rotation[k][n] * c[m][j][n][l]
-                    c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
+                    c_error = abs(c_rotated[i][j][k][l] - c_comparison)
                     c_errors.append(c_error)
     c_max_error = max(c_errors)
     if c_max_error > constants.FLOATING_POINT_TOLERANCE:
@@ -168,7 +157,7 @@ def material_symmetry():
     c_rotated = constitutive_model.tangent_moduli(material=material, deformation_gradient=rotated_deformation,
                                                   test=True)
     # Test that each element is within tolerance of its original value
-    w_error = math.fabs(w - w_rotated)
+    w_error = abs(w - w_rotated)
     if w_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.MaterialSymmetryError(constitutive_model=constitutive_model,
                                                quantity='strain energy density',
@@ -181,7 +170,7 @@ def material_symmetry():
             p_comparison = 0
             for k in range(3):
                 p_comparison += random_rotation[k][j] * p[i][k]
-            p_error = math.fabs(p_rotated[i][j] - p_comparison)
+            p_error = abs(p_rotated[i][j] - p_comparison)
             p_errors.append(p_error)
     p_max_error = max(p_errors)
     if p_max_error > constants.FLOATING_POINT_TOLERANCE:
@@ -198,7 +187,7 @@ def material_symmetry():
                     for m in range(3):
                         for n in range(3):
                             c_comparison += random_rotation[m][j] * random_rotation[n][l] * c[i][m][k][n]
-                    c_error = math.fabs(c_rotated[i][j][k][l] - c_comparison)
+                    c_error = abs(c_rotated[i][j][k][l] - c_comparison)
                     c_errors.append(c_error)
     c_max_error = max(c_errors)
     if c_max_error > constants.FLOATING_POINT_TOLERANCE:
@@ -237,7 +226,7 @@ def numerical_differentiation_first_piola_kirchhoff_stress(constitutive_model, m
             # Compute the result of numerical differentiation
             numerical_value = (strain_energy_density_plus - strain_energy_density_minus) / (2 * h)
             computed_value = first_piola_kirchhoff_stress[i][j]
-            error = math.fabs(computed_value - numerical_value)
+            error = abs(computed_value - numerical_value)
             errors.append(error)
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
@@ -266,22 +255,20 @@ def numerical_differentiation_force_array(element, force_array, h=1e-5):
             element.nodes[node_index].current_position[dof] += h
             # Update deformation gradient and strain energy density for each quadrature point
             for quadrature_point in element.quadrature_points:
-                quadrature_point.update_deformation_gradient(element=element)
-                quadrature_point.update_material_response(element=element)
+                quadrature_point.update_current_configuration(element)
             # Calculate the perturbed strain energy
             strain_energy_plus = element.calculate_strain_energy()
             # Perturb current position of the node in the negative direction
             element.nodes[node_index].current_position[dof] -= 2 * h
             # Update deformation gradient and strain energy density for each quadrature point
             for quadrature_point in element.quadrature_points:
-                quadrature_point.update_deformation_gradient(element=element)
-                quadrature_point.update_material_response(element=element)
+                quadrature_point.update_current_configuration(element)
             # Calculate the perturbed strain energy
             strain_energy_minus = element.calculate_strain_energy()
             # Compute the result of numerical differentiation
             numerical_value = (strain_energy_plus - strain_energy_minus) / (2 * h)
             computed_value = force_array[dof][node_index]
-            error = math.fabs(computed_value - numerical_value)
+            error = abs(computed_value - numerical_value)
             errors.append(error)
             # Reset the node to its original position
             element.nodes[node_index].current_position[dof] = unperturbed_position
@@ -328,7 +315,7 @@ def numerical_differentiation_shape_functions(element_class, position, h=1e-5):
             numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
             computed_value = element_class.shape_function_derivatives(node_index=node_index, position=position,
                                                                       coordinate_index=coordinate_index)
-            error = math.fabs(computed_value - numerical_value)
+            error = abs(computed_value - numerical_value)
             # If the result is not within tolerance of the provided value, raise an error
             if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
                 raise exceptions.DifferentiationError(difference=error,
@@ -358,23 +345,21 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-5
                     element.nodes[node_index_2].current_position[dof_2] += h
                     # Update deformation gradient and strain energy density for each quadrature point
                     for quadrature_point in element.quadrature_points:
-                        quadrature_point.update_deformation_gradient(element=element)
-                        quadrature_point.update_material_response(element=element)
+                        quadrature_point.update_current_configuration(element)
                     # Calculate the perturbed strain energy
                     force_array_plus = element.calculate_force_array(test=False)
                     # Perturb current position of the node in the negative direction
                     element.nodes[node_index_2].current_position[dof_2] -= 2 * h
                     # Update deformation gradient and strain energy density for each quadrature point
                     for quadrature_point in element.quadrature_points:
-                        quadrature_point.update_deformation_gradient(element=element)
-                        quadrature_point.update_material_response(element=element)
+                        quadrature_point.update_current_configuration(element)
                     # Calculate the perturbed strain energy
                     force_array_minus = element.calculate_force_array(test=False)
                     # Compute the result of numerical differentiation
                     numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
                         node_index_1]) / (2 * h)
                     computed_value = stiffness_matrix[dof_1][node_index_1][dof_2][node_index_2]
-                    error = math.fabs(computed_value - numerical_value)
+                    error = abs(computed_value - numerical_value)
                     errors.append(error)
                     # Reset the node to its original position
                     element.nodes[node_index_2].current_position[dof_2] = unperturbed_position
@@ -430,7 +415,7 @@ def numerical_differentiation_tangent_moduli(constitutive_model, material, defor
                     # Compute the result of numerical differentiation
                     numerical_value = (piola_kirchhoff_plus[i][j] - piola_kirchhoff_minus[i][j]) / (2 * h)
                     computed_value = tangent_moduli[i][j][k][l]
-                    error = math.fabs(computed_value - numerical_value)
+                    error = abs(computed_value - numerical_value)
                     errors.append(error)
     max_error = max(errors)
     # If the result is not within tolerance of the provided value, raise an error
@@ -448,21 +433,17 @@ def rank_stiffness_matrix(element, stiffness_matrix):
     # NOTE: numpy reshape putting things in the wrong order, I need to be careful about this.
     # reshaped_stiffness_matrix = numpy.reshape(stiffness_matrix, (
     # element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity))
-    reshaped_dimensions = (
-        element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity)
+    reshaped_dimensions = (element.degrees_of_freedom * element.node_quantity,
+                           element.degrees_of_freedom * element.node_quantity)
     reshaped_stiffness_matrix = numpy.zeros(reshaped_dimensions)
     # Manually reshape the 4D tensor into a 2D matrix
-    index_1 = 0
-    index_2 = 0
-    for node_index_2 in range(element.node_quantity):
-        for dof_2 in range(element.degrees_of_freedom):
-            for node_index_1 in range(element.node_quantity):
-                for dof_1 in range(element.degrees_of_freedom):
-                    reshaped_stiffness_matrix[index_1][index_2] = stiffness_matrix[dof_1][node_index_1][dof_2][
-                        node_index_2]
-                    index_2 += 1
-            index_1 += 1
-            index_2 = 0
+    for i in range(element.degrees_of_freedom):
+        for a in range(element.node_quantity):
+            for k in range(element.degrees_of_freedom):
+                for b in range(element.node_quantity):
+                    index_1 = element.degrees_of_freedom * a + i
+                    index_2 = element.degrees_of_freedom * b + k
+                    reshaped_stiffness_matrix[index_1][index_2] = stiffness_matrix[i][a][k][b]
     rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix, tol=.0001)
     print('rank:', rank)
     return rank
@@ -511,7 +492,7 @@ def shape_functions_completeness(element_class):
          range(element_class.node_quantity)])
     # Compute the error between the comparison and interpolated values, and raise an error if not within tolerance
     # of each other
-    error = math.fabs(interpolated_value - comparison_value)
+    error = abs(interpolated_value - comparison_value)
     if error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.CompletenessError(element_class=element_class, comparison_value=comparison_value,
                                            interpolated_value=interpolated_value, error=error,
@@ -534,7 +515,7 @@ def shape_functions_partition_nullity(element_class, position):
                                                      coordinate_index=coordinate_index) for node_index in
             range(element_class.node_quantity)])
     # Compute the error with the expected value of 0
-    partition_nullity_error = math.fabs(partition_nullity_sum - 0)
+    partition_nullity_error = abs(partition_nullity_sum - 0)
     # If the error is not within tolerance of the expected value, raise an error
     if partition_nullity_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.PartitionNullityError(element_class=element_class, sum=partition_nullity_sum)
@@ -553,7 +534,7 @@ def shape_functions_partition_unity(element_class, position):
         [element_class.shape_functions(node_index=node_index, position=position) for node_index in range(
             element_class.node_quantity)])
     # Compute the error from the expected value of 1
-    partition_unity_error = math.fabs(partition_unity_sum - 1)
+    partition_unity_error = abs(partition_unity_sum - 1)
     # If the error is not within tolerance of the expected value, raise an error
     if partition_unity_error > constants.FLOATING_POINT_TOLERANCE:
         raise exceptions.PartitionUnityError(element_class=element_class, sum=partition_unity_sum)

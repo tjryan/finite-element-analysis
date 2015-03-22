@@ -78,6 +78,16 @@ class CurrentConfiguration(BaseConfiguration):
         # NOTE that we do not yet assign the transverse basis vectors because those are dependent on the stretch ratio
         # which has not yet been determined
 
+    def update_transverse_basis_vectors(self, stretch_ratio):
+        """Update the transverse basis vectors with the newly computed stretch ratio.
+
+        :param float stretch_ratio: thickness stretch ratio computed from enforcing plane stress
+        """
+        basis_3 = self.midsurface_basis[2] * stretch_ratio
+        basis_contravariant_3 = self.midsurface_basis_contravariant[2] / stretch_ratio
+        self.basis[2] = basis_3
+        self.basis_contravariant[2] = basis_contravariant_3
+
 
 class ReferenceConfiguration(BaseConfiguration):
     """Reference configuration for the quadrature point of an element.

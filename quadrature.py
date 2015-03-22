@@ -6,6 +6,8 @@ quadrature.py contains Gauss quadrature tables for use in numerical integration.
 import numpy
 
 import configurations
+import constants
+import exceptions
 import operations
 import tests
 
@@ -73,15 +75,14 @@ class QuadraturePoint:
 
         # Updated every deformation
         self.stretch_ratio = 1
-        self.current_configuration = None
+        self.current_configuration = configurations.CurrentConfiguration()
         self.deformation_gradient = None
         self.jacobian = None
         self.strain_energy_density = None
         self.first_piola_kirchhoff_stress = None
+        self.kirchhoff_stress = None
         self.tangent_moduli = None
-
-        # Create reference configuration
-        self.reference_configuration = configurations.ReferenceConfiguration(element=element, quadrature_point=self)
+        self.tangent_moduli_effective_2d = None
 
     def calculate_jacobian(self):
         """Compute the value for the Jacobian when the deformation gradient is updated,
@@ -91,7 +92,101 @@ class QuadraturePoint:
         tests.deformation_gradient_physical(jacobian=jacobian)
         return jacobian
 
-    def enforce_plane_stress(self, element):
+    def enforce_plane_stress(self, element, max_iterations=15):
+        """Enforce plane stress in the element by forcing kirchhoff_stress_33 = 0, and computing the stretch ratio using
+        Newton's Method.
+
+        :param element: element that contains the quadrature point.
+        :param int max_iterations: max iterations to try before assuming the solution has diverged
+        """
+        # Assign initial guess for stretch ratio to the save value
+        stretch_ratio = self.stretch_ratio
+        # Set iteration counter
+        current_iteration = 0
+        while True:
+            test_deformation_gradient = self.deformation_gradient + stretch_ratio * numpy.outer(
+                self.current_configuration.midsurface_basis[2],
+                self.current_configuration.midsurface_basis_contravariant[2])
+            first_piola_kirchhoff_stress = element.constitutive_model.first_piola_kirchhoff_stress(
+                material=element.material,
+                deformation_gradient=test_deformation_gradient,
+                dimension=element.degrees_of_freedom)
+            kirchhoff_stress_contravariant_33 = (1 / stretch_ratio) * numpy.dot(
+                numpy.dot(self.current_configuration.midsurface_basis_contravariant[2], first_piola_kirchhoff_stress),
+                element.reference_configuration.midsurface_basis_contravariant[2].T)
+            # Check if kirchhoff stress is within tolerance of 0:
+            error = abs(0 - kirchhoff_stress_contravariant_33)
+            if error < constants.NEWTON_METHOD_TOLERANCE:
+                break
+            tangent_moduli_contravariant_3333 = element.constitutive_model.tangent_moduli_contravariant(
+                deformation_gradient=test_deformation_gradient,
+                quadrature_point=self,
+                C_3333=True)
+            delta_stretch = - kirchhoff_stress_contravariant_33 / (
+                2 * stretch_ratio * tangent_moduli_contravariant_3333)
+            stretch_ratio += delta_stretch
+            # If there is a negative (unphysical) stretch ratio, adjust it to be a very small positive value
+            # to avoid negative jacobian errors and give the solver another chance to converge
+            if stretch_ratio < 0:
+                stretch_ratio = 1e-6
+            # If the loop has reached the max number of iterations, raise an error
+            if current_iteration == max_iterations:
+                raise exceptions.NewtonMethodMaxIterationsExceededError(iterations=max_iterations,
+                                                                        error=error,
+                                                                        tolerance=constants.NEWTON_METHOD_TOLERANCE)
+            # Increment the iteration counter
+            else:
+                current_iteration += 1
+        # Save the stretch ratio as an initial guess for next time
+        self.stretch_ratio = stretch_ratio
+        # Set deformation gradient
+        self.deformation_gradient = test_deformation_gradient
+        # Compute transverse basis vectors
+        self.current_configuration.update_transverse_basis_vectors(stretch_ratio)
+
+    def update_current_configuration(self, element):
+        """Update the current configuration for the quadrature point
+
+        :param element: element object that contains the quadrature point
+        """
+        self.current_configuration.update_configuration(element=element, quadrature_point=self)
+        self.update_deformation_gradient(element)
+        self.update_material_response(element)
+
+    def update_deformation_gradient(self, element):
+        """Update the deformation gradient object for the current deformation using the deformed midsurface
+        basis vectors.
+
+        :param element: element object that is deformed
+        """
+        # Deformation gradient initialized as a 3x3 matrix, always
+        self.deformation_gradient = sum([numpy.outer(self.current_configuration.midsurface_basis[coordinate_index],
+                                                     self.current_configuration.midsurface_basis_contravariant[
+                                                         coordinate_index]) for coordinate_index in
+                                         range(element.dimension)])
+        # Always enforce plane stress
+        self.enforce_plane_stress(element=element)
+        # Update the Jacobian for the new deformation gradient
+        self.jacobian = self.calculate_jacobian()
+
+    def update_material_response(self, element):
+        """Update the strain energy density, first Piola-Kirchhoff stress and tangent moduli for the current
+        configuration.
+
+        :param element: element object that is deformed
+        """
+        (self.strain_energy_density,
+         self.first_piola_kirchhoff_stress,
+         self.kirchhoff_stress,
+         self.tangent_moduli,
+         self.tangent_moduli_effective_2d) = element.constitutive_model.calculate_all(
+            material=element.material,
+            deformation_gradient=self.deformation_gradient,
+            quadrature_point=self,
+            element=element,
+            dimension=element.degrees_of_freedom)
+
+    def enforce_plane_stress_old(self, element):
         """Enforce the plane stress assumption solving for the thickness stretch (the 3-3 component of the
         deformation gradient), while assuming that the  first Piola-Kirchhoff stress is zero in the direction
         normal to the plane.
@@ -112,27 +207,6 @@ class QuadraturePoint:
             deformation_gradient=self.deformation_gradient)
         # Assign the 3-3 component of the deformation gradient to be the computed thickness stretch ratio
         self.deformation_gradient[2][2] = thickness_stretch_ratio
-
-    def update_current_configuration(self, element):
-        """Update the current configuration for the quadrature point
-
-        :param element: element object that contains the quadrature point
-        """
-        self.current_configuration.update_configuration(element=element, quadrature_point=self)
-        self.update_deformation_gradient(element)
-
-    def update_deformation_gradient(self, element):
-        """Update the deformation gradient object for the current deformation using the deformed midsurface
-        basis vectors.
-
-        :param element: element object that is deformed
-        """
-        # Deformation gradient initialized as a 3x3 matrix, always
-        # self.deformation_gradient = sum([numpy.outer(self.current_configuration.midsurface_basis[coordinate_index], self.current_configuration.midsur)
-        # Always enforce plane stress
-        self.enforce_plane_stress(element=element)
-        # Update the Jacobian for the new deformation gradient
-        self.jacobian = self.calculate_jacobian()
 
     def update_deformation_gradient_old(self, element):
         """Update the deformation gradient object for the current deformation.
@@ -156,16 +230,3 @@ class QuadraturePoint:
         self.enforce_plane_stress(element=element)
         # Update the Jacobian for the new deformation gradient
         self.jacobian = self.calculate_jacobian()
-
-    def update_material_response(self, element):
-        """Update the strain energy density, first Piola-Kirchhoff stress and tangent moduli for the current
-        configuration.
-
-        :param element: element object that is deformed
-        """
-        (self.strain_energy_density,
-         self.first_piola_kirchhoff_stress,
-         self.tangent_moduli) = element.constitutive_model.calculate_all(
-            material=element.material,
-            deformation_gradient=self.deformation_gradient,
-            dimension=element.dimension)

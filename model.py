@@ -12,20 +12,26 @@ import nodes
 
 
 class Model:
-    """Finite Element Model containing globally needed values and functions for performing finite element analysis.
+    """Finite Element Model that sets up and runs the finite element analysis for the given problem.
 
-    :ivar material: material object that described the material the element is composed of
-    :ivar constitutive_model: constitutive model class that describes the material behavior
-    :ivar quadrature_class: quadrature class to use for elements
-    :ivar element_type: element class used as a template for all finite elements
-    :ivar list nodes: list of all node objects in the mesh
-    :ivar list elements: list of element objects that make up the body
+    :param material: material object that described the material the element is composed of
+    :param constitutive_model: constitutive model class that describes the material behavior
+    :param quadrature_class: quadrature class to use for elements
+    :param element_type: element class used as a template for all finite elements
+    :param degrees_of_freedom: number of degrees of freedom at each node of the model (or number of dimensions of lab
+    frame
+    :param numpy.ndarray node_reference_positions_2d: array of 2D node positions in flat plane
+    :param numpy.ndarray node_reference_positions_3d: array of node positions projected onto body in 3D
+    :param numpy.ndarray edges: array of tuples containing 2D positions of edge endpoints
+    :param int corner_node_quantity = number of corner nodes in the mesh
+    :param dict prescribed_dof = dictionary keying node ID to a list of prescribed degrees of freedom (for every corner
+    node)
+    :param float membrane_thickness: thickness of the membrane
+    :param float applied_load: magnitude of uniform transverse load applied to the membrane (force/area)
     """
-    # TODO update docstring once finalized
     def __init__(self, material, constitutive_model, quadrature_class, element_type, degrees_of_freedom,
                  node_reference_positions_2d, node_reference_positions_3d, edges, corner_node_quantity,
-                 prescribed_dof, membrane_thickness,
-                 applied_load):
+                 prescribed_dof, membrane_thickness, applied_load):
         # Inputs
         self.material = material
         self.constitutive_model = constitutive_model
@@ -58,11 +64,19 @@ class Model:
         # Run the analysis
         self.run()
 
-    def assign_nodes(self):
-        """Add nodes to their parent elements."""
+    def compute_node_and_dof_quantities(self):
+        """Compute the total number of nodes, the total number of global degrees of freedom, and the total number of
+        prescribed degrees of freedom."""
+        self.node_quantity = len(self.nodes)
+        self.global_dof = self.node_quantity * self.degrees_of_freedom
+        # Compute total number of prescribed degrees of freedom
+        prescribed_dof_counter = 0
         for node in self.nodes:
-            for parent_element in node.parent_elements:
-                parent_element.nodes.append(node)
+            for dof in node.prescribed_dof:
+                # If the dof is prescribed
+                if dof is not None:
+                    prescribed_dof_counter += 1
+        self.prescribed_dof_quantity = prescribed_dof_counter
 
     def create_connectivity_table(self):
         """Create connectivity table using Delaunay triangulation to connects nodes to elements."""
@@ -147,33 +161,21 @@ class Model:
                     # Increment the global ID
                     global_id += 1
 
-    def run(self):
-        """Run the analysis."""
-        self.create_mesh()
-        self.compute_node_and_dof_quantities()
-        self.create_quadrature_points()
-
-    def update_current_configuration(self):
-        """Update the current configuration of all elements in the model."""
-        for element in self.elements:
-            element.update_current_configuration()
-
     def create_quadrature_points(self):
         """Create quadrature points for all elements."""
         for element in self.elements:
             element.create_quadrature_points()
 
-    def compute_node_and_dof_quantities(self):
-        """Compute the total number of nodes, the total number of global degrees of freedom, and the total number of
-        prescribed degrees of freedom."""
-        self.node_quantity = len(self.nodes)
-        self.global_dof = self.node_quantity * self.degrees_of_freedom
-        # Compute total number of prescribed degrees of freedom
-        prescribed_dof_counter = 0
-        for node in self.nodes:
-            for dof in node.prescribed_dof:
-                # If the dof is prescribed
-                if dof is not None:
-                    prescribed_dof_counter += 1
-        self.prescribed_dof_quantity = prescribed_dof_counter
+    def run(self):
+        """Run the analysis."""
+        self.create_mesh()
+        self.compute_node_and_dof_quantities()
+        self.create_quadrature_points()
+        # TODO what follows is just for testing, fix it
+        self.update_current_configuration()
+
+    def update_current_configuration(self):
+        """Update the current configuration of all elements in the model."""
+        for element in self.elements:
+            element.update_current_configuration()
 

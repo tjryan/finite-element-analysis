@@ -17,6 +17,10 @@ import model
 
 
 
+
+
+
+
 # INPUTS
 material = materials.Custom('custom', 10, 5)
 constitutive_model = constitutive_models.Neohookean
@@ -30,10 +34,10 @@ membrane_thickness = 1
 # Set 2D node reference positions
 node_reference_positions_2d = numpy.array([[0, 0], [1, 0], [2, 0],
                                            [0, 1], [1, 1], [2, 1],
-                                           [0, 2], [1, 2], [2, 2]])
+                                           [0, 2], [1, 2], [2, 2]], dtype=float)
 corner_node_quantity = node_reference_positions_2d.shape[0]
 # Specify sets of edge endpoints
-edges = numpy.array([[(0, 0), (2, 0)], [(0, 0), (0, 2)], [(2, 0), (2, 2)], [(0, 2), (2, 2)]])
+edges = numpy.array([[(0, 0), (2, 0)], [(0, 0), (0, 2)], [(2, 0), (2, 2)], [(0, 2), (2, 2)]], dtype=float)
 
 # Display mesh
 delaunay_triangulation = Delaunay(node_reference_positions_2d)
@@ -47,7 +51,7 @@ node_reference_positions_3d = []
 # Flat sheet
 for position in node_reference_positions_2d:
     node_reference_positions_3d.append(list(numpy.append(position, 0)))
-node_reference_positions_3d = numpy.array(node_reference_positions_3d)
+node_reference_positions_3d = numpy.array(node_reference_positions_3d, dtype=float)
 
 # Initialize prescribed displacements, be default, nothing is prescribed
 prescribed_dof = {}

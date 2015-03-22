@@ -5,7 +5,6 @@ packages such as numpy.
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
 import random
-import math
 
 import numpy
 
@@ -137,28 +136,27 @@ def newton_method_thickness_stretch_ratio(constitutive_model, material, deformat
         # tests.deformation_gradient_physical(numpy.linalg.det(deformation_gradient))
         P33 = constitutive_model.first_piola_kirchhoff_stress(material=material,
                                                               deformation_gradient=deformation_gradient)[2][2]
-        error = math.fabs(0 - P33)
+        error = abs(0 - P33)
         # If the error is less than the tolerance, the loop has converged, so break out
         if error < constants.NEWTON_METHOD_TOLERANCE:
             break
         # Compute a new value for the stretch ratio and try again
+        C3333 = constitutive_model.tangent_moduli(material=material,
+                                                  deformation_gradient=deformation_gradient)[2][2][2][2]
+        # Compute correction to the stretch ratio
+        delta_stretch = -(1 / C3333) * P33
+        stretch_ratio += delta_stretch
+        # If there is a negative (unphysical) stretch ratio, adjust it to be a very small positive value
+        # to avoid negative jacobian errors and give the solver another chance to converge
+        if stretch_ratio < 0:
+            stretch_ratio = 1e-6
+        # If the loop has reached the max number of iterations, raise an error
+        if current_iteration == max_iterations:
+            raise exceptions.NewtonMethodMaxIterationsExceededError(iterations=max_iterations,
+                                                                    error=error,
+                                                                    tolerance=constants.NEWTON_METHOD_TOLERANCE)
+        # Increment the iteration counter
         else:
-            C3333 = constitutive_model.tangent_moduli(material=material,
-                                                      deformation_gradient=deformation_gradient)[2][2][2][2]
-            # Compute correction to the stretch ratio
-            delta_stretch = -(1 / C3333) * P33
-            stretch_ratio += delta_stretch
-            # If there is a negative (unphysical) stretch ratio, adjust it to be a very small positive value
-            # to avoid negative jacobian errors and give the solver another chance to converge
-            if stretch_ratio < 0:
-                stretch_ratio = 1e-6
-            # If the loop has reached the max number of iterations, raise an error
-            if current_iteration == max_iterations:
-                raise exceptions.NewtonMethodMaxIterationsExceededError(iterations=max_iterations,
-                                                                        error=error,
-                                                                        tolerance=constants.NEWTON_METHOD_TOLERANCE)
-            # Increment the iteration counter
-            else:
-                current_iteration += 1
+            current_iteration += 1
     return stretch_ratio
 
