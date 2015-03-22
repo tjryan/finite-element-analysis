@@ -3,9 +3,10 @@ model.py module contains the primary components for constructing the finite elem
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
-
+import numpy
 from scipy.spatial import Delaunay
 
+import constants
 import elements
 import nodes
 
@@ -22,7 +23,7 @@ class Model:
     """
     # TODO update docstring once finalized
     def __init__(self, material, constitutive_model, quadrature_class, element_type, degrees_of_freedom,
-                 node_reference_positions_2d, node_reference_positions_3d, corner_node_quantity,
+                 node_reference_positions_2d, node_reference_positions_3d, edges, corner_node_quantity,
                  prescribed_dof, membrane_thickness,
                  applied_load):
         # Inputs
@@ -33,6 +34,7 @@ class Model:
         self.degrees_of_freedom = degrees_of_freedom
         self.node_reference_positions_2d = node_reference_positions_2d
         self.node_reference_positions_3d = node_reference_positions_3d
+        self.edges = edges
         self.corner_node_quantity = corner_node_quantity
         self.prescribed_dof = prescribed_dof
         self.membrane_thickness = membrane_thickness
@@ -121,14 +123,19 @@ class Model:
                     reference_position = .5 * (node_pair[0].reference_position + node_pair[1].reference_position)
                     # Set prescribed displacements based on corner nodes
                     prescribed_dof = [None] * self.degrees_of_freedom
-                    for dof_index in range(self.degrees_of_freedom):
-                        displacement_1 = node_pair[0].prescribed_dof[dof_index]
-                        displacement_2 = node_pair[1].prescribed_dof[dof_index]
-                        # If there are prescribed displacements for both corner nodes
-                        # TODO this will miss nodes that have both corner nodes prescribed, yet are still in the middle of the mesh, and should not be prescribed
-                        if displacement_1 is not None and displacement_2 is not None:
-                            # Prescribed displacement are the average of the corner nodes displacements
-                            prescribed_dof[dof_index] = .5 * (displacement_1 + displacement_2)
+                    # NOTE: if the midpoint is not on an edge, it cannot be prescribed in any way
+                    for endpoints in self.edges:
+                        cross_product = numpy.cross((endpoints[1] - endpoints[0]),
+                                                    (reference_position[:2] - endpoints[0]))
+                        # If the midpoint is on an edge, prescribe displacements
+                        if abs(cross_product) < constants.FLOATING_POINT_TOLERANCE:
+                            for dof_index in range(self.degrees_of_freedom):
+                                displacement_1 = node_pair[0].prescribed_dof[dof_index]
+                                displacement_2 = node_pair[1].prescribed_dof[dof_index]
+                                # If there are prescribed displacements for both corner nodes
+                                if displacement_1 is not None and displacement_2 is not None:
+                                    # Prescribed displacement is the average of the corner nodes displacements
+                                    prescribed_dof[dof_index] = .5 * (displacement_1 + displacement_2)
                     midpoint_node = nodes.MidpointNode(global_id=global_id,
                                                        reference_position=reference_position,
                                                        prescribed_dof=prescribed_dof)

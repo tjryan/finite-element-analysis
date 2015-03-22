@@ -15,6 +15,8 @@ import model
 
 
 
+
+
 # INPUTS
 material = materials.Custom('custom', 10, 5)
 constitutive_model = constitutive_models.Neohookean
@@ -30,13 +32,15 @@ node_reference_positions_2d = numpy.array([[0, 0], [1, 0], [2, 0],
                                            [0, 1], [1, 1], [2, 1],
                                            [0, 2], [1, 2], [2, 2]])
 corner_node_quantity = node_reference_positions_2d.shape[0]
+# Specify sets of edge endpoints
+edges = numpy.array([[(0, 0), (2, 0)], [(0, 0), (0, 2)], [(2, 0), (2, 2)], [(0, 2), (2, 2)]])
 
 # Display mesh
 delaunay_triangulation = Delaunay(node_reference_positions_2d)
 plt.triplot(node_reference_positions_2d[:, 0], node_reference_positions_2d[:, 1],
             delaunay_triangulation.simplices.copy())
 plt.plot(node_reference_positions_2d[:, 0], node_reference_positions_2d[:, 1], 'o')
-plt.show()
+# plt.show()
 
 # Convert 2D nodal positions to 3D (this may change depending on body being modelled)
 node_reference_positions_3d = []
@@ -72,6 +76,7 @@ model = model.Model(material=material,
                     degrees_of_freedom=degrees_of_freedom,
                     node_reference_positions_2d=node_reference_positions_2d,
                     node_reference_positions_3d=node_reference_positions_3d,
+                    edges=edges,
                     corner_node_quantity=corner_node_quantity,
                     prescribed_dof=prescribed_dof,
                     membrane_thickness=membrane_thickness,

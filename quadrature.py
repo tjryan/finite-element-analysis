@@ -72,6 +72,7 @@ class QuadraturePoint:
         self.weight = weight
 
         # Updated every deformation
+        self.stretch_ratio = 1
         self.current_configuration = None
         self.deformation_gradient = None
         self.jacobian = None
@@ -112,8 +113,30 @@ class QuadraturePoint:
         # Assign the 3-3 component of the deformation gradient to be the computed thickness stretch ratio
         self.deformation_gradient[2][2] = thickness_stretch_ratio
 
+    def update_current_configuration(self, element):
+        """Update the current configuration for the quadrature point
+
+        :param element: element object that contains the quadrature point
+        """
+        self.current_configuration.update_configuration(element=element, quadrature_point=self)
+        self.update_deformation_gradient(element)
+
     def update_deformation_gradient(self, element):
+        """Update the deformation gradient object for the current deformation using the deformed midsurface
+        basis vectors.
+
+        :param element: element object that is deformed
+        """
+        # Deformation gradient initialized as a 3x3 matrix, always
+        # self.deformation_gradient = sum([numpy.outer(self.current_configuration.midsurface_basis[coordinate_index], self.current_configuration.midsur)
+        # Always enforce plane stress
+        self.enforce_plane_stress(element=element)
+        # Update the Jacobian for the new deformation gradient
+        self.jacobian = self.calculate_jacobian()
+
+    def update_deformation_gradient_old(self, element):
         """Update the deformation gradient object for the current deformation.
+        OLD: computes deformation gradient from nodal displacements.
 
         :param element: element object that is deformed
         """
