@@ -28,8 +28,8 @@ membrane_thickness = .001
 ### SQUARE MESH
 # Inputs for creating square mesh
 side_length = .1
-nodes_per_side = 3
-stretch_percent = 0.0
+nodes_per_side = 5
+stretch_percent = 0.5
 
 # Determine nodal positions
 x_coordinates = numpy.linspace(0, side_length, nodes_per_side)
@@ -69,7 +69,7 @@ delaunay_triangulation = Delaunay(node_reference_positions_2d)
 plt.triplot(node_reference_positions_2d[:, 0], node_reference_positions_2d[:, 1],
             delaunay_triangulation.simplices.copy())
 plt.plot(node_reference_positions_2d[:, 0], node_reference_positions_2d[:, 1], 'o')
-plt.title('2D Mesh (Coarse)')
+plt.title('2D Mesh (Fine)')
 plt.xlabel('x (m)')
 plt.ylabel('y (m)')
 plt.show()
@@ -85,7 +85,7 @@ node_reference_positions_3d = numpy.array(node_reference_positions_3d, dtype=flo
 applied_load = numpy.array([0, 0, -100], dtype=float)
 
 # Set number of load/displacement steps
-step_quantity = 10
+step_quantity = 20
 
 # Set problem type
 solve_loading_problem = False

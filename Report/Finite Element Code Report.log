@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  24 MAR 2015 05:37
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  24 MAR 2015 06:35
 entering extended mode
 **Finite*Element*Code*Report.tex
 
@@ -297,7 +297,63 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[27] [28] [29] [30]
+[27] [28] [29] <mesh_coarse.png, id=130, 589.0005pt x 444.4605pt>
+File: mesh_coarse.png Graphic file (type png)
+
+<use mesh_coarse.png>
+Package pdftex.def Info: mesh_coarse.png used on input line 1159.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+ <mesh_fine.png, id=131, 589.0005pt x 444.4605pt>
+File: mesh_fine.png Graphic file (type png)
+
+<use mesh_fine.png>
+Package pdftex.def Info: mesh_fine.png used on input line 1160.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+ <unstretched_sheet.png, id=132, 443.0151pt x 403.2666pt>
+File: unstretched_sheet.png Graphic file (type png)
+
+<use unstretched_sheet.png>
+Package pdftex.def Info: unstretched_sheet.png used on input line 1169.
+(pdftex.def)             Requested size: 234.87749pt x 213.81027pt.
+
+<stretched_sheet.png, id=133, 441.5697pt x 398.2077pt>
+File: stretched_sheet.png Graphic file (type png)
+
+<use stretched_sheet.png>
+Package pdftex.def Info: stretched_sheet.png used on input line 1170.
+(pdftex.def)             Requested size: 234.87749pt x 211.81467pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[30 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/mesh_coarse.png> <C:
+/Users/Tyler/Desktop/Finite Element Analysis/Report/mesh_fine.png>]
+<deformed_sheet_half_load.png, id=139, 459.6372pt x 365.6862pt>
+File: deformed_sheet_half_load.png Graphic file (type png)
+
+<use deformed_sheet_half_load.png>
+Package pdftex.def Info: deformed_sheet_half_load.png used on input line 1204.
+(pdftex.def)             Requested size: 234.87749pt x 186.87134pt.
+
+<deformed_sheet_max_load.png, id=140, 462.528pt x 353.4003pt>
+File: deformed_sheet_max_load.png Graphic file (type png)
+
+<use deformed_sheet_max_load.png>
+Package pdftex.def Info: deformed_sheet_max_load.png used on input line 1205.
+(pdftex.def)             Requested size: 234.87749pt x 179.46063pt.
+ [31 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/unstretched_sheet.p
+ng> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/stretched_sheet.png>
+ <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/deformed_sheet_half_loa
+d.png> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/deformed_sheet_ma
+x_load.png>]
+<load_vs_deflection.png, id=145, 589.0005pt x 444.4605pt>
+File: load_vs_deflection.png Graphic file (type png)
+
+<use load_vs_deflection.png>
+Package pdftex.def Info: load_vs_deflection.png used on input line 1213.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+ [32 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/load_vs_deflection.
+png>]
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux")
 
@@ -308,10 +364,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2504 strings out of 493921
- 34211 string characters out of 3147281
- 101210 words of memory out of 3000000
- 5759 multiletter control sequences out of 15000+200000
+ 2543 strings out of 493921
+ 35155 string characters out of 3147281
+ 101502 words of memory out of 3000000
+ 5791 multiletter control sequences out of 15000+200000
  12531 words of font info for 44 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  42i,14n,21p,1425b,276s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -337,9 +393,9 @@ ts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "Finite Element Code Report.pdf" (30 pages, 625190 bytes).
+Output written on "Finite Element Code Report.pdf" (32 pages, 1065887 bytes).
 PDF statistics:
- 207 PDF objects out of 1000 (max. 8388607)
+ 224 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 36 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

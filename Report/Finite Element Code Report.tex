@@ -1152,9 +1152,68 @@ These matrices match those computed by hand.
 
 \subsection{Biaxial Stretching of a Square Membrane}
 %TODO figure before and after stretching. Print deformation gradient at end
+To setup the biaxial stretching of square sheet, the side length and number of nodes per side are specified as 0.1 m and 3, respectively. The resulting mesh is displayed in figure \ref{fig: 2d mesh}. For the purposes of demonstrating a finer mesh, a sheet with 25 nodes per side is displayed as well.
 
-\subsection{Transverse Loading of Sheet}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{mesh_coarse.png} \quad
+	\includegraphics[width=3.25in]{mesh_fine.png} 
+	\caption{2D mesh for a square sheet with a coarse mesh of 3 nodes per side, and a fine mesh of 25 nodes per side.} 
+	\label{fig: 2d mesh}
+\end{figure}
+
+The prescribed displacements are applied to the edge nodes by specifying a stretch ratio of 1.5, indicating that the final length of the sheet should be .15 m. A 3D plot of the body is displayed before and after deformation in figure \ref{fig: stretched sheet} to show the results of the analysis. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{unstretched_sheet.png} \quad
+	\includegraphics[width=3.25in]{stretched_sheet.png} 
+	\caption{2D mesh for a square sheet with .} 
+	\label{fig: stretched sheet}
+\end{figure}
+
+For this particular mesh, only the middle node is unconstrained. All other nodes are on the edge and are therefore assigned prescribed displacements. When watching the body deform in real time, the middle node can be observed shifting diagonally during the Newton-Raphson solver loop as it moves to catch up with the deformation of the edges. 
+
+The results agree with what is expected, as the deformation gradient at all quadrature points has in-plane diagonal components nearly equal to the stretch ratio of 1.5. For this mesh, the deformation at the end is:
+\begin{equation}
+F = 
+\begin{bmatrix}
+1.55 & 0 & 0 \\
+0 & 1.55 & 0 \\
+0 & 0 & .45
+\end{bmatrix}
+\end{equation}
+This is error is likely due to the coarse mesh being used. Refining the mesh to use 5 nodes per side gives:
+\begin{equation}
+F = 
+\begin{bmatrix}
+1.525 & 0 & 0 \\
+0 & 1.525 & 0 \\
+0 & 0 & .465
+\end{bmatrix}
+\end{equation}
+This result is closer to the expected answer, demonstrating that refining the mesh leads to better accuracy. 
+
+\subsection{Transverse Loading of a Sheet}
 %TODO try with quadratic elements too, 10 small steps
+In this problem, we are looking at the uniform transverse loading of a sheet. The material properties are given by $\lambda_0 = 4 \times 10^6 N/m^2$ and $\mu_0 = 4 \times 10^5 N/m^2$. The sheet has dimensions .10 m $\times$ .10 m $\times$ .001 m. A load of $1000 N/m^2$ is applied downward on the sheet, and the load is incremented over 100 steps, with an incremental load of $10 N/m^2$. 
+
+The deformed sheet is displayed in figure \ref{fig: transverse loading} at half and maximum loading. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{deformed_sheet_half_load.png} \quad
+	\includegraphics[width=3.25in]{deformed_sheet_max_load.png} 
+	\caption{Deformed sheet due to transverse loading at half and maximum loading.} 
+	\label{fig: transverse loading}
+\end{figure}
+Notice that the maximum deflection of the sheet at half load is more than half the final deflection. This indicates the nonlinearity of the material response as it shows greater resistance to deformation when stretched further from its reference position. This behavior is demonstrated by figure \ref{fig: load vs deflection}. The material experiences a very large deformation over the first several load steps, but the displacements decrease from one step to the next as the total deflection increases. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{load_vs_deflection.png}
+	\caption{Deformed sheet due to transverse loading at half and maximum loading.} 
+	\label{fig: load vs deflection}
+\end{figure}
 
 \subsection{Inflation of Spherical Balloon}
 

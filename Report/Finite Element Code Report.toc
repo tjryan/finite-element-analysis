@@ -70,7 +70,7 @@
 \contentsline {section}{\numberline {5}Results and Discussions}{29}
 \contentsline {subsection}{\numberline {5.1}Uniaxial Deformation of a Cylinder}{29}
 \contentsline {subsection}{\numberline {5.2}Biaxial Stretching of a Square Membrane}{30}
-\contentsline {subsection}{\numberline {5.3}Transverse Loading of Sheet}{30}
-\contentsline {subsection}{\numberline {5.4}Inflation of Spherical Balloon}{30}
-\contentsline {section}{\numberline {6}Conclusions}{30}
-\contentsline {section}{\numberline {7}Source Code Listing}{30}
+\contentsline {subsection}{\numberline {5.3}Transverse Loading of a Sheet}{31}
+\contentsline {subsection}{\numberline {5.4}Inflation of Spherical Balloon}{32}
+\contentsline {section}{\numberline {6}Conclusions}{32}
+\contentsline {section}{\numberline {7}Source Code Listing}{32}

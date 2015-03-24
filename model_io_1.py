@@ -198,10 +198,9 @@ def uniaxial_deformation():
 
 
 def equibiaxial_deformation():
-    fem = model.Model()
-    fem.constitutive_model = constitutive_models.Neohookean()
+    constitutive_model = constitutive_models.Neohookean()
     # fem.material = materials.TitaniumAlloy()
-    fem.material = materials.Custom('custom material', first_lame_parameter=5, shear_modulus=3)
+    material = materials.Custom('custom material', first_lame_parameter=5, shear_modulus=3)
     random_deformation = operations.generate_random_deformation_gradient(plane_stress=True, equibiaxial=True)
     # For a range of F11 values, compute the first Piola-Kirchhoff stress
     f11_values = numpy.arange(.2, 1.6, .2)
@@ -209,7 +208,6 @@ def equibiaxial_deformation():
     for f11_value in f11_values:
         random_deformation[0][0] = f11_value
         random_deformation[1][1] = f11_value
-        deformation_gradient = DeformationGradient()
         deformation_gradient.update_F(new_F=random_deformation,
                                       material=fem.material,
                                       constitutive_model=fem.constitutive_model,
