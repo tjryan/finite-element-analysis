@@ -301,25 +301,43 @@ def numerical_differentiation_shape_functions(element_class, position, h=1e-5):
     :param tuple position: coordinates of point at which to evaluate
     :param float h: a small deviation that perturbs the evaluation points of the stress tensor
     """
-    for node_index in range(element_class.node_quantity):
-        for coordinate_index in range(element_class.dimension):
-            # Check shape function derivative with respect to the specified coordinate by perturbing it
-            perturbed_r_plus = position[0] + h * (coordinate_index == 0)
-            perturbed_s_plus = position[1] + h * (coordinate_index == 1)
-            perturbed_r_minus = position[0] - h * (coordinate_index == 0)
-            perturbed_s_minus = position[1] - h * (coordinate_index == 1)
-            shape_function_plus = element_class.shape_functions(node_index=node_index,
-                                                                position=(perturbed_r_plus, perturbed_s_plus))
-            shape_function_minus = element_class.shape_functions(node_index=node_index,
-                                                                 position=(perturbed_r_minus, perturbed_s_minus))
-            numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
-            computed_value = element_class.shape_function_derivatives(node_index=node_index, position=position,
-                                                                      coordinate_index=coordinate_index)
-            error = abs(computed_value - numerical_value)
-            # If the result is not within tolerance of the provided value, raise an error
-            if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
-                raise exceptions.DifferentiationError(difference=error,
-                                                      tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+    h_values = numpy.logspace(10, -10, num=100)
+    max_errors = []
+    for h in h_values:
+        errors = []
+        for node_index in range(element_class.node_quantity):
+            for coordinate_index in range(element_class.dimension):
+                # Check shape function derivative with respect to the specified coordinate by perturbing it
+                perturbed_r_plus = position[0] + h * (coordinate_index == 0)
+                perturbed_s_plus = position[1] + h * (coordinate_index == 1)
+                perturbed_r_minus = position[0] - h * (coordinate_index == 0)
+                perturbed_s_minus = position[1] - h * (coordinate_index == 1)
+                shape_function_plus = element_class.shape_functions(node_index=node_index,
+                                                                    position=(perturbed_r_plus, perturbed_s_plus))
+                shape_function_minus = element_class.shape_functions(node_index=node_index,
+                                                                     position=(perturbed_r_minus, perturbed_s_minus))
+                numerical_value = (shape_function_plus - shape_function_minus) / (2 * h)
+                computed_value = element_class.shape_function_derivatives(node_index=node_index, position=position,
+                                                                          coordinate_index=coordinate_index)
+                error = abs(computed_value - numerical_value)
+                errors.append(error)
+                # If the result is not within tolerance of the provided value, raise an error
+                # if error > constants.NUMERICAL_DIFFERENTIATION_TOLERANCE:
+                # raise exceptions.DifferentiationError(difference=error,
+                # tolerance=constants.NUMERICAL_DIFFERENTIATION_TOLERANCE)
+        max_errors.append(max(errors))
+    import matplotlib.pyplot as plt
+
+    plt.figure()
+    plt.plot(h_values, max_errors, 'b')
+    plt.xscale('log')
+    plt.yscale('log')
+    # plt.ylim(10e-10, 10e-3)
+    plt.title('Quadratic Element')
+    plt.xlabel('h')
+    plt.ylabel('error')
+    plt.legend(loc='best')
+    plt.show()
 
 
 def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-5):
@@ -347,14 +365,14 @@ def numerical_differentiation_stiffness_matrix(element, stiffness_matrix, h=1e-5
                     for quadrature_point in element.quadrature_points:
                         quadrature_point.update_current_configuration(element)
                     # Calculate the perturbed strain energy
-                    force_array_plus = element.calculate_force_array(test=False)
+                    force_array_plus = element.calculate_internal_force_array(test=False)
                     # Perturb current position of the node in the negative direction
                     element.nodes[node_index_2].current_position[dof_2] -= 2 * h
                     # Update deformation gradient and strain energy density for each quadrature point
                     for quadrature_point in element.quadrature_points:
                         quadrature_point.update_current_configuration(element)
                     # Calculate the perturbed strain energy
-                    force_array_minus = element.calculate_force_array(test=False)
+                    force_array_minus = element.calculate_internal_force_array(test=False)
                     # Compute the result of numerical differentiation
                     numerical_value = (force_array_plus[dof_1][node_index_1] - force_array_minus[dof_1][
                         node_index_1]) / (2 * h)
@@ -430,9 +448,6 @@ def rank_stiffness_matrix(element, stiffness_matrix):
     :param element: element for which to check the stiffness matrix
     :param stiffness_matrix: stiffness matrix to test
     """
-    # NOTE: numpy reshape putting things in the wrong order, I need to be careful about this.
-    # reshaped_stiffness_matrix = numpy.reshape(stiffness_matrix, (
-    # element.degrees_of_freedom * element.node_quantity, element.degrees_of_freedom * element.node_quantity))
     reshaped_dimensions = (element.degrees_of_freedom * element.node_quantity,
                            element.degrees_of_freedom * element.node_quantity)
     reshaped_stiffness_matrix = numpy.zeros(reshaped_dimensions)
@@ -444,9 +459,9 @@ def rank_stiffness_matrix(element, stiffness_matrix):
                     index_1 = element.degrees_of_freedom * a + i
                     index_2 = element.degrees_of_freedom * b + k
                     reshaped_stiffness_matrix[index_1][index_2] = stiffness_matrix[i][a][k][b]
-    rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix, tol=.0001)
-    print('rank:', rank)
-    return rank
+    # Check for symmetry
+    is_symmetric = (reshaped_stiffness_matrix.all() == reshaped_stiffness_matrix.T.all())
+    rank = numpy.linalg.matrix_rank(reshaped_stiffness_matrix, tol=1e-10)
 
 
 def shape_functions(element_class):

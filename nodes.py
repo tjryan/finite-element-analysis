@@ -3,7 +3,7 @@ nodes.py contains the nodes for the finite elements.
 
 .. moduleauthor:: Tyler Ryan <tyler.ryan@engineering.ucla.edu>
 """
-import operations
+import numpy
 
 
 class Node:
@@ -12,19 +12,17 @@ class Node:
 
     :param int global_id: unique global ID for the node
     :param list reference_position: reference position of the node in 3D
-    :param list prescribed_dof: prescribed displacements for each degree of freedom of the node
+    :param list prescribed_displacements: prescribed displacements for each degree of freedom of the node
     """
 
-    def __init__(self, global_id, reference_position, prescribed_dof):
+    def __init__(self, global_id, reference_position, prescribed_displacements):
         self.global_id = global_id
         self.reference_position = reference_position
         self.current_position = reference_position.copy()
-        self.prescribed_dof = prescribed_dof
+        self.prescribed_displacements = prescribed_displacements
 
-    def update_current_position(self):
-        """Update the current position of the node."""
-        # TODO implement this. For now we'll add a small perturbation to the previous deformed position
-        operations.generate_random_node_current_position(node=self)
+        # For displacement solving
+        self.displacement_step = numpy.array([None] * 3)
 
 
 class CornerNode(Node):
@@ -32,13 +30,13 @@ class CornerNode(Node):
 
     :param int global_id: unique global ID for the node
     :param list reference_position: reference position of the node in 3D
-    :param list prescribed_dof: prescribed displacements for each degree of freedom of the node
+    :param list prescribed_displacements: prescribed displacements for each degree of freedom of the node
     """
 
-    def __init__(self, global_id, reference_position, prescribed_dof):
+    def __init__(self, global_id, reference_position, prescribed_displacements):
         super(CornerNode, self).__init__(global_id=global_id,
                                          reference_position=reference_position,
-                                         prescribed_dof=prescribed_dof)
+                                         prescribed_displacements=prescribed_displacements)
 
 
 class MidpointNode(Node):
@@ -46,10 +44,10 @@ class MidpointNode(Node):
 
     :param int global_id: unique global ID for the node
     :param list reference_position: reference position of the node in 3D
-    :param list prescribed_dof: prescribed displacements for each degree of freedom of the node
+    :param list prescribed_displacements: prescribed displacements for each degree of freedom of the node
     """
 
-    def __init__(self, global_id, reference_position, prescribed_dof):
+    def __init__(self, global_id, reference_position, prescribed_displacements):
         super(MidpointNode, self).__init__(global_id=global_id,
                                            reference_position=reference_position,
-                                           prescribed_dof=prescribed_dof)
+                                           prescribed_displacements=prescribed_displacements)

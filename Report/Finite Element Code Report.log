@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  20 MAR 2015 00:52
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2014.10.22)  24 MAR 2015 05:37
 entering extended mode
 **Finite*Element*Code*Report.tex
 
@@ -177,7 +177,11 @@ LaTeX Info: Redefining \ref on input line 353.
 LaTeX Info: Redefining \pageref on input line 353.
 )
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
-ort.aux")
+ort.aux"
+
+LaTeX Warning: Label `eq: linear element' multiply defined.
+
+)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
 LaTeX Font Info:    ... okay on input line 56.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
@@ -212,94 +216,105 @@ ort.toc" [1
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}])
 \tf@toc=\write3
- [2] [3]
-[4] [5] [6]
-<isoparametric_triangular_element.png, id=37, 945.5325pt x 423.83344pt>
+ [2]
+<isoparametric_triangular_element.png, id=12, 945.5325pt x 423.83344pt>
 File: isoparametric_triangular_element.png Graphic file (type png)
 
 <use isoparametric_triangular_element.png>
 Package pdftex.def Info: isoparametric_triangular_element.png used on input lin
-e 256.
+e 80.
 (pdftex.def)             Requested size: 505.89pt x 226.77127pt.
 
-Overfull \hbox (18.0675pt too wide) in paragraph at lines 256--257
+Overfull \hbox (18.0675pt too wide) in paragraph at lines 80--81
  [][] 
  []
 
-[7 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/isoparametric_triangu
-lar_element.png>]
+[3 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/isoparametric_triangu
+lar_element.png>] [4] [5] [6] [7] [8] [9] [10] [11] [12]
 
-LaTeX Warning: Reference `sec: gauss quadrature' on page 8 undefined on input l
-ine 286.
+LaTeX Warning: Reference `sec: gauss quadrature' on page 13 undefined on input 
+line 481.
 
-[8] [9] [10] [11] [12]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 452.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 508.
 
- ("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 452.
-[13] [14] [15] [16] [17] <error_good_F.png, id=78, 539.1342pt x 423.5022pt>
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 508.
+ [13] [14] [15]
+[16] [17] [18] [19] [20] [21] [22] [23]
+<error_good_F.png, id=96, 539.1342pt x 423.5022pt>
 File: error_good_F.png Graphic file (type png)
-
-<use error_good_F.png>
-Package pdftex.def Info: error_good_F.png used on input line 677.
+ <use error_good_F.png>
+Package pdftex.def Info: error_good_F.png used on input line 865.
 (pdftex.def)             Requested size: 234.87749pt x 184.49983pt.
- <error_bad_F.png, id=79, 534.798pt x 422.7795pt>
+
+<error_bad_F.png, id=97, 534.798pt x 422.7795pt>
 File: error_bad_F.png Graphic file (type png)
-
-<use error_bad_F.png>
-Package pdftex.def Info: error_bad_F.png used on input line 678.
+ <use error_bad_F.png>
+Package pdftex.def Info: error_bad_F.png used on input line 866.
 (pdftex.def)             Requested size: 234.87749pt x 185.68164pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[18 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_good_F.png> <C
-:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>]
-<error_undeformed.png, id=85, 589.0005pt x 444.4605pt>
+ [24 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_good_F.png> <
+C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_bad_F.png>]
+<error_undeformed.png, id=106, 589.0005pt x 444.4605pt>
 File: error_undeformed.png Graphic file (type png)
 
 <use error_undeformed.png>
-Package pdftex.def Info: error_undeformed.png used on input line 711.
+Package pdftex.def Info: error_undeformed.png used on input line 899.
 (pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
 
-<error_deformed.png, id=86, 589.0005pt x 444.4605pt>
+<error_deformed.png, id=107, 589.0005pt x 444.4605pt>
 File: error_deformed.png Graphic file (type png)
  <use error_deformed.png>
-Package pdftex.def Info: error_deformed.png used on input line 712.
+Package pdftex.def Info: error_deformed.png used on input line 900.
 (pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
 
+<shape_function_error_linear.png, id=108, 589.0005pt x 444.4605pt>
+File: shape_function_error_linear.png Graphic file (type png)
+
+<use shape_function_error_linear.png>
+Package pdftex.def Info: shape_function_error_linear.png used on input line 909
+.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+
+<shape_function_error_quadratic.png, id=109, 589.0005pt x 444.4605pt>
+File: shape_function_error_quadratic.png Graphic file (type png)
+
+<use shape_function_error_quadratic.png>
+Package pdftex.def Info: shape_function_error_quadratic.png used on input line 
+910.
+(pdftex.def)             Requested size: 234.87749pt x 177.2385pt.
+ [25 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_undeformed.pn
+g> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_deformed.png> <
+C:/Users/Tyler/Desktop/Finite Element Analysis/Report/shape_function_error_line
+ar.png> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/shape_function_e
+rror_quadratic.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
+[26]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[19 <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_undeformed.png
-> <C:/Users/Tyler/Desktop/Finite Element Analysis/Report/error_deformed.png>]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[20] [21]
+[27] [28] [29] [30]
 ("C:\Users\Tyler\Desktop\Finite Element Analysis\Report\Finite Element Code Rep
 ort.aux")
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
  ) 
 Here is how much of TeX's memory you used:
- 2474 strings out of 493921
- 33266 string characters out of 3147281
- 102441 words of memory out of 3000000
- 5731 multiletter control sequences out of 15000+200000
+ 2504 strings out of 493921
+ 34211 string characters out of 3147281
+ 101210 words of memory out of 3000000
+ 5759 multiletter control sequences out of 15000+200000
  12531 words of font info for 44 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 42i,14n,21p,1489b,274s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 42i,14n,21p,1425b,276s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbsy10.pfb><C:/P
 rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cmextra/cmbsy7.pfb><C:/Prog
 ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program File
@@ -322,9 +337,9 @@ ts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9
 Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on "Finite Element Code Report.pdf" (21 pages, 530505 bytes).
+Output written on "Finite Element Code Report.pdf" (30 pages, 625190 bytes).
 PDF statistics:
- 175 PDF objects out of 1000 (max. 8388607)
+ 207 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 26 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

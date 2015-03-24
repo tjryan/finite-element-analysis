@@ -74,7 +74,7 @@ class QuadraturePoint:
         self.weight = weight
 
         # Updated every deformation
-        self.stretch_ratio = 1
+        self.stretch_ratio = 1.0
         self.current_configuration = configurations.CurrentConfiguration()
         self.deformation_gradient = None
         self.jacobian = None
@@ -106,7 +106,7 @@ class QuadraturePoint:
         while True:
             test_deformation_gradient = self.deformation_gradient + stretch_ratio * numpy.outer(
                 self.current_configuration.midsurface_basis[2],
-                self.current_configuration.midsurface_basis_contravariant[2])
+                element.reference_configuration.midsurface_basis_contravariant[2])
             first_piola_kirchhoff_stress = element.constitutive_model.first_piola_kirchhoff_stress(
                 material=element.material,
                 deformation_gradient=test_deformation_gradient,
@@ -119,9 +119,11 @@ class QuadraturePoint:
             if error < constants.NEWTON_METHOD_TOLERANCE:
                 break
             tangent_moduli_contravariant_3333 = element.constitutive_model.tangent_moduli_contravariant(
+                material=element.material,
                 deformation_gradient=test_deformation_gradient,
-                quadrature_point=self,
-                C_3333=True)
+                first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
+                element=element,
+                c_3333=True)
             delta_stretch = - kirchhoff_stress_contravariant_33 / (
                 2 * stretch_ratio * tangent_moduli_contravariant_3333)
             stretch_ratio += delta_stretch
@@ -161,7 +163,7 @@ class QuadraturePoint:
         """
         # Deformation gradient initialized as a 3x3 matrix, always
         self.deformation_gradient = sum([numpy.outer(self.current_configuration.midsurface_basis[coordinate_index],
-                                                     self.current_configuration.midsurface_basis_contravariant[
+                                                     element.reference_configuration.midsurface_basis_contravariant[
                                                          coordinate_index]) for coordinate_index in
                                          range(element.dimension)])
         # Always enforce plane stress

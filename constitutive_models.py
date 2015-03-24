@@ -46,6 +46,7 @@ class Neohookean:
                                             test=test)
         tangent_moduli_effective_2d = cls.tangent_moduli_contravariant(material=material,
                                                                        deformation_gradient=deformation_gradient,
+                                                                       first_piola_kirchhoff_stress=first_piola_kirchhoff_stress,
                                                                        element=element,
                                                                        tangent_moduli=tangent_moduli)
         return (strain_energy_density, first_piola_kirchhoff_stress, kirchhoff_stress, tangent_moduli,
@@ -152,38 +153,41 @@ class Neohookean:
         return tangent_moduli
 
     @classmethod
-    def tangent_moduli_contravariant(cls, material, deformation_gradient, element, dimension=2,
-                                     tangent_moduli=None, c_3333=False):
+    def tangent_moduli_contravariant(cls, material, deformation_gradient, first_piola_kirchhoff_stress, element,
+                                     dimension=2, tangent_moduli=None, c_3333=False):
         """Compute the contravariant components of the tangent moduli.
 
         :param material: material of the element
         :param deformation_gradient: deformation gradient of the quadrature point
+        :param first_piola_kirchhoff_stress: first Piola-Kirchhoff stress at the quadrature point
         :param element: element for which to evaluate
         :param dimension: request number of dimensions of the result
         :param tangent_moduli: existing tangent moduli to use for computation
         :param c_3333: whether to only compute the last component (for use in enforcing plane stress):
         """
         # If a tangent moduli is not provided, compute the regular 3D tangent moduli (C_iJkL)
-        if not tangent_moduli.any():
+        if tangent_moduli is None:
             tangent_moduli = cls.tangent_moduli(material=material, deformation_gradient=deformation_gradient)
         # Compute the inverse of the deformation gradient for use below
         deformation_gradient_inverse = numpy.linalg.inv(deformation_gradient)
+        # Compute the second Piola-Kirchhoff stress for use below
+        second_piola_kirchhoff_stress = numpy.dot(deformation_gradient_inverse, first_piola_kirchhoff_stress)
         # Compute lab frame tangent moduli (C_IJKL)
-        tangent_moduli_lab = numpy.zeros(tangent_moduli.shape)
+        dimensions = (element.degrees_of_freedom, element.degrees_of_freedom,
+                      element.degrees_of_freedom, element.degrees_of_freedom)
+        tangent_moduli_lab = numpy.zeros(dimensions)
         for lab_index_1 in range(3):
             for lab_index_2 in range(3):
                 for lab_index_3 in range(3):
                     for lab_index_4 in range(3):
                         for dof_1 in range(3):
-                            for dof_2 in range(3):
-                                for dof_3 in range(3):
-                                    for dof_4 in range(3):
-                                        tangent_moduli_lab[lab_index_1][lab_index_2][lab_index_3][lab_index_4] += (
-                                            .5 * deformation_gradient_inverse[lab_index_1][dof_1] *
-                                            deformation_gradient_inverse[lab_index_3][dof_3] *
-                                            (tangent_moduli[dof_1][lab_index_2][dof_3][lab_index_4] - 1 *
-                                             (dof_1 == dof_3) * (lab_index_2 == lab_index_4))
-                                        )
+                            for dof_3 in range(3):
+                                tangent_moduli_lab[lab_index_1][lab_index_2][lab_index_3][lab_index_4] += (
+                                    .5 * deformation_gradient_inverse[lab_index_1][dof_1] *
+                                    deformation_gradient_inverse[lab_index_3][dof_3] *
+                                    (tangent_moduli[dof_1][lab_index_2][dof_3][lab_index_4] - 1 *
+                                     second_piola_kirchhoff_stress[lab_index_2][lab_index_4] * (dof_1 == dof_3))
+                                )
         # If C^3333 is requested, return C^3333
         if c_3333:
             tangent_moduli_contravariant_3333 = 0

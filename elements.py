@@ -29,7 +29,7 @@ class BaseElement:
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
-    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray internal_force_array: 2D matrix containing the effective forces on each node of the element
     :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
     """
     dimension = 0
@@ -55,10 +55,39 @@ class BaseElement:
 
         # Properties that change with each deformation
         self.strain_energy = None
-        self.force_array = None
+        self.internal_force_array = None
         self.stiffness_matrix = None
 
-    def calculate_force_array(self, test=False):
+        # Changes with each load step
+        self.external_force_array = None
+
+    def calculate_external_force_array(self, current_load):
+        """Calculate the external force array from the current load.
+
+        :param current_load: vector of current transverse load applied to the membrane (force/area)
+        """
+        dimensions = (self.degrees_of_freedom, self.node_quantity)
+        external_force_array = numpy.zeros(dimensions)
+        # Sum over quadrature points
+        for quadrature_point in self.quadrature_points:
+            # Initialize integrand to be computed for this quadrature point
+            integrand = numpy.zeros(dimensions)
+            for dof in range(self.degrees_of_freedom):
+                for node_index in range(self.node_quantity):
+                    integrand[dof][node_index] += (
+                        current_load[dof] * self.shape_functions(node_index=node_index,
+                                                                 position=quadrature_point.position)
+                    )
+            # Weight the integrand
+            integrand *= quadrature_point.weight
+            # Add the integrand to the internal_force_array
+            external_force_array += integrand
+        # Scale the force array for isoparametric triangle and differential area (no thickness because applied
+        # traction is not a body force, so we are integrating only over an area
+        external_force_array *= .5 * self.reference_configuration.differential_area
+        return external_force_array
+
+    def calculate_internal_force_array(self, test=False):
         """Computes the 3D internal nodal force array for the element for the current configuration using Gauss
         quadrature. Runs for each deformed configuration in the analysis.
 
@@ -67,7 +96,8 @@ class BaseElement:
         :param bool test: whether to perform numerical differentiation check on the result
         """
         # Initialize force array
-        force_array = numpy.zeros((self.degrees_of_freedom, self.node_quantity))
+        dimensions = (self.degrees_of_freedom, self.node_quantity)
+        internal_force_array = numpy.zeros(dimensions)
         # Sum over quadrature points
         for quadrature_point in self.quadrature_points:
             # Initialize integrand to be computed for this quadrature point
@@ -85,13 +115,13 @@ class BaseElement:
                                                                   coordinate_index=coordinate_index))
             # Weight the integrand
             integrand *= quadrature_point.weight
-            # Add the integrand to the force_array
-            force_array += integrand
+            # Add the integrand to the internal_force_array
+            internal_force_array += integrand
         # Scale the force array for isoparametric triangle and multiply by the thickness and differential area
-        force_array *= .5 * self.thickness * self.reference_configuration.differential_area
+        internal_force_array *= .5 * self.thickness * self.reference_configuration.differential_area
         if test:
-            tests.numerical_differentiation_force_array(element=self, force_array=force_array)
-        return force_array
+            tests.numerical_differentiation_force_array(element=self, force_array=internal_force_array)
+        return internal_force_array
 
     def calculate_jacobian_matrix(self):
         """Calculate the Jacobian matrix for the element. This is a one time calculation performed during the
@@ -119,7 +149,7 @@ class BaseElement:
              self.quadrature_points])
         return strain_energy
 
-    def calculate_stiffness_matrix(self, test=True, rank=True):
+    def calculate_stiffness_matrix(self, test=False, rank=False):
         """Computes the 4th order stiffness tensor for the element using Gauss quadrature. Runs for each deformed
         configuration in the analysis. Uses the 2D effective covariant tangent moduli, deformed midsurface basis
         vectors, kirchhoff stress, and differential area to account for the curvilinear coordinate system.
@@ -144,27 +174,21 @@ class BaseElement:
                                     for coordinate_index_3 in range(self.dimension):
                                         for coordinate_index_4 in range(self.dimension):
                                             integrand[dof_1][node_index_1][dof_2][node_index_2] += (
-                                                2 * quadrature_point.tangent_moduli_effective_2d[coordinate_index_1][
+                                                (2 * quadrature_point.tangent_moduli_effective_2d[coordinate_index_1][
                                                     coordinate_index_2][coordinate_index_3][coordinate_index_4]
-                                                * numpy.outer(quadrature_point.current_configuration.midsurface_basis[
-                                                                  coordinate_index_2],
-                                                              quadrature_point.current_configuration.midsurface_basis[
-                                                                  coordinate_index_4])[dof_1][dof_2]
-                                                * self.shape_function_derivatives(node_index=node_index_1,
-                                                                                  position=quadrature_point.position,
-                                                                                  coordinate_index=coordinate_index_1)
+                                                 * numpy.outer(quadrature_point.current_configuration.midsurface_basis[
+                                                                   coordinate_index_2],
+                                                               quadrature_point.current_configuration.midsurface_basis[
+                                                                   coordinate_index_4])[dof_1][dof_2]
+                                                 + .5 * quadrature_point.kirchhoff_stress[coordinate_index_1][
+                                                     coordinate_index_2] * (dof_1 == dof_2)
+                                                 * (coordinate_index_2 == coordinate_index_3)
+                                                ) * self.shape_function_derivatives(node_index=node_index_1,
+                                                                                    position=quadrature_point.position,
+                                                                                    coordinate_index=coordinate_index_1)
                                                 * self.shape_function_derivatives(node_index=node_index_2,
                                                                                   position=quadrature_point.position,
                                                                                   coordinate_index=coordinate_index_3)
-                                                + .5 * quadrature_point.kirchhoff_stress[coordinate_index_1][
-                                                    coordinate_index_2]
-                                                * self.shape_function_derivatives(node_index=node_index_1,
-                                                                                  position=quadrature_point.position,
-                                                                                  coordinate_index=coordinate_index_1)
-                                                * self.shape_function_derivatives(node_index=node_index_2,
-                                                                                  position=quadrature_point.position,
-                                                                                  coordinate_index=coordinate_index_2)
-                                                * (dof_1 == dof_2)
                                             )
             # Weight the integrand
             integrand *= quadrature_point.weight
@@ -205,11 +229,19 @@ class BaseElement:
         """Update the strain energy density, internal force array, and stiffness matrix for the element for the current
         configuration."""
         self.update_strain_energy()
-        self.update_force_array()
+        self.update_internal_force_array()
         self.update_stiffness_matrix()
 
-    def update_force_array(self):
-        self.force_array = self.calculate_force_array()
+    def update_external_force_array(self, current_load):
+        """Update external force array for the current applied loading.
+
+        :param current_load: vector of current transverse load applied to the membrane (force/area)
+        """
+        self.external_force_array = self.calculate_external_force_array(current_load)
+
+    def update_internal_force_array(self):
+        """Update internal force array for the current deformation."""
+        self.internal_force_array = self.calculate_internal_force_array()
 
     def update_strain_energy(self):
         """Update the strain energy for the current deformation."""
@@ -253,7 +285,7 @@ class BaseElement:
              self.quadrature_points])
         return strain_energy
 
-    def calculate_force_array_old(self, test=False):
+    def calculate_internal_force_array_old(self, test=False):
         """Computes the 2D internal nodal force array for the element for the current configuration using Gauss
         quadrature. Runs for each deformed configuration in the analysis.
 
@@ -280,7 +312,7 @@ class BaseElement:
                                 * self.jacobian_matrix_inverse[coordinate_index][dof_2])
             # Weight the integrand
             integrand *= quadrature_point.weight
-            # Add the integrand to the force_array
+            # Add the integrand to the internal_force_array
             force_array += integrand
         # Scale the force array for isoparametric triangle and multiply by the thickness (assumed to be constant)
         force_array *= .5 * self.thickness
@@ -352,7 +384,7 @@ class TriangularLinearElement(BaseElement):
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
-    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray internal_force_array: 2D matrix containing the effective forces on each node of the element
     :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
     """
 
@@ -433,7 +465,7 @@ class TriangularQuadraticElement(BaseElement):
     :ivar list nodes: list of node objects contained in the element
     :ivar list quadrature_points: list of quadrature point objects contained in the element
     :ivar float strain_energy: strain energy of the element
-    :ivar numpy.ndarray force_array: 2D matrix containing the effective forces on each node of the element
+    :ivar numpy.ndarray internal_force_array: 2D matrix containing the effective forces on each node of the element
     :ivar numpy.ndarray stiffness_matrix: 4D matrix describing the stiffness of the element against deformation
     """
 
