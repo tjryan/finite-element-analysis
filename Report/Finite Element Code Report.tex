@@ -732,7 +732,7 @@ After the mesh has been created, the model computes a few useful quantities rela
 \paragraph{create\_quadrature\_points}
 The last thing to do before starting the analysis is to add the quadrature points to all the elements. Every element receives the an identical set of quadrature points determined by the quadrature class being used in the analysis.
 
-\subsubsection{Solve}
+\subsubsection{Solving}
 The solver loop uses the Newton-Raphson method to iteratively solve a problem of incremental loading or prescribed nodal displacement.
 
 \paragraph{Perturb the Nodes} 
@@ -1150,8 +1150,34 @@ Note that the deformation gradient does not depend on the choice of $R$ or $\Phi
 These matrices match those computed by hand.
 %TODO add plots for stress strain for uniaxial and equibiaxial deformation
 
+\subsection{Uniaxial and Equibiaxial Deformation of a Sheet}
+As a simple test of the Neohookean constitutive model and plane stress enforcement in two dimensions, we will look at the stress-strain curve for the uniaxial and equibiaxial deformation of a sheet in two dimensions. Uniaxial deformation means deformation along only one axis of the body, which corresponds to a deformation gradient of the form:
+\begin{equation}
+F_{uniaxial} = 
+\begin{bmatrix}
+F_{11} & 0 \\
+0 & 1  \\
+\end{bmatrix}
+\end{equation}
+An equibiaxial deformation corresponds to equal deformation along two axes, which corresponds to a deformation gradient of the form:
+\begin{equation}
+F_{equibiaxial} = 
+\begin{bmatrix}
+	F_{11} & 0 \\
+	0 & F_{11}  \\
+\end{bmatrix}
+\end{equation}
+By varying the value of $F_{11}$ over a small range for two different materials and passing the deformation gradients to the Neohookean constitutive model, we can determine the first Piola-Kirchhoff stress that results in the sheet. For uniaxial deformation, there will be normal stresses with different values along the two axes. For equibiaxial deformation, the even deformation will result in the same stress along both axes. The resulting stress-strain curves for the two deformation cases are displayed in figure \ref{fig: axial deformation}. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3.25in]{uniaxial_stress_strain.png} \quad
+	\includegraphics[width=3.25in]{equibiaxial_stress_strain.png} 
+	\caption{Stress-strain curves for the uniaxial deformation of glass and the equibiaxial deformation of titanium alloy.} 
+	\label{fig: axial deformation}
+\end{figure}
+In the uniaxial deformation case, the stress along the second axis is significantly smaller than the stress along the first axis. This makes sense because the deformation was applied to the first axis only, and resulting in less deformation along the second axis and a smaller stress. 
+
 \subsection{Biaxial Stretching of a Square Membrane}
-%TODO figure before and after stretching. Print deformation gradient at end
 To setup the biaxial stretching of square sheet, the side length and number of nodes per side are specified as 0.1 m and 3, respectively. The resulting mesh is displayed in figure \ref{fig: 2d mesh}. For the purposes of demonstrating a finer mesh, a sheet with 25 nodes per side is displayed as well.
 
 \begin{figure}[h]
@@ -1168,7 +1194,7 @@ The prescribed displacements are applied to the edge nodes by specifying a stret
 	\centering
 	\includegraphics[width=3.25in]{unstretched_sheet.png} \quad
 	\includegraphics[width=3.25in]{stretched_sheet.png} 
-	\caption{2D mesh for a square sheet with .} 
+	\caption{Configuration of the sheet before and after deformation.} 
 	\label{fig: stretched sheet}
 \end{figure}
 
