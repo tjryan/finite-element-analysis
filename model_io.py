@@ -143,11 +143,11 @@ for node_index in range(corner_node_quantity):
     for dof in range(3):
         if node_reference_positions_3d[node_index][dof] == 0:
             prescribed_displacements[node_index][dof] = 0
-applied_load = numpy.array([0, 0, 100000])
+applied_load = numpy.array([0, 0, 10000])
 solve_loading_problem = True
 solve_displacement_problem = False
 balloon_internal_pressure = True
-step_quantity = 24
+step_quantity = 10
 
 # Create Model and run
 model = model.Model(material=material,
