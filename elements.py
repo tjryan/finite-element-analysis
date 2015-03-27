@@ -61,13 +61,26 @@ class BaseElement:
         # Changes with each load step
         self.external_force_array = None
 
-    def calculate_external_force_array(self, current_load):
+    def calculate_external_force_array(self, current_load, balloon_internal_pressure):
         """Calculate the external force array from the current load.
 
         :param current_load: vector of current transverse load applied to the membrane (force/area)
+        :param bool balloon_internal_pressure: whether to solve for internal pressure applied to balloon
         """
         dimensions = (self.degrees_of_freedom, self.node_quantity)
         external_force_array = numpy.zeros(dimensions)
+        # If there is a balloon internal pressure, set the current load based on position of element centroid
+        if balloon_internal_pressure:
+            # Add the x, y, and z positions to the position vector and divide by 3 to find the centroid
+            load_position_vector = numpy.zeros(3)
+            for node in self.nodes:
+                for dof_index in range(self.degrees_of_freedom):
+                    load_position_vector[dof_index] += node.current_position[dof_index]
+            load_position_vector *= 1/3
+            # Normalize to unit vector
+            unit_position_vector = load_position_vector / numpy.linalg.norm(load_position_vector)
+            # Set current load components along unit vector
+            current_load = current_load[2] * unit_position_vector
         # Sum over quadrature points
         for quadrature_point in self.quadrature_points:
             # Initialize integrand to be computed for this quadrature point
@@ -232,12 +245,13 @@ class BaseElement:
         self.update_internal_force_array()
         self.update_stiffness_matrix()
 
-    def update_external_force_array(self, current_load):
+    def update_external_force_array(self, current_load, balloon_internal_pressure):
         """Update external force array for the current applied loading.
 
         :param current_load: vector of current transverse load applied to the membrane (force/area)
+        :param bool balloon_internal_pressure: whether to solve for internal pressure applied to balloon
         """
-        self.external_force_array = self.calculate_external_force_array(current_load)
+        self.external_force_array = self.calculate_external_force_array(current_load, balloon_internal_pressure)
 
     def update_internal_force_array(self):
         """Update internal force array for the current deformation."""

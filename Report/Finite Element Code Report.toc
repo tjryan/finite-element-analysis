@@ -20,58 +20,59 @@
 \contentsline {subsection}{\numberline {2.9}Quadrature Points}{12}
 \contentsline {subsection}{\numberline {2.10}Gauss Quadrature}{12}
 \contentsline {subsection}{\numberline {2.11}Element Response}{13}
-\contentsline {subsection}{\numberline {2.12}Property Levels}{13}
-\contentsline {section}{\numberline {3}Code Architecture and Implementation}{14}
+\contentsline {subsubsection}{\numberline {2.11.1}Two Dimensions}{13}
+\contentsline {subsubsection}{\numberline {2.11.2}Three Dimensions}{13}
+\contentsline {subsection}{\numberline {2.12}Property Levels}{14}
+\contentsline {section}{\numberline {3}Code Architecture and Implementation}{15}
 \contentsline {subsection}{\numberline {3.1}Module Descriptions}{15}
-\contentsline {subsection}{\numberline {3.2}Finite Element Model}{15}
-\contentsline {subsection}{\numberline {3.3}Global Assembly}{15}
-\contentsline {subsection}{\numberline {3.4}Configurations}{15}
-\contentsline {subsection}{\numberline {3.5}Elements}{16}
-\contentsline {subsection}{\numberline {3.6}Nodes}{16}
-\contentsline {subsection}{\numberline {3.7}Shape Functions}{16}
-\contentsline {subsection}{\numberline {3.8}Quadrature Points}{16}
-\contentsline {subsection}{\numberline {3.9}Gauss Quadrature}{17}
-\contentsline {subsection}{\numberline {3.10}Constitutive Laws}{17}
-\contentsline {subsection}{\numberline {3.11}Nonlinear Solving}{17}
-\contentsline {subsubsection}{\numberline {3.11.1}Newton's Method}{17}
-\contentsline {subsubsection}{\numberline {3.11.2}Newton-Raphson Method}{18}
-\contentsline {paragraph}{Process}{18}
-\contentsline {subsection}{\numberline {3.12}Running the Model}{19}
-\contentsline {subsubsection}{\numberline {3.12.1}Setup}{19}
+\contentsline {subsection}{\numberline {3.2}Finite Element Model}{16}
+\contentsline {subsection}{\numberline {3.3}Configurations}{16}
+\contentsline {subsection}{\numberline {3.4}Elements}{16}
+\contentsline {subsection}{\numberline {3.5}Nodes}{16}
+\contentsline {subsection}{\numberline {3.6}Shape Functions}{16}
+\contentsline {subsection}{\numberline {3.7}Quadrature Points}{17}
+\contentsline {subsection}{\numberline {3.8}Gauss Quadrature}{17}
+\contentsline {subsection}{\numberline {3.9}Constitutive Law}{17}
+\contentsline {subsection}{\numberline {3.10}Nonlinear Solving}{18}
+\contentsline {subsubsection}{\numberline {3.10.1}Newton's Method}{18}
+\contentsline {subsubsection}{\numberline {3.10.2}Newton-Raphson Method}{18}
+\contentsline {paragraph}{Process}{19}
+\contentsline {subsection}{\numberline {3.11}Running the Model}{19}
+\contentsline {subsubsection}{\numberline {3.11.1}Setup}{19}
 \contentsline {paragraph}{Mesh}{19}
 \contentsline {paragraph}{Prescribed Boundary Conditions}{19}
 \contentsline {paragraph}{Loading}{19}
-\contentsline {subsubsection}{\numberline {3.12.2}Initializing and Running the Model}{19}
+\contentsline {subsubsection}{\numberline {3.11.2}Initializing and Running the Model}{20}
 \contentsline {paragraph}{create\_mesh}{20}
 \contentsline {paragraph}{calculate\_node\_and\_dof\_quantities}{20}
-\contentsline {paragraph}{create\_quadrature\_points}{20}
-\contentsline {subsubsection}{\numberline {3.12.3}Solving}{20}
-\contentsline {paragraph}{Perturb the Nodes}{20}
-\contentsline {paragraph}{Increment the Load}{20}
+\contentsline {paragraph}{create\_quadrature\_points}{21}
+\contentsline {subsubsection}{\numberline {3.11.3}Solving}{21}
+\contentsline {paragraph}{Perturb the Nodes}{21}
+\contentsline {paragraph}{Increment the Load}{21}
 \contentsline {paragraph}{Updating the Current Configuration}{21}
-\contentsline {paragraph}{Global Assembly}{21}
-\contentsline {paragraph}{Unrolling}{21}
+\contentsline {paragraph}{Global Assembly}{22}
+\contentsline {paragraph}{Unrolling}{22}
 \contentsline {paragraph}{Rearranging Global Quantities}{22}
-\contentsline {paragraph}{Checking for Convergence}{22}
+\contentsline {paragraph}{Checking for Convergence}{23}
 \contentsline {paragraph}{Output Results}{23}
 \contentsline {section}{\numberline {4}Verification Tests}{23}
 \contentsline {subsection}{\numberline {4.1}Numerical Differentiation}{23}
 \contentsline {paragraph}{Results}{24}
 \contentsline {paragraph}{Tolerance}{26}
-\contentsline {subsection}{\numberline {4.2}Gauss Quadrature}{26}
+\contentsline {subsection}{\numberline {4.2}Gauss Quadrature}{27}
 \contentsline {subsubsection}{\numberline {4.2.1}Stiffness Matrix Rank}{27}
-\contentsline {subsection}{\numberline {4.3}Material Frame Indifference}{27}
+\contentsline {subsection}{\numberline {4.3}Material Frame Indifference}{28}
 \contentsline {subsection}{\numberline {4.4}Material Symmetry}{28}
-\contentsline {subsection}{\numberline {4.5}Random Rotations}{28}
-\contentsline {subsection}{\numberline {4.6}Random Deformation Gradients}{28}
+\contentsline {subsection}{\numberline {4.5}Random Rotations}{29}
+\contentsline {subsection}{\numberline {4.6}Random Deformation Gradients}{29}
 \contentsline {subsection}{\numberline {4.7}Shape Functions}{29}
 \contentsline {subsubsection}{\numberline {4.7.1}Partition of Unity and Nullity}{29}
 \contentsline {subsubsection}{\numberline {4.7.2}Completeness}{29}
-\contentsline {section}{\numberline {5}Results and Discussions}{29}
-\contentsline {subsection}{\numberline {5.1}Uniaxial Deformation of a Cylinder}{29}
+\contentsline {section}{\numberline {5}Results and Discussions}{30}
+\contentsline {subsection}{\numberline {5.1}Uniaxial Deformation of a Cylinder}{30}
 \contentsline {subsection}{\numberline {5.2}Uniaxial and Equibiaxial Deformation of a Sheet}{30}
 \contentsline {subsection}{\numberline {5.3}Biaxial Stretching of a Square Membrane}{31}
 \contentsline {subsection}{\numberline {5.4}Transverse Loading of a Sheet}{32}
 \contentsline {subsection}{\numberline {5.5}Inflation of Spherical Balloon}{32}
-\contentsline {section}{\numberline {6}Conclusions}{32}
-\contentsline {section}{\numberline {7}Source Code Listing}{32}
+\contentsline {section}{\numberline {6}Conclusions}{34}
+\contentsline {section}{\numberline {7}Source Code Listing}{35}

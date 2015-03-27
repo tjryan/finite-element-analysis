@@ -41,113 +41,125 @@
 \newlabel{eq: Kirchhoff stress contravariant}{{47}{10}{Constitutive Law}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.8.1}Plane Stress}{10}}
 \@writefile{toc}{\contentsline {paragraph}{Two Dimensions}{10}}
-\newlabel{eq: 2d tangent moduli}{{67}{12}{Two Dimensions}{}{}}
+\newlabel{eq: 2d tangent moduli}{{67}{11}{Two Dimensions}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Three Dimensions}{12}}
 \newlabel{eq: tangent moduli 2d effective}{{69}{12}{Three Dimensions}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.9}Quadrature Points}{12}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.10}Gauss Quadrature}{12}}
-\newlabel{eq: Gauss quadrature general}{{70}{13}{Gauss Quadrature}{}{}}
+\newlabel{eq: Gauss quadrature general}{{70}{12}{Gauss Quadrature}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.11}Element Response}{13}}
 \newlabel{sec: element response}{{2.11}{13}{Element Response}{}{}}
-\newlabel{eq: strain energy}{{71}{13}{Element Response}{}{}}
-\newlabel{eq: internal nodal force array}{{72}{13}{Element Response}{}{}}
-\newlabel{eq: stiffness matrix}{{73}{13}{Element Response}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.12}Property Levels}{13}}
-\newlabel{sec: property levels}{{2.12}{13}{Property Levels}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Code Architecture and Implementation}{14}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.11.1}Two Dimensions}{13}}
+\newlabel{eq: strain energy}{{71}{13}{Two Dimensions}{}{}}
+\newlabel{eq: internal nodal force array}{{72}{13}{Two Dimensions}{}{}}
+\newlabel{eq: stiffness matrix}{{73}{13}{Two Dimensions}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.11.2}Three Dimensions}{13}}
+\newlabel{eq: strain energy full}{{74}{13}{Three Dimensions}{}{}}
+\newlabel{eq: internal nodal force full}{{75}{13}{Three Dimensions}{}{}}
+\newlabel{eq: linearized stress resultant}{{76}{13}{Three Dimensions}{}{}}
+\newlabel{eq: stiffness matrix full}{{77}{14}{Three Dimensions}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.12}Property Levels}{14}}
+\newlabel{sec: property levels}{{2.12}{14}{Property Levels}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Code Architecture and Implementation}{15}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Module Descriptions}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Finite Element Model}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Global Assembly}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Configurations}{15}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Elements}{16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Nodes}{16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Shape Functions}{16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Quadrature Points}{16}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Gauss Quadrature}{17}}
-\newlabel{eq: Gauss quadrature}{{74}{17}{Gauss Quadrature}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Constitutive Laws}{17}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.11}Nonlinear Solving}{17}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.11.1}Newton's Method}{17}}
-\newlabel{sec: newton's method}{{3.11.1}{17}{Newton's Method}{}{}}
-\newlabel{eq: dlambda}{{76}{17}{Newton's Method}{}{}}
-\newlabel{eq: dlambda P}{{77}{18}{Newton's Method}{}{}}
-\newlabel{eq: dlambda T}{{78}{18}{Newton's Method}{}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.11.2}Newton-Raphson Method}{18}}
-\@writefile{toc}{\contentsline {paragraph}{Process}{18}}
-\newlabel{eq: newton raphson solving equation}{{80}{18}{Process}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.12}Running the Model}{19}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.12.1}Setup}{19}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Finite Element Model}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Configurations}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Elements}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Nodes}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Shape Functions}{16}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Quadrature Points}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Gauss Quadrature}{17}}
+\newlabel{eq: Gauss quadrature}{{78}{17}{Gauss Quadrature}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Constitutive Law}{17}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Nonlinear Solving}{18}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.10.1}Newton's Method}{18}}
+\newlabel{sec: newton's method}{{3.10.1}{18}{Newton's Method}{}{}}
+\newlabel{eq: dlambda}{{80}{18}{Newton's Method}{}{}}
+\newlabel{eq: dlambda P}{{81}{18}{Newton's Method}{}{}}
+\newlabel{eq: dlambda T}{{82}{18}{Newton's Method}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.10.2}Newton-Raphson Method}{18}}
+\newlabel{sec: newton raphson method}{{3.10.2}{18}{Newton-Raphson Method}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Process}{19}}
+\newlabel{eq: newton raphson solving equation}{{84}{19}{Process}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11}Running the Model}{19}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.11.1}Setup}{19}}
 \@writefile{toc}{\contentsline {paragraph}{Mesh}{19}}
 \@writefile{toc}{\contentsline {paragraph}{Prescribed Boundary Conditions}{19}}
 \@writefile{toc}{\contentsline {paragraph}{Loading}{19}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.12.2}Initializing and Running the Model}{19}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.11.2}Initializing and Running the Model}{20}}
 \@writefile{toc}{\contentsline {paragraph}{create\_mesh}{20}}
 \@writefile{toc}{\contentsline {paragraph}{calculate\_node\_and\_dof\_quantities}{20}}
-\@writefile{toc}{\contentsline {paragraph}{create\_quadrature\_points}{20}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.12.3}Solving}{20}}
-\@writefile{toc}{\contentsline {paragraph}{Perturb the Nodes}{20}}
-\@writefile{toc}{\contentsline {paragraph}{Increment the Load}{20}}
+\@writefile{toc}{\contentsline {paragraph}{create\_quadrature\_points}{21}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.11.3}Solving}{21}}
+\@writefile{toc}{\contentsline {paragraph}{Perturb the Nodes}{21}}
+\@writefile{toc}{\contentsline {paragraph}{Increment the Load}{21}}
 \@writefile{toc}{\contentsline {paragraph}{Updating the Current Configuration}{21}}
-\@writefile{toc}{\contentsline {paragraph}{Global Assembly}{21}}
-\@writefile{toc}{\contentsline {paragraph}{Unrolling}{21}}
-\newlabel{eq: unrolling}{{84}{21}{Unrolling}{}{}}
-\newlabel{eq: global force array}{{85}{22}{Unrolling}{}{}}
-\newlabel{eq: unrolling 2}{{86}{22}{Unrolling}{}{}}
-\newlabel{eq: global stiffness matrix}{{88}{22}{Unrolling}{}{}}
+\@writefile{toc}{\contentsline {paragraph}{Global Assembly}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Unrolling}{22}}
+\newlabel{eq: unrolling}{{88}{22}{Unrolling}{}{}}
+\newlabel{eq: global force array}{{89}{22}{Unrolling}{}{}}
+\newlabel{eq: unrolling 2}{{90}{22}{Unrolling}{}{}}
+\newlabel{eq: global stiffness matrix}{{92}{22}{Unrolling}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Rearranging Global Quantities}{22}}
-\@writefile{toc}{\contentsline {paragraph}{Checking for Convergence}{22}}
+\@writefile{toc}{\contentsline {paragraph}{Checking for Convergence}{23}}
 \@writefile{toc}{\contentsline {paragraph}{Output Results}{23}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Verification Tests}{23}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Numerical Differentiation}{23}}
-\newlabel{eq: 3 point formula}{{89}{23}{Numerical Differentiation}{}{}}
+\newlabel{eq: 3 point formula}{{93}{23}{Numerical Differentiation}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Results}{24}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The ``good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$.}}{24}}
 \newlabel{fig: numerical differentiation error}{{2}{24}{The ``good" deformation gradient yields a smaller error for both the first Piola-Kirchhoff stress and in particular for the tangent moduli. Both plots indicate that the minimum error occurs for a perturbation between $10^{-5}$ and $10^{-6}$}{}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The perturbation $h$ affects the error of the 3-point formula approximation.}}{24}}
-\newlabel{table: h vs. error}{{1}{24}{The perturbation $h$ affects the error of the 3-point formula approximation}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The perturbation $h$ affects the error of the 3-point formula approximation.}}{25}}
+\newlabel{table: h vs. error}{{1}{25}{The perturbation $h$ affects the error of the 3-point formula approximation}{}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Numerical differentiation error for the internal nodal force array and stiffness matrix in both undeformed and deformed elements.}}{25}}
 \newlabel{fig: numerical differentiation error, force and stiffness}{{3}{25}{Numerical differentiation error for the internal nodal force array and stiffness matrix in both undeformed and deformed elements}{}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Numerical differentiation error for the shape functions of a linear and quadratic element.}}{25}}
-\newlabel{fig: numerical differentiation error, shape functions}{{4}{25}{Numerical differentiation error for the shape functions of a linear and quadratic element}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Numerical differentiation error for the shape functions of a linear and quadratic element.}}{26}}
+\newlabel{fig: numerical differentiation error, shape functions}{{4}{26}{Numerical differentiation error for the shape functions of a linear and quadratic element}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Tolerance}{26}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Number of exceptions for 3 materials at various tolerance values out of 100 runs.}}{26}}
 \newlabel{table: tolerance}{{2}{26}{Number of exceptions for 3 materials at various tolerance values out of 100 runs}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Gauss Quadrature}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Gauss Quadrature}{27}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Typical results of numerical integration using Gauss quadrature vs exact integration.}}{27}}
 \newlabel{table: gauss quadrature integration}{{3}{27}{Typical results of numerical integration using Gauss quadrature vs exact integration}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Stiffness Matrix Rank}{27}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Material Frame Indifference}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Material Frame Indifference}{28}}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Typical results of material frame indifference tests.}}{28}}
 \newlabel{table: material frame indifference}{{4}{28}{Typical results of material frame indifference tests}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Material Symmetry}{28}}
-\newlabel{eq: material symmetry}{{100}{28}{Material Symmetry}{}{}}
+\newlabel{eq: material symmetry}{{104}{28}{Material Symmetry}{}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Typical results of material symmetry tests.}}{28}}
 \newlabel{table: material symmetry}{{5}{28}{Typical results of material symmetry tests}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Random Rotations}{28}}
-\newlabel{eq: random rotation}{{103}{28}{Random Rotations}{}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Random Deformation Gradients}{28}}
-\newlabel{eq: random deformation gradient}{{105}{28}{Random Deformation Gradients}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Random Rotations}{29}}
+\newlabel{eq: random rotation}{{107}{29}{Random Rotations}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Random Deformation Gradients}{29}}
+\newlabel{eq: random deformation gradient}{{109}{29}{Random Deformation Gradients}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Shape Functions}{29}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.1}Partition of Unity and Nullity}{29}}
-\newlabel{eq: partition of unity}{{106}{29}{Partition of Unity and Nullity}{}{}}
-\newlabel{eq: partition of nullity}{{107}{29}{Partition of Unity and Nullity}{}{}}
+\newlabel{eq: partition of unity}{{110}{29}{Partition of Unity and Nullity}{}{}}
+\newlabel{eq: partition of nullity}{{111}{29}{Partition of Unity and Nullity}{}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.7.2}Completeness}{29}}
-\newlabel{eq: completeness}{{109}{29}{Completeness}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Results and Discussions}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Uniaxial Deformation of a Cylinder}{29}}
+\newlabel{eq: completeness}{{113}{29}{Completeness}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results and Discussions}{30}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Uniaxial Deformation of a Cylinder}{30}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Uniaxial and Equibiaxial Deformation of a Sheet}{30}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Stress-strain curves for the uniaxial deformation of glass and the equibiaxial deformation of titanium alloy.}}{30}}
-\newlabel{fig: axial deformation}{{5}{30}{Stress-strain curves for the uniaxial deformation of glass and the equibiaxial deformation of titanium alloy}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Stress-strain curves for the uniaxial deformation of glass and the equibiaxial deformation of titanium alloy.}}{31}}
+\newlabel{fig: axial deformation}{{5}{31}{Stress-strain curves for the uniaxial deformation of glass and the equibiaxial deformation of titanium alloy}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Biaxial Stretching of a Square Membrane}{31}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 2D mesh for a square sheet with a coarse mesh of 3 nodes per side, and a fine mesh of 25 nodes per side.}}{31}}
 \newlabel{fig: 2d mesh}{{6}{31}{2D mesh for a square sheet with a coarse mesh of 3 nodes per side, and a fine mesh of 25 nodes per side}{}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Configuration of the sheet before and after deformation.}}{31}}
-\newlabel{fig: stretched sheet}{{7}{31}{Configuration of the sheet before and after deformation}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Configuration of the sheet before and after deformation.}}{32}}
+\newlabel{fig: stretched sheet}{{7}{32}{Configuration of the sheet before and after deformation}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Transverse Loading of a Sheet}{32}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Deformed sheet due to transverse loading at half and maximum loading.}}{32}}
-\newlabel{fig: transverse loading}{{8}{32}{Deformed sheet due to transverse loading at half and maximum loading}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Inflation of Spherical Balloon}{32}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions}{32}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Source Code Listing}{32}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Deformed sheet due to transverse loading at half and maximum loading.}}{33}}
-\newlabel{fig: load vs deflection}{{9}{33}{Deformed sheet due to transverse loading at half and maximum loading}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Deformed sheet due to transverse loading at half and maximum loading.}}{33}}
+\newlabel{fig: transverse loading}{{8}{33}{Deformed sheet due to transverse loading at half and maximum loading}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces The maximum deflection of the sheet as a function of the applied load.}}{33}}
+\newlabel{fig: load vs deflection}{{9}{33}{The maximum deflection of the sheet as a function of the applied load}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Two and three dimensional spherical mesh made up of 10 circles to represent one octant of a spherical balloon structure.}}{34}}
+\newlabel{fig: spherical mesh}{{10}{34}{Two and three dimensional spherical mesh made up of 10 circles to represent one octant of a spherical balloon structure}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The initial and final configurations of the balloon after being subject to an internal pressure of $10 kN/m^2$.}}{34}}
+\newlabel{fig: balloon deformation}{{11}{34}{The initial and final configurations of the balloon after being subject to an internal pressure of $10 kN/m^2$}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions}{34}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces The stretch ratio of the balloon as a function of the internal pressure.}}{35}}
+\newlabel{fig: pressure vs stretch}{{12}{35}{The stretch ratio of the balloon as a function of the internal pressure}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Source Code Listing}{35}}

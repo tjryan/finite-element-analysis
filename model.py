@@ -7,6 +7,7 @@ model.py module contains the primary components for constructing the finite elem
 import numpy
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 import constants
 import elements
@@ -31,13 +32,17 @@ class Model:
     :param float membrane_side_length: side length of square membrane
     :param float membrane_thickness: thickness of the membrane
     :param numpy.ndarray applied_load: vector of uniform transverse load applied to the membrane (force/area)
+    :param bool solve_loading_problem: whether to solve an incremental loading problem
+    :param bool solve_displacement_problem: whether to solve an incremental displacement problem
+    :param bool balloon_internal_pressure: whether to solve for balloon internal pressure
     """
 
     def __init__(self, material, constitutive_model, quadrature_class, element_type, degrees_of_freedom,
                  node_reference_positions_2d, node_reference_positions_3d, edges, corner_node_quantity,
                  prescribed_displacements, membrane_side_length, membrane_thickness, applied_load, step_quantity,
                  solve_loading_problem=False,
-                 solve_displacement_problem=False):
+                 solve_displacement_problem=False,
+                 balloon_internal_pressure=False):
         # Inputs
         self.material = material
         self.constitutive_model = constitutive_model
@@ -55,6 +60,7 @@ class Model:
         self.step_quantity = step_quantity
         self.solve_loading_problem = solve_loading_problem
         self.solve_displacement_problem = solve_displacement_problem
+        self.balloon_internal_pressure = balloon_internal_pressure
 
         # Global quantities
         self.connectivity_table = None
@@ -250,16 +256,6 @@ class Model:
             # Update the membrane plot
             self.update_plot()
 
-    def output_results(self):
-        """Provide output data at end of analysis."""
-        # Plot maximum deflection vs. load step
-        plt.figure(2)
-        plt.plot(self.load_steps, self.maximum_deflections)
-        plt.title('Deflection')
-        plt.xlabel('Load Magnitude (N/m^2)')
-        plt.ylabel('Max deflection (m)')
-        plt.show()
-
     def global_external_force_array(self, current_load):
         """Update the elements, then assemble and unroll the global external force array from the current load.
 
@@ -267,7 +263,7 @@ class Model:
         """
         # Update the external force array for the elements
         for element in self.elements:
-            element.update_external_force_array(current_load)
+            element.update_external_force_array(current_load, self.balloon_internal_pressure)
         # Assemble global external force array
         dimensions = (self.degrees_of_freedom, self.node_quantity)
         external_force_array = numpy.zeros(dimensions)
@@ -395,6 +391,24 @@ class Model:
             # Update the membrane plot
             self.update_plot()
 
+    def output_results(self):
+        """Provide output data at end of analysis."""
+        # Plot maximum deflection vs. load step
+        plt.figure(2)
+        plt.plot(self.load_steps, self.maximum_deflections)
+        plt.title('Deflection')
+        plt.xlabel('Load Magnitude (N/m^2)')
+        plt.ylabel('Max deflection (m)')
+        # Balloon plot pressure vs. stretch ratio
+        initial_radius = self.membrane_side_length
+        plt.figure(3)
+        stretch_ratios = numpy.array(self.load_steps) / initial_radius
+        plt.plot(stretch_ratios, self.maximum_deflections)
+        plt.title('Octant of balloon subject to internal pressure')
+        plt.xlabel('Internal Pressure (N/m^2)')
+        plt.ylabel('Stretch Ratio')
+        plt.show()
+
     def rearrange_global(self):
         """Rearrange global quantities such that the rows and columns containing prescribed (known) degrees of
         freedom are moved to the end. We do this so the unknown degrees of freedom will be together on top so that
@@ -502,8 +516,8 @@ class Model:
         plt.cla()
         ax = fig.gca(projection='3d')
         # ax.set_zlim(-.015, 0)
-        ax.set_xlim(0, .15)
-        ax.set_ylim(0, .15)
+        # ax.set_xlim(0, .15)
+        # ax.set_ylim(0, .15)
         x_positions = []
         y_positions = []
         z_positions = []
